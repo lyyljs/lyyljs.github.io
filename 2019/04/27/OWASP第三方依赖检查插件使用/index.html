@@ -7,19 +7,19 @@
   
   <title>OWASP第三方依赖检查插件使用 | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="什么是OWASPOWASP(开放Web软体安全项目- Open Web Application Security Project) 是一个开源的、非盈利的全球性安全组织，致力于应用软件的安全研究。其使命是使应用软件更加安全，使企业和组织能够对应用安全风险作出更清晰的决策。目前OWASP全球拥有130个分会近万名会员，共同推动了安全标准、安全测试工具、安全指导手册等应用安全技术的发展。 OWASP">
+  <meta name="description" content="什么是OWASPOWASP(开放Web软体安全项目- Open Web Application Security Project) 是一个开源的、非盈利的全球性安全组织，致力于应用软件的安全研究。其使命是使应用软件更加安全，使企业和组织能够对应用安全风险作出更清晰的决策。目前OWASP全球拥有130个分会近万名会员，共同推动了安全标准、安全测试工具、安全指导手册等应用安全技术的发展。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OWASP第三方依赖检查插件使用">
 <meta property="og:url" content="http://lyyljs.site/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="什么是OWASPOWASP(开放Web软体安全项目- Open Web Application Security Project) 是一个开源的、非盈利的全球性安全组织，致力于应用软件的安全研究。其使命是使应用软件更加安全，使企业和组织能够对应用安全风险作出更清晰的决策。目前OWASP全球拥有130个分会近万名会员，共同推动了安全标准、安全测试工具、安全指导手册等应用安全技术的发展。 OWASP">
+<meta property="og:description" content="什么是OWASPOWASP(开放Web软体安全项目- Open Web Application Security Project) 是一个开源的、非盈利的全球性安全组织，致力于应用软件的安全研究。其使命是使应用软件更加安全，使企业和组织能够对应用安全风险作出更清晰的决策。目前OWASP全球拥有130个分会近万名会员，共同推动了安全标准、安全测试工具、安全指导手册等应用安全技术的发展。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lyyljs.site/images/owasp/slow.png">
 <meta property="og:image" content="http://lyyljs.site/images/owasp/nist.png">
 <meta property="og:image" content="http://lyyljs.site/images/owasp/report.png">
 <meta property="og:image" content="http://lyyljs.site/images/owasp/report-cve.png">
 <meta property="article:published_time" content="2019-04-27T14:22:32.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:27:03.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="开发者">
 <meta property="article:tag" content="程序猿">
@@ -103,6 +103,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h5 id="什么是OWASP"><a href="#什么是OWASP" class="headerlink" title="什么是OWASP"></a>什么是OWASP</h5><p>OWASP(开放Web软体安全项目- Open Web Application Security Project) 是一个开源的、非盈利的全球性安全组织，致力于应用软件的安全研究。<br>其使命是使应用软件更加安全，使企业和组织能够对应用安全风险作出更清晰的决策。<br>目前OWASP全球拥有130个分会近万名会员，共同推动了安全标准、安全测试工具、安全指导手册等应用安全技术的发展。</p>
+<a id="more"></a>
+
 <h5 id="OWASP-Dependency-Check-简介"><a href="#OWASP-Dependency-Check-简介" class="headerlink" title="OWASP Dependency Check 简介"></a>OWASP Dependency Check 简介</h5><p>Dependency-Check 是其旗下出品的一个第三方依赖检查工具，可以检查项目依赖包存在的已知、公开披露的漏洞。<br>目前良好的支持Java和.NET；Ruby、Node.js、Python处于实验阶段；仅支持通过(autoconf and cmake)编译的C/C++。<br>针对<a href="https://www.owasp.org/index.php/Top_10-2017_A9-Using_Components_with_Known_Vulnerabilities" target="_blank" rel="noopener">OWASP Top 10 2017 A9-Using Components with Known Vulnerabilities</a>提供部分解决方案。</p>
 <h5 id="OWASP-Dependency-Check的使用"><a href="#OWASP-Dependency-Check的使用" class="headerlink" title="OWASP Dependency Check的使用"></a>OWASP Dependency Check的使用</h5><ul>
 <li>dependency-check-maven</li>
@@ -149,7 +151,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" data-id="ckaqogbtg000843o6dfvh7fgt" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" data-id="ckaqvw0z4000217qh84qa5axl" class="article-share-link">Share</a>
       
       
     </footer>

@@ -7,16 +7,16 @@
   
   <title>spring cloud实践(六) gateway | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="什么是API网关API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。API网关方式的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常，网关也是提供REST&#x2F;HTTP的访问A">
+  <meta name="description" content="什么是API网关API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring cloud实践(六) gateway">
 <meta property="og:url" content="http://lyyljs.site/2019/04/03/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AD-gateway/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="什么是API网关API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。API网关方式的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常，网关也是提供REST&#x2F;HTTP的访问A">
+<meta property="og:description" content="什么是API网关API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/spring-cloud/spring-cloud-gateway/master/docs/src/main/asciidoc/images/spring_cloud_gateway_diagram.png">
 <meta property="article:published_time" content="2019-04-03T11:47:33.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:31:15.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="开发者">
 <meta property="article:tag" content="程序猿">
@@ -99,7 +99,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="什么是API网关"><a href="#什么是API网关" class="headerlink" title="什么是API网关"></a>什么是API网关</h4><p>API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。<br>API网关方式的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常，网关也是提供REST/HTTP的访问API。服务端通过API-GW注册和管理服务。</p>
+        <h4 id="什么是API网关"><a href="#什么是API网关" class="headerlink" title="什么是API网关"></a>什么是API网关</h4><p>API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。</p>
+<a id="more"></a>
+
+<p>API网关方式的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常，网关也是提供REST/HTTP的访问API。服务端通过API-GW注册和管理服务。</p>
 <h4 id="常见API网关"><a href="#常见API网关" class="headerlink" title="常见API网关"></a>常见API网关</h4><ul>
 <li>Nginx</li>
 <li>OpenResty</li>
@@ -265,7 +268,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/03/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AD-gateway/" data-id="ckaqogbun001a43o6cu3a6wme" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/03/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AD-gateway/" data-id="ckaqvw12r001k17qhcea2d77b" class="article-share-link">Share</a>
       
       
     </footer>

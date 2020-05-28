@@ -7,17 +7,17 @@
   
   <title>spring cloud 实践(二)  服务调用 | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在注册中心解决了服务发现问题以后，就可以进行服务调用了。首先创建一个服务提供者。 依赖如下： 1234567891011121314151617&lt;dependencies&gt;	&lt;dependency&gt;		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;		&lt;artifactId&gt;spring-">
+  <meta name="description" content="在注册中心解决了服务发现问题以后，就可以进行服务调用了。首先创建一个服务提供者。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring cloud 实践(二)  服务调用">
 <meta property="og:url" content="http://lyyljs.site/2019/03/06/%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="在注册中心解决了服务发现问题以后，就可以进行服务调用了。首先创建一个服务提供者。 依赖如下： 1234567891011121314151617&lt;dependencies&gt;	&lt;dependency&gt;		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;		&lt;artifactId&gt;spring-">
+<meta property="og:description" content="在注册中心解决了服务发现问题以后，就可以进行服务调用了。首先创建一个服务提供者。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/ProducerInstance1.png">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/ConsumerInstance1.png">
 <meta property="article:published_time" content="2019-03-06T14:50:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:35:10.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="spring cloud">
 <meta name="twitter:card" content="summary">
@@ -97,6 +97,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>在注册中心解决了服务发现问题以后，就可以进行服务调用了。首先创建一个服务提供者。</p>
+<a id="more"></a>
+
 <p>依赖如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependencies&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">	</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line"></span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;&#x2F;dependencies&gt;</span><br></pre></td></tr></table></figure>
 <p>编写yml写好配置：</p>
@@ -129,7 +131,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/03/06/%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8/" data-id="ckaqogbwg002k43o6cinz72wh" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/03/06/%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8/" data-id="ckaqvw13d002a17qhdu5r4va1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>

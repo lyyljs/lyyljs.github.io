@@ -7,15 +7,15 @@
   
   <title>字符活跃排序 | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="给定一个字符串，统计每个Alpha字符（统一作为小写）出现的频率，并排序。 示例输入：I have A Dream… 示例输出：aedhimrv 其中a出现了3次，e出现了2次，其余字符出现一次。 123456789101112131415161718public static String sortMostActiveString(String in)&amp;#123;		return in.toLo">
+  <meta name="description" content="给定一个字符串，统计每个Alpha字符（统一作为小写）出现的频率，并排序。 示例输入：I have A Dream… 示例输出：aedhimrv">
 <meta property="og:type" content="article">
 <meta property="og:title" content="字符活跃排序">
 <meta property="og:url" content="http://lyyljs.site/2018/04/09/%E5%AD%97%E7%AC%A6%E6%B4%BB%E8%B7%83%E6%8E%92%E5%BA%8F/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="给定一个字符串，统计每个Alpha字符（统一作为小写）出现的频率，并排序。 示例输入：I have A Dream… 示例输出：aedhimrv 其中a出现了3次，e出现了2次，其余字符出现一次。 123456789101112131415161718public static String sortMostActiveString(String in)&amp;#123;		return in.toLo">
+<meta property="og:description" content="给定一个字符串，统计每个Alpha字符（统一作为小写）出现的频率，并排序。 示例输入：I have A Dream… 示例输出：aedhimrv">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-04-09T16:55:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:37:01.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="算法">
 <meta name="twitter:card" content="summary">
@@ -92,12 +92,14 @@
         <p>给定一个字符串，统计每个Alpha字符（统一作为小写）出现的频率，并排序。</p>
 <p>示例输入：I have A Dream…</p>
 <p>示例输出：aedhimrv</p>
+<a id="more"></a>
+
 <p>其中a出现了3次，e出现了2次，其余字符出现一次。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">sortMostActiveString</span><span class="params">(String in)</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span> in.toLowerCase().chars()</span><br><span class="line">		.filter(t -&gt; t&gt;=<span class="string">'a'</span> &amp;&amp; t &lt;=<span class="string">'z'</span>)</span><br><span class="line">		.mapToObj(t -&gt; &#123;<span class="keyword">char</span>[] cs = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">1</span>];cs[<span class="number">0</span>] = (<span class="keyword">char</span>) t;<span class="keyword">return</span> <span class="keyword">new</span> String(cs);&#125;)</span><br><span class="line">		.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))</span><br><span class="line">		.entrySet().stream().sorted(</span><br><span class="line">				<span class="keyword">new</span> Comparator&lt;Entry&lt;String, Long&gt;&gt;()&#123;</span><br><span class="line">					<span class="meta">@Override</span></span><br><span class="line">					<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Entry&lt;String, Long&gt; o1, Entry&lt;String, Long&gt; o2)</span> </span>&#123;</span><br><span class="line">						<span class="keyword">if</span> (o1.getValue() &gt; o2.getValue()) <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">						<span class="keyword">if</span> (o1.getValue() &lt; o2.getValue()) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">						<span class="keyword">return</span> o1.getKey().compareTo(o2.getKey());</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				)</span><br><span class="line">		.map(Entry::getKey)</span><br><span class="line">		.collect(Collectors.joining());</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2018/04/09/%E5%AD%97%E7%AC%A6%E6%B4%BB%E8%B7%83%E6%8E%92%E5%BA%8F/" data-id="ckaqogbv0001r43o6be8y9kz0" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2018/04/09/%E5%AD%97%E7%AC%A6%E6%B4%BB%E8%B7%83%E6%8E%92%E5%BA%8F/" data-id="ckaqvw131001r17qh5kzlhxzg" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>

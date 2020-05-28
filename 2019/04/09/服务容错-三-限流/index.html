@@ -7,15 +7,15 @@
   
   <title>服务容错(三) 限流 | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="限流的目的是通过对并发访问&#x2F;请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。 一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如nginx的limit_conn模块，用来限制瞬时并发连接数）">
+  <meta name="description" content="限流的目的是通过对并发访问&#x2F;请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="服务容错(三) 限流">
 <meta property="og:url" content="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="限流的目的是通过对并发访问&#x2F;请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。 一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如nginx的limit_conn模块，用来限制瞬时并发连接数）">
+<meta property="og:description" content="限流的目的是通过对并发访问&#x2F;请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2019-04-09T13:35:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:27:55.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="spring cloud">
 <meta property="article:tag" content="dubbo">
@@ -95,6 +95,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>限流的目的是通过对并发访问/请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。</p>
+<a id="more"></a>
+
 <p>一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如nginx的limit_conn模块，用来限制瞬时并发连接数）、限制时间窗口内的平均速率（如Guava的RateLimiter、nginx的limit_req模块，限制每秒的平均速率）；其他还有如限制远程接口调用速率、限制MQ的消费速率。另外还可以根据网络连接数、网络流量、CPU或内存负载等来限流。</p>
 <h4 id="Dubbo"><a href="#Dubbo" class="headerlink" title="Dubbo"></a>Dubbo</h4><p>Dubbo关于限速的类在dubbo-rpc-api项目中org.apache.dubbo.rpc.filter包里。(2.7.1)</p>
 <h5 id="TPSLimitFilter"><a href="#TPSLimitFilter" class="headerlink" title="TPSLimitFilter"></a>TPSLimitFilter</h5><p>首先看TPSFilterLimiter，TPSFilterLimiter是一个简单的流量流入限制器，作用于服务提供者。当有请求进来时，看是否有容量能继续处理该请求，有则执行请求，否则抛出RpcException。</p>
@@ -128,12 +130,10 @@
 <p>关键字为 1.tokenKey 和 2.timestampKey</p>
 <p>脚本入参依次为：1. replenishRate（令牌填充速率） 2. burstCapacity（最大请求数） 3. 当前时间戳, 4. 请求数 这里恒为1</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">local tokens_key &#x3D; KEYS[1]</span><br><span class="line">local timestamp_key &#x3D; KEYS[2]</span><br><span class="line"></span><br><span class="line">local rate &#x3D; tonumber(ARGV[1])</span><br><span class="line">local capacity &#x3D; tonumber(ARGV[2])</span><br><span class="line">local now &#x3D; tonumber(ARGV[3])</span><br><span class="line">local requested &#x3D; tonumber(ARGV[4])</span><br><span class="line"></span><br><span class="line">-- 每次填充时间</span><br><span class="line">local fill_time &#x3D; capacity&#x2F;rate</span><br><span class="line">-- 存活时间</span><br><span class="line">local ttl &#x3D; math.floor(fill_time*2)</span><br><span class="line"></span><br><span class="line">-- 从redis获取剩余令牌数</span><br><span class="line">local last_tokens &#x3D; tonumber(redis.call(&quot;get&quot;, tokens_key))</span><br><span class="line">-- 不存在则进行初始化</span><br><span class="line">if last_tokens &#x3D;&#x3D; nil then</span><br><span class="line">  last_tokens &#x3D; capacity</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 从redis获取上次刷新时间</span><br><span class="line">local last_refreshed &#x3D; tonumber(redis.call(&quot;get&quot;, timestamp_key))</span><br><span class="line">if last_refreshed &#x3D;&#x3D; nil then</span><br><span class="line">  last_refreshed &#x3D; 0</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 上次刷新至今经过的时间</span><br><span class="line">local delta &#x3D; math.max(0, now-last_refreshed)</span><br><span class="line">-- 填充token后token数量</span><br><span class="line">local filled_tokens &#x3D; math.min(capacity, last_tokens+(delta*rate))</span><br><span class="line">-- 判断是否能够允许</span><br><span class="line">local allowed &#x3D; filled_tokens &gt;&#x3D; requested</span><br><span class="line">local new_tokens &#x3D; filled_tokens</span><br><span class="line">local allowed_num &#x3D; 0</span><br><span class="line"></span><br><span class="line">-- 如果可行，则减去请求数</span><br><span class="line">if allowed then</span><br><span class="line">  new_tokens &#x3D; filled_tokens - requested</span><br><span class="line">  allowed_num &#x3D; 1</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 结果写入redis</span><br><span class="line">redis.call(&quot;setex&quot;, tokens_key, ttl, new_tokens)</span><br><span class="line">redis.call(&quot;setex&quot;, timestamp_key, ttl, now)</span><br><span class="line"></span><br><span class="line">-- 返回允许数量，剩余token数量</span><br><span class="line">return &#123; allowed_num, new_tokens &#125;</span><br></pre></td></tr></table></figure>
-
-
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" data-id="ckaqogbw9002f43o6cq2t1mus" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" data-id="ckaqvw13a002717qhgden6zc6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>

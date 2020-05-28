@@ -7,18 +7,18 @@
   
   <title>spring cloud实践(八) elk | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="当服务扩展后，每次排查问题需要到多台机器查看日志；这是一个非常麻烦的问题，我们需要一个统一查看日志的地方。 ELK是一个日志集中平台，其组成为elastic search，logstash，kibana。其中es作为日志存储，logstatsh作日志收集，kibana作为可视化页面展示。logstash通常和filebeat共同使用，由filebeat收集本地日志再发送到logstash。  fi">
+  <meta name="description" content="当服务扩展后，每次排查问题需要到多台机器查看日志；这是一个非常麻烦的问题，我们需要一个统一查看日志的地方。 ELK是一个日志集中平台，其组成为elastic search，logstash，kibana。其中es作为日志存储，logstatsh作日志收集，kibana作为可视化页面展示。logstash通常和filebeat共同使用，由filebeat收集本地日志再发送到logstash。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring cloud实践(八) elk">
 <meta property="og:url" content="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="当服务扩展后，每次排查问题需要到多台机器查看日志；这是一个非常麻烦的问题，我们需要一个统一查看日志的地方。 ELK是一个日志集中平台，其组成为elastic search，logstash，kibana。其中es作为日志存储，logstatsh作日志收集，kibana作为可视化页面展示。logstash通常和filebeat共同使用，由filebeat收集本地日志再发送到logstash。  fi">
+<meta property="og:description" content="当服务扩展后，每次排查问题需要到多台机器查看日志；这是一个非常麻烦的问题，我们需要一个统一查看日志的地方。 ELK是一个日志集中平台，其组成为elastic search，logstash，kibana。其中es作为日志存储，logstatsh作日志收集，kibana作为可视化页面展示。logstash通常和filebeat共同使用，由filebeat收集本地日志再发送到logstash。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/relationship-between-filebeat-and-logstash.png">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/kibana-es-filebeat.png">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/kibana-logs.png">
 <meta property="article:published_time" content="2019-04-08T15:30:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:29:03.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="spring cloud">
 <meta property="article:tag" content="elk">
@@ -100,6 +100,8 @@
       
         <p>当服务扩展后，每次排查问题需要到多台机器查看日志；这是一个非常麻烦的问题，我们需要一个统一查看日志的地方。</p>
 <p>ELK是一个日志集中平台，其组成为elastic search，logstash，kibana。其中es作为日志存储，logstatsh作日志收集，kibana作为可视化页面展示。logstash通常和filebeat共同使用，由filebeat收集本地日志再发送到logstash。</p>
+<a id="more"></a>
+
 <p><img src="/images/cloud/relationship-between-filebeat-and-logstash.png" alt=""></p>
 <p>filebeat也可以不经过logstash直接存储到es进行展示。</p>
 <h4 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h4><h5 id="elastic-search"><a href="#elastic-search" class="headerlink" title="elastic search"></a>elastic search</h5><p>在之前一篇博文中，已搭建es，这里稍作修改方便定位es。</p>
@@ -168,7 +170,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" data-id="ckaqogbuh001643o6d90a2w42" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" data-id="ckaqvw12o001d17qhbul98eyl" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>

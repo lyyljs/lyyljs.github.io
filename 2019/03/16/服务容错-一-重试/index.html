@@ -7,15 +7,15 @@
   
   <title>服务容错(一) 重试 | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。 DubboDubbo重试策略有:  Failover Cluster 当出现失败，重试其它服务器。 Failfast Cluster 只发起一次调用，失败立即报错，通常用于非幂等性的操作。 Failsafe Cluster 出现异常时，直接忽略，通常用于写入审计日志等操作。 Failback Cluster 后台记录失败请求，定时重发，通">
+  <meta name="description" content="当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="服务容错(一) 重试">
 <meta property="og:url" content="http://lyyljs.site/2019/03/16/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%80-%E9%87%8D%E8%AF%95/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。 DubboDubbo重试策略有:  Failover Cluster 当出现失败，重试其它服务器。 Failfast Cluster 只发起一次调用，失败立即报错，通常用于非幂等性的操作。 Failsafe Cluster 出现异常时，直接忽略，通常用于写入审计日志等操作。 Failback Cluster 后台记录失败请求，定时重发，通">
+<meta property="og:description" content="当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2019-03-16T15:32:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:33:41.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="spring cloud">
 <meta property="article:tag" content="dubbo">
@@ -95,6 +95,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。</p>
+<a id="more"></a>
+
 <h4 id="Dubbo"><a href="#Dubbo" class="headerlink" title="Dubbo"></a>Dubbo</h4><p>Dubbo重试策略有:</p>
 <ul>
 <li>Failover Cluster 当出现失败，重试其它服务器。</li>
@@ -155,7 +157,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/03/16/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%80-%E9%87%8D%E8%AF%95/" data-id="ckaqogbw6002c43o6ew5c8cfe" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/03/16/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%80-%E9%87%8D%E8%AF%95/" data-id="ckaqvw139002517qh5dk1g8ko" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>

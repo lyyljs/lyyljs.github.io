@@ -7,12 +7,12 @@
   
   <title>spring cloud实践(七) sleuth | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="链路追踪随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。 分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。 一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。 spring cloud sleuthspri">
+  <meta name="description" content="链路追踪随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。 分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。 一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring cloud实践(七) sleuth">
 <meta property="og:url" content="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="链路追踪随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。 分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。 一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。 spring cloud sleuthspri">
+<meta property="og:description" content="链路追踪随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。 分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。 一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/trace-id.png">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/traces.png">
@@ -23,7 +23,7 @@
 <meta property="og:image" content="http://lyyljs.site/images/cloud/kibana-zipkin-index.png">
 <meta property="og:image" content="http://lyyljs.site/images/cloud/kibana-zipkin-discover.png">
 <meta property="article:published_time" content="2019-04-08T10:33:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:29:22.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="spring cloud">
 <meta name="twitter:card" content="summary">
@@ -105,6 +105,8 @@
         <h4 id="链路追踪"><a href="#链路追踪" class="headerlink" title="链路追踪"></a>链路追踪</h4><p>随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。</p>
 <p>分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。</p>
 <p>一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。</p>
+<a id="more"></a>
+
 <h4 id="spring-cloud-sleuth"><a href="#spring-cloud-sleuth" class="headerlink" title="spring cloud sleuth"></a>spring cloud sleuth</h4><p>spring cloud sleuth 是 spring cloud 的分布式链路追踪解决方案的实现。</p>
 <h5 id="基本术语"><a href="#基本术语" class="headerlink" title="基本术语"></a>基本术语</h5><p>Spring Cloud Sleuth采用的是Google的开源项目<a href="https://ai.google/research/pubs/pub36356" target="_blank" rel="noopener">Dapper</a>的专业术语。</p>
 <ul>
@@ -193,7 +195,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" data-id="ckaqogbuk001943o6f9b62sv5" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" data-id="ckaqvw12i001517qhfem9bp4e" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>

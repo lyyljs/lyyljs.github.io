@@ -7,19 +7,19 @@
   
   <title>Stream实现原理 | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Stream Api首先回顾下 Stream Api 的操作分类：    操作分类 子分类 操作     无状态 unordered filter map mapTo…   中间操作  flatMap flatMapTo… peek    有状态 distinct sorted limit skip         非短路操作 forEach forEachOrdered toArray   终结">
+  <meta name="description" content="Stream Api首先回顾下 Stream Api 的操作分类：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Stream实现原理">
 <meta property="og:url" content="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="Stream Api首先回顾下 Stream Api 的操作分类：    操作分类 子分类 操作     无状态 unordered filter map mapTo…   中间操作  flatMap flatMapTo… peek    有状态 distinct sorted limit skip         非短路操作 forEach forEachOrdered toArray   终结">
+<meta property="og:description" content="Stream Api首先回顾下 Stream Api 的操作分类：">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lyyljs.site/images/jdk/pipeline_classes.png">
 <meta property="og:image" content="http://lyyljs.site/images/jdk/ReferencePipeline_Inner.png">
 <meta property="og:image" content="http://lyyljs.site/images/jdk/sink_uml.png">
 <meta property="og:image" content="http://lyyljs.site/images/jdk/SteamTasksUML.png">
 <meta property="article:published_time" content="2019-05-13T22:14:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:28:45.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="stream">
@@ -100,6 +100,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h4 id="Stream-Api"><a href="#Stream-Api" class="headerlink" title="Stream Api"></a>Stream Api</h4><p>首先回顾下 Stream Api 的操作分类：</p>
+<a id="more"></a>
+
 <table>
 <thead>
 <tr>
@@ -256,12 +258,10 @@
 <p>所有的Task都是ForkJoinTask的子类，从此也可以看出Stream的并行是基于ForkJoin实现的。</p>
 <p>查看AbstractTask的compute方法，看是如何进行并行计算的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public void compute() &#123;</span><br><span class="line">    Spliterator&lt;P_IN&gt; rs &#x3D; spliterator, ls; &#x2F;&#x2F; right, left spliterators</span><br><span class="line">    &#x2F;&#x2F;预估这个分片中的数据量</span><br><span class="line">    long sizeEstimate &#x3D; rs.estimateSize();</span><br><span class="line">    &#x2F;&#x2F;获取阈值</span><br><span class="line">    long sizeThreshold &#x3D; getTargetSize(sizeEstimate);</span><br><span class="line">    boolean forkRight &#x3D; false;</span><br><span class="line">    @SuppressWarnings(&quot;unchecked&quot;) K task &#x3D; (K) this;</span><br><span class="line">    &#x2F;&#x2F;根据预估的数据量获取最小处理单元的大小阈值，即当数据量已经小于这个阈值的时候进行计算，否则进行fork 将任务划分成更小的数据块</span><br><span class="line">    while (sizeEstimate &gt; sizeThreshold &amp;&amp; (ls &#x3D; rs.trySplit()) !&#x3D; null) &#123;</span><br><span class="line">        K leftChild, rightChild, taskToFork;</span><br><span class="line">        &#x2F;&#x2F;分别将左右分片的任务创建为新的Task，并且将当前的任务关联为两个新任务的父级任务</span><br><span class="line">        task.leftChild  &#x3D; leftChild &#x3D; task.makeChild(ls);</span><br><span class="line">        task.rightChild &#x3D; rightChild &#x3D; task.makeChild(rs);</span><br><span class="line">        &#x2F;&#x2F;先后对左右子节点的任务进行fork，对另外的分区进行分解。同时设定pending 为1，这代表一个task 实际上只会有一个等待的子节点（被fork）</span><br><span class="line">        task.setPendingCount(1);</span><br><span class="line">        if (forkRight) &#123;</span><br><span class="line">            forkRight &#x3D; false;</span><br><span class="line">            rs &#x3D; ls;</span><br><span class="line">            task &#x3D; leftChild;</span><br><span class="line">            taskToFork &#x3D; rightChild;</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            forkRight &#x3D; true;</span><br><span class="line">            task &#x3D; rightChild;</span><br><span class="line">            taskToFork &#x3D; leftChild;</span><br><span class="line">        &#125;</span><br><span class="line">        taskToFork.fork();</span><br><span class="line">        sizeEstimate &#x3D; rs.estimateSize();</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F;当任务已经分解到足够小的时候退出循环，尝试进行结束。调用子类实现的doLeaf方法，完成最小计算单元的计算任务，并设置到当前任务的localResult中</span><br><span class="line">    task.setLocalResult(task.doLeaf());</span><br><span class="line">    &#x2F;&#x2F;调用tryComplete 方法进行最终任务的扫尾工作，如果该任务pending 值不等于0，则原子的减1，如果已经等于0，说明任务都已经完成，则调用onCompletion 回调，如果该任务是叶子任务，则直接销毁中间数据结束；如果是中间节点会将左右子节点的结果进行合并</span><br><span class="line">    &#x2F;&#x2F;检查如果这个任务已经没有父级任务了，则将该任务置为正常结束，如果还有则尝试递归的去调用父级节点的onCompletion回调，逐级进行任务的合并。</span><br><span class="line">    task.tryComplete();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" data-id="ckaqogbu0000n43o604fja9zr" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" data-id="ckaqvw11d000g17qh4jjv3mlv" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream/" rel="tag">stream</a></li></ul>

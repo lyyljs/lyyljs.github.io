@@ -7,15 +7,15 @@
   
   <title>使用docker搭建elasticsearch和kibana | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="准备工作创建docker network创建一个docker network用于docker 应用间的互通。 1docker network create elk  上面 elk 是创建网络的名称。 然后可以是用以下命令查看创建网络的信息 1docker network inspect elk  创建elasticsearch应用使用docker-compose来编排elasticsearch应用">
+  <meta name="description" content="准备工作创建docker network创建一个docker network用于docker 应用间的互通。 1docker network create elk">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用docker搭建elasticsearch和kibana">
 <meta property="og:url" content="http://lyyljs.site/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="准备工作创建docker network创建一个docker network用于docker 应用间的互通。 1docker network create elk  上面 elk 是创建网络的名称。 然后可以是用以下命令查看创建网络的信息 1docker network inspect elk  创建elasticsearch应用使用docker-compose来编排elasticsearch应用">
+<meta property="og:description" content="准备工作创建docker network创建一个docker network用于docker 应用间的互通。 1docker network create elk">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2019-04-06T11:20:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:30:31.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="elastic search">
@@ -93,6 +93,8 @@
         <h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><h5 id="创建docker-network"><a href="#创建docker-network" class="headerlink" title="创建docker network"></a>创建docker network</h5><p>创建一个docker network用于docker 应用间的互通。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create elk</span><br></pre></td></tr></table></figure>
 
+<a id="more"></a>
+
 <p>上面 elk 是创建网络的名称。</p>
 <p>然后可以是用以下命令查看创建网络的信息</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect elk</span><br></pre></td></tr></table></figure>
@@ -128,7 +130,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/" data-id="ckaqogbuu001l43o6csp5bmg8" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/" data-id="ckaqvw12p001g17qhch9i7rte" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li></ul>

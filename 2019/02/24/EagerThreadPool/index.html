@@ -15,7 +15,7 @@
 <meta property="og:description" content="首先来回顾下Java提供的默认线程池的工作流程：  如果线程池线程数量未到corePoolSize，即使有空闲线程，也会立即新建线程来执行任务 如果线程数量已达corePoolSize，则将任务放进阻塞队列workQueue 如果workQueue已满，线程池没有空闲线程且线程数量未到maximumPoolSize，则新建线程执行任务 如果workQueue已满，总线程数又达到了maximumPo">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2019-02-24T19:18:00.000Z">
-<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:modified_time" content="2020-05-28T14:36:22.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="开发者">
 <meta property="article:tag" content="程序猿">
@@ -104,6 +104,8 @@
 <li>如果workQueue已满，线程池没有空闲线程且线程数量未到maximumPoolSize，则新建线程执行任务</li>
 <li>如果workQueue已满，总线程数又达到了maximumPoolSize，则根据饱和策略handler来处理该任务</li>
 </ol>
+<a id="more"></a>
+
 <p>看到第二条，如果线程数量已达corePoolSize，但未达到maximumPoolSize，默认线程池还是会将任务放进阻塞队列。</p>
 <p>来看这样一个场景，我们需要线程池来处理抵达的网络请求，平时我们不需要太多线程数量，高峰期需要一个大的线程数量，这是一个弹性的需求。同时高峰期我们肯定希望尽快处理网络请求，但按默认线程池处理策略，它在核心线程都在忙的时候会把请求丢到阻塞队列，然后等到阻塞队列满了才增加线程进行处理，这是我们不能接受的。这里出现的就是EagerThreadPool。</p>
 <p><strong>EagerThreadPool</strong>这个名词出现在阿里的<strong>dubbo</strong>框架中，但实际上很多容器如<strong>Tomcat</strong>也使用了相同的策略；它的与默认策略不同的是当核心线程数都忙且线程数量未到达最大线程数的时候，创建新的线程来处理任务而非丢进阻塞队列，这提高了吞吐量。</p>
@@ -119,7 +121,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/02/24/EagerThreadPool/" data-id="ckaqogbt7000343o6525v3in8" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/02/24/EagerThreadPool/" data-id="ckaqvw0z7000317qhglox9tr8" class="article-share-link">Share</a>
       
       
     </footer>
