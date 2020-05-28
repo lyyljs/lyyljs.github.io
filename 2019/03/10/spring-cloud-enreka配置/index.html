@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>spring cloud 实践(一) enreka | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Enreka Server搭建项目搭建在SPRING INITIALIZR快速构建项目，转到带全部选项，在Cloud Discovery勾选Eureka Server并创建下载项目。看到起pom文件如下：(这里我用的maven，也可以生成gradle) 1234567891011121314151617181920212223242526272829303132333435363738394041">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring cloud 实践(一) enreka">
+<meta property="og:url" content="http://lyyljs.site/2019/03/10/spring-cloud-enreka%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="Enreka Server搭建项目搭建在SPRING INITIALIZR快速构建项目，转到带全部选项，在Cloud Discovery勾选Eureka Server并创建下载项目。看到起pom文件如下：(这里我用的maven，也可以生成gradle) 1234567891011121314151617181920212223242526272829303132333435363738394041">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-03-10T15:19:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="spring cloud">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-spring-cloud-enreka配置" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/10/spring-cloud-enreka%E9%85%8D%E7%BD%AE/" class="article-date">
+  <time datetime="2019-03-10T15:19:00.000Z" itemprop="datePublished">2019-03-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      spring cloud 实践(一) enreka
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Enreka-Server搭建"><a href="#Enreka-Server搭建" class="headerlink" title="Enreka Server搭建"></a>Enreka Server搭建</h3><h5 id="项目搭建"><a href="#项目搭建" class="headerlink" title="项目搭建"></a>项目搭建</h5><p>在<a href="https://start.spring.io/" target="_blank" rel="noopener">SPRING INITIALIZR</a>快速构建项目，转到带全部选项，在<strong>Cloud Discovery</strong>勾选<strong>Eureka Server</strong>并创建下载项目。看到起pom文件如下：(这里我用的maven，也可以生成gradle)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">&lt;parent&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-boot-starter-parent&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;2.1.3.RELEASE&lt;&#x2F;version&gt;</span><br><span class="line">	&lt;relativePath&#x2F;&gt; &lt;!-- lookup parent from repository --&gt;</span><br><span class="line">&lt;&#x2F;parent&gt;</span><br><span class="line">&lt;groupId&gt;lyyljs.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">&lt;artifactId&gt;eureka&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;version&gt;0.0.1-SNAPSHOT&lt;&#x2F;version&gt;</span><br><span class="line">&lt;name&gt;eureka&lt;&#x2F;name&gt;</span><br><span class="line">&lt;description&gt;Demo project for Spring Boot&lt;&#x2F;description&gt;</span><br><span class="line"></span><br><span class="line">&lt;properties&gt;</span><br><span class="line">	&lt;java.version&gt;1.8&lt;&#x2F;java.version&gt;</span><br><span class="line">	&lt;spring-cloud.version&gt;Greenwich.RELEASE&lt;&#x2F;spring-cloud.version&gt;</span><br><span class="line">&lt;&#x2F;properties&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependencies&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line"></span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;&#x2F;dependencies&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependencyManagement&gt;</span><br><span class="line">	&lt;dependencies&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;spring-cloud-dependencies&lt;&#x2F;artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;spring-cloud.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">			&lt;type&gt;pom&lt;&#x2F;type&gt;</span><br><span class="line">			&lt;scope&gt;import&lt;&#x2F;scope&gt;</span><br><span class="line">		&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;&#x2F;dependencies&gt;</span><br><span class="line">&lt;&#x2F;dependencyManagement&gt;</span><br><span class="line"></span><br><span class="line">&lt;build&gt;</span><br><span class="line">	&lt;plugins&gt;</span><br><span class="line">		&lt;plugin&gt;</span><br><span class="line">			&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;spring-boot-maven-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;&#x2F;plugin&gt;</span><br><span class="line">	&lt;&#x2F;plugins&gt;</span><br><span class="line">&lt;&#x2F;build&gt;</span><br><span class="line"></span><br><span class="line">&lt;repositories&gt;</span><br><span class="line">	&lt;repository&gt;</span><br><span class="line">		&lt;id&gt;spring-milestones&lt;&#x2F;id&gt;</span><br><span class="line">		&lt;name&gt;Spring Milestones&lt;&#x2F;name&gt;</span><br><span class="line">		&lt;url&gt;https:&#x2F;&#x2F;repo.spring.io&#x2F;milestone&lt;&#x2F;url&gt;</span><br><span class="line">	&lt;&#x2F;repository&gt;</span><br><span class="line">&lt;&#x2F;repositories&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后再Application.java文件里使用注解声明是<strong>Enreka Server</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@EnableEurekaServer		&#x2F;&#x2F;通过该注解激活为Eureka服务器</span><br><span class="line">@SpringBootApplication</span><br><span class="line">public class EurekaApplication &#123;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		SpringApplication.run(EurekaApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着编写配置文件，这里使用application.yml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-eureka</span><br><span class="line"></span><br><span class="line">server:</span><br><span class="line">  port: 8000</span><br><span class="line">  </span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    register-with-eureka: false</span><br><span class="line">    fetch-registry: false</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+<p>其中有几个重要的参数</p>
+<ul>
+<li>eureka.client.register-with-eureka ：表示是否将自己注册到Eureka Server，默认为true。单点可关闭，集群必须开启。</li>
+<li>eureka.client.fetch-registry ：表示是否从Eureka Server获取注册信息，默认为true。单点可关闭，集群必须开启。</li>
+<li>eureka.client.serviceUrl.defaultZone ：设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。</li>
+<li>eureka.server.enable-self-preservation ：设置为false代表关闭注册中心的保护机制，默认为true。</li>
+</ul>
+<p>接着就可以启动server了。</p>
+<p>现在还是单点，这肯定是不行的，这种关键服务如果down掉会有毁灭性的后果。所以需要配置集群。我们修改配置文件。</p>
+<ul>
+<li>application.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-eureka</span><br><span class="line">#  profiles:</span><br><span class="line">#    active: peer</span><br><span class="line"># peer是单注册中心配置文件，peer1,2,3为集群1,2,3配置文件</span><br><span class="line"></span><br><span class="line">server:</span><br><span class="line">  register:</span><br><span class="line">    port1: 8000</span><br><span class="line">    port2: 8001</span><br><span class="line">    port3: 8002</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>application-peer.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 单点配置，仅用于自己测试用</span><br><span class="line">server:</span><br><span class="line">  port: $&#123;server.register.port1&#125;</span><br><span class="line">  </span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    register-with-eureka: false</span><br><span class="line">    fetch-registry: false</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port1&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>application-peer1.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 集群1号机</span><br><span class="line">server:</span><br><span class="line">  port: $&#123;server.register.port1&#125;</span><br><span class="line">  </span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port2&#125;&#x2F;eureka&#x2F;,http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port3&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>application-peer2.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 集群2号机</span><br><span class="line">server:</span><br><span class="line">  port: $&#123;server.register.port2&#125;</span><br><span class="line">  </span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port1&#125;&#x2F;eureka&#x2F;,http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port3&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>application-peer3.yml</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 集群3号机</span><br><span class="line">server:</span><br><span class="line">  port: $&#123;server.register.port3&#125;</span><br><span class="line">  </span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port1&#125;&#x2F;eureka&#x2F;,http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port2&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>添加完成后，通过修改application.yml里<strong>spring.profiles.active</strong>打包运行，或直接打包后在java命令后添加参数<strong>java -jar eureka-0.0.1-SNAPSHOT.jar –spring.profiles.active=peer1</strong>运行。</p>
+<p>我这里有三台机器，启动前两个时因为找不到第三个会报错，在全部启动起来后便不会报错。</p>
+<p>在同一台机器上运行多个注册中心时容易出现<strong>EMERGENCY! EUREKA MAY BE INCORRECTLY CLAIMING INSTANCES ARE UP WHEN THEY’RE NOT. RENEWALS ARE LESSER THAN THRESHOLD AND HENCE THE INSTANCES ARE NOT BEING EXPIRED JUST TO BE SAFE.</strong>错误。这是因为Eureka server和client心跳频率低于了阈值。在没有实例的时候出现属于正常现象。</p>
+<p><strong>eureka.server.renewalPercentThreshold</strong>参数定义了renews（上一分钟内收到的心跳次数）和renews threshold（server期望在每分钟中收到的心跳次数）的比值，默认值为0.85。当server在15分钟内，比值低于percent，即少了15%的微服务心跳，server会进入自我保护状态，此时server不会删除注册信息。<br>本机测试的时候可以将此值调低，stackoverflow给出的本机测试推荐值为0.49(多注册中心)，0(单注册中心)。</p>
+<h5 id="enreka配置"><a href="#enreka配置" class="headerlink" title="enreka配置"></a>enreka配置</h5><p>Spring Cloud Enreka配置分为3个部分:Server,Client和Instance。<br>这里Spring Cloud Enreka版本为2.1.0-Release，对应Enreka版本为1.9.8。<br>下面说明以yml文件格式保存，对应值皆为默认值。因从java源代码查找并复制过来(不符合配置文件规范)所以需要修改才可使用。</p>
+<h6 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line">eureka:</span><br><span class="line">  server:</span><br><span class="line">    # 来自EurekaServerConfigBean，spring-cloud-netflix-enreka-server-2.1.0.RELEASE</span><br><span class="line">    # MINUTES &#x3D; 60 * 1000</span><br><span class="line">    aWSAccessId: null #AWS Access Id 亚马逊云使用 绑定Elastic IP </span><br><span class="line">    aWSSecretKey: null #AWS Secret Key 亚马逊云使用 绑定Elastic IP </span><br><span class="line">    eIPBindRebindRetries: 3 #绑定Elastic IP 重试次数</span><br><span class="line">    eIPBindingRetryIntervalMs: 5 * MINUTES # eIP绑定重试间隔 eIP已绑定时 也作刷新间隔</span><br><span class="line">    eIPBindingRetryIntervalMsWhenUnbound: 1 * MINUTES # eIP未被绑定时绑定重试间隔</span><br><span class="line">    route53BindRebindRetries: 3 # 绑定Route53域名重试次数</span><br><span class="line">    route53BindingRetryIntervalMs: 5 * MINUTES # 绑定Route53域名重试间隔</span><br><span class="line">    route53DomainTTL: 30  # Route53域名TTL</span><br><span class="line">    bindingStrategy: AwsBindingStrategy.EIP # 绑定策略EIP, ROUTE53, ENI</span><br><span class="line">    useAwsAsgApi: true # 是否使用 AWS API查询ASG statuses</span><br><span class="line">    aSGQueryTimeoutMs: 300 # 向AWS请求ASG信息超时时间</span><br><span class="line">    aSGUpdateIntervalMs: 5 * MINUTES # ASG信息更新间隔</span><br><span class="line">    aSGCacheExpiryTimeoutMs: 10 * MINUTES # ASG信息过期时间</span><br><span class="line">    primeAwsReplicaConnections: true # 检查是否应启动与副本的连接,在AWS，防火墙有时需要为新节点建立网络连接</span><br><span class="line">    listAutoScalingGroupsRoleName: ListAutoScalingGroups # 角色名称，用于描述从第三方AWS账户得到的自动缩放组</span><br><span class="line">    </span><br><span class="line">    enableSelfPreservation: true # 是否开启自我保护，开启后会检查renewals参数是否</span><br><span class="line">                                 # 低于renewalPercentThreshold阈值，低于时启动自我保护模式，</span><br><span class="line">                                 # 此时会关闭过期删除(注册信息)以避免因client与server之间网络不畅通导致的误删</span><br><span class="line">    renewalPercentThreshold: 0.85 # 一个周期(renewalThresholdUpdateIntervalMs)实际收到心跳包与期望收到心跳包最小比值，</span><br><span class="line">                                  # 低于该阈值开启自我保护</span><br><span class="line">    renewalThresholdUpdateIntervalMs: 15 * MINUTES # 一个间隔周期，用于心跳检测</span><br><span class="line">    expectedClientRenewalIntervalSeconds: 30 # 期望客户端发送心跳间隔时间，应与客户端发送间隔时间相同，否则自我保护机制失效</span><br><span class="line">    </span><br><span class="line">    peerEurekaNodesUpdateIntervalMs: 10 * MINUTES # 集群里eureka节点的变化信息更新的时间间隔</span><br><span class="line">    numberOfReplicationRetries: 5 # 向peer节点发送同步请求重试次数</span><br><span class="line">    peerEurekaStatusRefreshTimeIntervalMs: 30 * 1000 # 获取peer节点状态更新信息 时间间隔</span><br><span class="line">    waitTimeInMsWhenSyncEmpty: 5 * MINUTES # Eureka服务器启动时无法从对等节点获取实例时的等待时间</span><br><span class="line">    peerNodeConnectTimeoutMs: 200 # 向peer节点发送同步请求超时时间</span><br><span class="line">    peerNodeReadTimeoutMs: 200 # 从peer节点同步获取信息超时时间</span><br><span class="line">    peerNodeTotalConnections: 1000 # peer节点复制时HTTP连接最大数</span><br><span class="line">    peerNodeTotalConnectionsPerHost: 500 # 单个peer节点复制时HTTP连接最大数</span><br><span class="line">    peerNodeConnectionIdleTimeoutSeconds: 30 # HTTP连接允许的最大闲置时间</span><br><span class="line">    </span><br><span class="line">    disableDelta: false # 增量信息是否服务与客户端</span><br><span class="line">    retentionTimeInMSInDeltaQueue: 3 * MINUTES # 缓存增量信息时间，保证客户端在丢失信息时能重新获得这些信息</span><br><span class="line">    deltaRetentionTimerIntervalInMs: 30 * 1000 # 清理任务休眠间隔，用于清理过期的增量信息(delta information)</span><br><span class="line">   </span><br><span class="line">    evictionIntervalTimerInMs: 60 * 1000 # task唤醒和执行时间间隔，用于过期实例</span><br><span class="line">    </span><br><span class="line">    responseCacheAutoExpirationInSeconds: 180 # registry payload被change events失效后在cache中保存时间</span><br><span class="line">    responseCacheUpdateIntervalMs: 30 * 1000 # 缓存的客户端payload需要更新的时间间隔</span><br><span class="line">    useReadOnlyResponseCache: true # 注册信息响应缓存，使用了二级缓存结构，带有过期策略的读写缓存以及没有过期的只读缓存(com.netflix.eureka.registry.ResponseCache)</span><br><span class="line">    </span><br><span class="line">    maxIdleThreadInMinutesAgeForStatusReplication: 10 # 状态复制线程最大闲置时间(Minutes)</span><br><span class="line">    minThreadsForStatusReplication: 1 # 状态复制线程最小线程数</span><br><span class="line">    maxThreadsForStatusReplication: 1 # 状态复制线程最大线程数</span><br><span class="line">    maxElementsInStatusReplicationPool: 1000 # 状态复制线程池阻塞队列存放数量</span><br><span class="line">    </span><br><span class="line">    syncWhenTimestampDiffers: true # 当时间戳出现差异时是否同步实例</span><br><span class="line">    </span><br><span class="line">    registrySyncRetries: 0 # 在启动时从peer节点获取注册信息重试次数</span><br><span class="line">    registrySyncRetryWaitMs: 30 * 1000 # 重试同步间隔时间</span><br><span class="line">    </span><br><span class="line">    maxElementsInPeerReplicationPool: 10000 # 复制事件线程池阻塞队列限制</span><br><span class="line">    maxIdleThreadAgeInMinutesForPeerReplication: 15 # replication线程最大闲置时间</span><br><span class="line">    minThreadsForPeerReplication: 5 # replication线程池最小线程数</span><br><span class="line">    maxThreadsForPeerReplication: 20 # replication线程池最大线程数</span><br><span class="line">    maxTimeForReplication: 30000 # 丢弃replication events前尝试复制的最大时间</span><br><span class="line">    </span><br><span class="line">    disableDeltaForRemoteRegions: false # 增量信息是否服务与远程客户端</span><br><span class="line">    remoteRegionConnectTimeoutMs: 1000 # 连接远程peer节点超时时间</span><br><span class="line">    remoteRegionReadTimeoutMs: 1000 # 从远程peer节点读取信息超时时间</span><br><span class="line">    remoteRegionTotalConnections: 1000 # 远程peer节点复制时HTTP连接最大数</span><br><span class="line">    remoteRegionTotalConnectionsPerHost: 500 # 单个远程peer节点复制时HTTP连接最大数</span><br><span class="line">    remoteRegionConnectionIdleTimeoutSeconds: 30 # HTTP连接允许的最大闲置时间</span><br><span class="line">    gZipContentFromRemoteRegion: true # 远程连接是否开启gZip压缩</span><br><span class="line">    remoteRegionUrlsWithName: empty Map # HashMap  region name-remote region discovery url</span><br><span class="line">    remoteRegionUrls: null # url，该选项已被remoteRegionUrlsWithName取代</span><br><span class="line">    remoteRegionAppWhitelist: null # Map&lt;String, Set&lt;String&gt;&gt; regionName-A set of application names 应用白名单</span><br><span class="line">    remoteRegionRegistryFetchInterval: 30 # 从远端拉取注册信息时间间隔</span><br><span class="line">    remoteRegionFetchThreadPoolSize: 20 # 远端拉取注册信息线程池大小</span><br><span class="line">    remoteRegionTrustStore: &quot;&quot; # 空字符串 远端抓取信息证书文件</span><br><span class="line">    remoteRegionTrustStorePassword: changeit # 远端抓取信息证书文件密码</span><br><span class="line">    disableTransparentFallbackToOtherRegion: false # 如果本地区域中没有该应用程序的实例，则将禁用回退到远程区域中的应用程序（如果有配置）的旧行为。true 禁用旧行为</span><br><span class="line">    </span><br><span class="line">    batchReplication: false # 是否开启对群集节点之间的复制进行批处理，以提高网络效率</span><br><span class="line">    rateLimiterEnabled: false # 是否开启速率限制器</span><br><span class="line">    rateLimiterThrottleStandardClients: false # 是否对标准客户端限速 </span><br><span class="line">    rateLimiterPrivilegedClients: Collections.emptySet() # 空set 除开标准enreka客户端之外的受信客户端</span><br><span class="line">    rateLimiterBurstSize: 10 # 令牌桶算法(token bucket algorithm)的属性，速率限制的burst size</span><br><span class="line">    rateLimiterRegistryFetchAverageRate: 500 # 令牌桶算法的属性,平均执行注册请求速率</span><br><span class="line">    rateLimiterFullFetchAverageRate: 100 # 令牌桶算法的属性,平均执行请求速率</span><br><span class="line">    logIdentityHeaders: true # enreka服务器是否追踪clientAuthHeaders</span><br><span class="line">    </span><br><span class="line">    enableReplicatedRequestCompression: false # 在请求中压缩复制数据</span><br><span class="line">    jsonCodecName: null # 指定json编&#x2F;解码器类名，没有则使用默认解码器</span><br><span class="line">    xmlCodecName: null # 制定xml编&#x2F;解码器类名，没有则使用默认解码器</span><br><span class="line">    </span><br><span class="line">    minAvailableInstancesForPeerReplication: -1 # 未知含义，在EurekaServerConfigBean有，在EurekaServerConfig无，</span><br><span class="line">                          # 在spring-cloud-enraka中只有EurekaServerConfigBean和一个测试类有设定该值，但并未使用</span><br><span class="line">                          # 从字面意义看，是peer复制最少可用实例</span><br><span class="line">    initialCapacityOfResponseCache: 1000 # responseCache初始缓存大小</span><br><span class="line">    </span><br><span class="line">    myUrl: null # 定义自身url,用于Eureka URLs不匹配IP地址或hostname时(如将enreka实例放在负载均衡器下)</span><br><span class="line">                # 需要使用完整地址，如http:&#x2F;&#x2F;eureka-node1.mydomain.com:8010&#x2F;eureka&#x2F;v2&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h6 id="Client"><a href="#Client" class="headerlink" title="Client"></a>Client</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">eureka:</span><br><span class="line">  client:</span><br><span class="line">    # 来自EurekaClientConfigBean，spring-cloud-netflix-enreka-client-2.1.0.RELEASE</span><br><span class="line">    # DEFAULT_PREFIX: &#x2F;eureka</span><br><span class="line">    # DEFAULT_URL: &quot;http:&#x2F;&#x2F;localhost:8761&quot; + DEFAULT_PREFIX + &quot;&#x2F;&quot;</span><br><span class="line">    # DEFAULT_ZONE: defaultZone</span><br><span class="line">    # MINUTES: 60</span><br><span class="line">    </span><br><span class="line">    enabled: true # 是否开启enreka client</span><br><span class="line">    registryFetchIntervalSeconds: 30 # 从enreka服务器抓取注册信息频率</span><br><span class="line">    instanceInfoReplicationIntervalSeconds: 30 # 复制实例变化信息到eureka服务器频率</span><br><span class="line">    initialInstanceInfoReplicationIntervalSeconds: 40 # 初始复制实例信息到eureka服务器时长</span><br><span class="line">    eurekaServiceUrlPollIntervalSeconds: 5 * MINUTES # 询问Eureka Server信息变化的时间间隔</span><br><span class="line">    </span><br><span class="line">    proxyPort: null # 获取eureka服务的代理端口</span><br><span class="line">    proxyHost: null # 获取eureka服务的代理主机</span><br><span class="line">    proxyUserName: null # 获取eureka服务的代理用户名</span><br><span class="line">    proxyPassword: null # 获取eureka服务的代理密码</span><br><span class="line">    </span><br><span class="line">    eurekaServerReadTimeoutSeconds: 8 # 建立读取enreka server超时时间</span><br><span class="line">    eurekaServerConnectTimeoutSeconds: 5 # 建立到enreka server连接超时</span><br><span class="line">    backupRegistryImpl: null # 实现了BackupRegistry接口的类名称，用于第一次从enreka服务器获取注册信息失败时降级操作</span><br><span class="line">    eurekaServerTotalConnections: 200 # 到所有enreka server的总连接数</span><br><span class="line">    eurekaServerTotalConnectionsPerHost: 50 # 到单个enreka host的总连接数</span><br><span class="line">    </span><br><span class="line">    useDnsForFetchingServiceUrls: false # eureka客户端是否应该使用DNS机制来获取eureka服务器的地址列表</span><br><span class="line">    eurekaServerURLContext: null # URL context:用于构建服务url，来连接enreka server</span><br><span class="line">                                 # 当enreka服务器ip列表来自于DNS需要使用此项</span><br><span class="line">    eurekaServerPort: null # eureka服务器的端口,当enreka服务器ip列表来自于DNS需要使用此项</span><br><span class="line">    eurekaServerDNSName: null # DNS名称，用来获取enreka服务器ip列表</span><br><span class="line">    </span><br><span class="line">    region: us-east-1 # AWS datacenters 区域</span><br><span class="line">    </span><br><span class="line">    eurekaConnectionIdleTimeoutSeconds: 30 # 与enreka服务器的http连接闲置超时时间</span><br><span class="line">    registryRefreshSingleVipAddress: null # 客户端只对一个单一的VIP注册表的信息感兴趣</span><br><span class="line">    heartbeatExecutorThreadPoolSize: 2 # 心跳线程池初始大小</span><br><span class="line">    heartbeatExecutorExponentialBackOffBound: 10 # 心跳指数回退属性，是重试延迟的最大倍数值</span><br><span class="line">    </span><br><span class="line">    cacheRefreshExecutorThreadPoolSize: 2 # 缓存刷新线程池大小</span><br><span class="line">    cacheRefreshExecutorExponentialBackOffBound: 10 # 缓存刷新回退属性，是重试延迟的最大倍数值</span><br><span class="line">    </span><br><span class="line">    serviceUrl: # zone: 服务的url&#x2F;urls(以,号分隔) url需要时全路径,如http:&#x2F;&#x2F;ec2-256-156-243-129.compute-1.amazonaws.com:7001&#x2F;eureka&#x2F;</span><br><span class="line">      DEFAULT_ZONE: DEFAULT_URL # client下端注释值</span><br><span class="line">      </span><br><span class="line">    gZipContent: true # 连接是否开启gZip压缩</span><br><span class="line">    </span><br><span class="line">    registerWithEureka: true # 是否注册该实例到enreka服务器</span><br><span class="line">    preferSameZoneEureka: true # 实例是否使用同一zone里的eureka服务器</span><br><span class="line">    </span><br><span class="line">    logDeltaDiff: false # 是否记录eureka服务器和客户端之间在注册表的信息方面的差异</span><br><span class="line">                        # enreka客户端每次从服务器仅取服务器增加的信息以减少网络开销；收到增量信息后，</span><br><span class="line">                        # enreka客户端会向服务器验证是否有差异(丢失)。如果这个过程失败则会尝试获取全部信息。</span><br><span class="line">                        # 当获取全部信息时，是否记录服务器信息与本地信息的差异</span><br><span class="line">    disableDelta: false # 见上，是否关闭增量更新</span><br><span class="line">    fetchRemoteRegionsRegistry: null # 逗号隔开的区域列表，用来获取服务注册信息</span><br><span class="line">    availabilityZones: new HashMap&lt;&gt;() # 逗号隔开的实例所在的地区下可用性的区域列表(AWS datacenter下使用)</span><br><span class="line">    filterOnlyUpInstances: true # 仅获取实例状态为UP的应用</span><br><span class="line">    fetchRegistry: true # 是否从enreka server获取注册信息</span><br><span class="line">    </span><br><span class="line">    dollarReplacement: _- # 在与enreka服务器通信(反)序列化替换$</span><br><span class="line">    escapeCharReplacement: __ # 同上，替换_符号</span><br><span class="line">    allowRedirects: false # 允许server重定向client的请求</span><br><span class="line">    </span><br><span class="line">    onDemandUpdateStatusChange: true # 本地状态更新是否触发频率受限的on-demand更新到enreka server</span><br><span class="line">    encoderName: null # 临时配置选项配置使用编码器，当最新的编码器稳定后移除</span><br><span class="line">    decoderName: null # 同上</span><br><span class="line">    clientDataAccept: EurekaAccept.full.name() # full, compact 客户端数据接收使用的EurekaAccept名称</span><br><span class="line">    </span><br><span class="line">    shouldUnregisterOnShutdown: true # 客户端关闭时向enreka server注销</span><br><span class="line">    </span><br><span class="line">    shouldEnforceRegistrationAtInit: false # 客户端初始化期间是否强制注册</span><br><span class="line">    order: 0 # CompositeDiscoveryClient用来排序可用客户端</span><br></pre></td></tr></table></figure>
+
+<h6 id="Instance"><a href="#Instance" class="headerlink" title="Instance"></a>Instance</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    # 来自EurekaInstanceConfigBean，spring-cloud-netflix-enreka-client-2.1.0.RELEASE</span><br><span class="line">    # UNKNOWN: unknown</span><br><span class="line">    </span><br><span class="line">    # spring boot actuator</span><br><span class="line">    actuatorPrefix: &#x2F;actuator # actuator endpoints默认前缀</span><br><span class="line">    statusPageUrlPath: actuatorPrefix + &quot;&#x2F;info&quot; # 状态信息页面相对路径</span><br><span class="line">    statusPageUrl: null # 状态信息页面绝对路径</span><br><span class="line">    homePageUrlPath: &#x2F; # 主页相对路径</span><br><span class="line">    homePageUrl: null # 主页绝对路径</span><br><span class="line">    healthCheckUrlPath: actuatorPrefix + &quot;&#x2F;health&quot; # 健康检查相对路径</span><br><span class="line">    healthCheckUrl: null # 健康检查绝对路径</span><br><span class="line">    secureHealthCheckUrl: null # 安全端口健康检查绝对路径</span><br><span class="line">    </span><br><span class="line">    appname: unknown # 应用注册名 如未设定appname，则查询spring.application.name，如皆未设定，则为unknown</span><br><span class="line">    appGroupName: null # 应用组名称</span><br><span class="line">    instanceEnabledOnit: false # 实例注册到eureka服务器时，是否马上开始通讯</span><br><span class="line">    nonSecurePort: 80 # 非加密接受通讯端口</span><br><span class="line">    securePort: 443 # 加密接受通讯端口</span><br><span class="line">    nonSecurePortEnabled: true # 是否使用非加密接受通讯端口</span><br><span class="line">    securePortEnabled: false # 是否使用加密接受通讯端口</span><br><span class="line">    leaseRenewalIntervalInSeconds: 30 # enreka客户端发送心跳间隔</span><br><span class="line">    leaseExpirationDurationInSeconds: 90 # 心跳过期时间，enreka服务端在接收心跳后，如在此时间内未收到下一跳，则删除该实例</span><br><span class="line">    virtualHostName: unknown # 虚拟主机名 未设定该值则为spring.application.name，如皆未设定，则为unknown</span><br><span class="line">    instanceId: null # 实例id，实例注册到eureka服务端的唯一的实例ID,未设定则从metadataMap查询</span><br><span class="line">    secureVirtualHostName: unknown # 安全虚拟主机名 如未设定，则查询spring.application.name，如皆未设定，则为unknown</span><br><span class="line">    aSGName: null # AWS autoscaling group name</span><br><span class="line">    metadataMap: new HashMap # enreka元数据，元数据被发送到eureka服务器，其他实例可以使用</span><br><span class="line">    dataCenterInfo: MyOwn # DataCenterInfo.Name.MyOwn Netflix, Amazon, MyOwn 该实例被部署的数据中心</span><br><span class="line">    ipAddress: null # 实例的ip地址，无配置会使用默认发现的第一个非回环地址 相关类 org.springframework.cloud.commons.util.InetUtils</span><br><span class="line">    namespace: eureka # 用于查找属性的命名空间，Spring Cloud中会被忽略</span><br><span class="line">    hostname: null # 配置的主机名，无配置会从OS中获取。 InetUtils</span><br><span class="line">    preferIpAddress: false # IP优先于(取代)从OS中获取的主机名。 InetUtils</span><br><span class="line">    initialStatus: UP # InstanceStatus.UP&#x2F;DOWN&#x2F;STARTING&#x2F;OUT_OF_SERVICE&#x2F;UNKNOWN</span><br><span class="line">                      # 注册到enreka server时实例状态</span><br><span class="line">                      # UP:可以通讯   DOWN:下线，禁止通讯，health check失败时</span><br><span class="line">                      # STARTING: 正在进行初始化，禁止通讯  OUT_OF_SERVICE: 主动离线</span><br><span class="line">                      # UNKNOWN: 未知</span><br></pre></td></tr></table></figure>
+
+<h5 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h5><ul>
+<li><p><a href="https://blog.asarkar.org/technical/netflix-eureka/#" target="_blank" rel="noopener">Spring Cloud Netflix Eureka - The Hidden Manual</a></p>
+</li>
+<li><p><a href="https://github.com/spring-cloud/spring-cloud-netflix/issues/1195" target="_blank" rel="noopener">EMERGENCY! EUREKA MAY…</a></p>
+</li>
+<li><p><a href="https://stackoverflow.com/questions/33921557/understanding-spring-cloud-eureka-server-self-preservation-and-renew-threshold" target="_blank" rel="noopener">Understanding Spring Cloud Eureka Server self preservation and renew threshold</a></p>
+</li>
+<li><p><a href="https://github.com/Netflix/eureka" target="_blank" rel="noopener">github eureka</a></p>
+</li>
+<li><p><a href="https://github.com/Netflix/eureka/wiki" target="_blank" rel="noopener">Enreka Wiki</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/03/10/spring-cloud-enreka%E9%85%8D%E7%BD%AE/" data-id="ckaqo6uyy000y28o67pg55ivg" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/03/12/Eclipse%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Eclipse常用插件
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/03/06/%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">spring cloud 实践(二)  服务调用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>jstat命令 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;监控JVM状态。 概要jstat [ generalOption | outputOptions vmid [ interval[s|ms] [ count ] ] generalOption &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在使用通用选项后，不能跟其他参数。  -help显示帮助信息。 -options显示统计选项。  output">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jstat命令">
+<meta property="og:url" content="http://lyyljs.site/2018/03/25/jstat%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;监控JVM状态。 概要jstat [ generalOption | outputOptions vmid [ interval[s|ms] [ count ] ] generalOption &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在使用通用选项后，不能跟其他参数。  -help显示帮助信息。 -options显示统计选项。  output">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-25T15:51:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="java命令">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-jstat命令" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/25/jstat%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time datetime="2018-03-25T15:51:00.000Z" itemprop="datePublished">2018-03-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      jstat命令
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;监控JVM状态。</p>
+<h3 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h3><p><strong>jstat</strong> [ <em>generalOption</em> | <em>outputOptions</em> <em>vmid</em> [ <em>interval</em>[s|ms] [ <em>count</em> ] ]</p>
+<p><strong>generalOption</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在使用通用选项后，不能跟其他参数。</p>
+<ul>
+<li><em>-help</em>显示帮助信息。</li>
+<li><em>-options</em>显示统计选项。</li>
+</ul>
+<p><strong>outputOptions</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;一个统计选项加一些额外选项如<em>-t*，</em>-h<em>，</em>-J*。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;输出为一个表格，以空格隔开。<em>-h*为头部信息显示频率。</em>-t<em>显示从JVM启动开始经过的时间,单位秒。<em>interval</em>制定显示频率，<em>count</em>指定次数。-J*javaOption</em>:传递java参数到java应用启动器;如<em>-J-Xms48m</em>设定启动内存为48MB。</p>
+<p>统计选项如下：</p>
+<ul>
+<li><p><em>class</em> 显示统计类加载器信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -class 3431</span><br><span class="line">Loaded  Bytes  Unloaded  Bytes     Time   </span><br><span class="line">  7474 13825.1       48    64.0       7.10</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="center">列名</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Loaded</td>
+<td align="center">装载的类的数量</td>
+</tr>
+<tr>
+<td align="center">Bytes</td>
+<td align="center">装载类所占用的字节数</td>
+</tr>
+<tr>
+<td align="center">Unloaded</td>
+<td align="center">卸载类的数量</td>
+</tr>
+<tr>
+<td align="center">Bytes</td>
+<td align="center">卸载类的字节数</td>
+</tr>
+<tr>
+<td align="center">Time</td>
+<td align="center">装载和卸载类所花费的时间</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><em>compiler</em> 显示JVM 即时编译器统计信息。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -compiler 3431</span><br><span class="line">Compiled Failed Invalid   Time   FailedType FailedMethod</span><br><span class="line">   12443      1       0    85.52          1 com&#x2F;mysql&#x2F;jdbc&#x2F;AbandonedConnectionCleanupThread run</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="center">列名</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Compiled</td>
+<td align="center">编译任务执行数量</td>
+</tr>
+<tr>
+<td align="center">Failed</td>
+<td align="center">编译任务执行失败数量</td>
+</tr>
+<tr>
+<td align="center">Invalid</td>
+<td align="center">编译任务执行失效数量</td>
+</tr>
+<tr>
+<td align="center">Time</td>
+<td align="center">编译任务消耗时间</td>
+</tr>
+<tr>
+<td align="center">FailedType</td>
+<td align="center">最后一个编译失败任务的类型</td>
+</tr>
+<tr>
+<td align="center">FailedMethod</td>
+<td align="center">最后一个编译失败任务所在的类及方法</td>
+</tr>
+<tr>
+<td align="center">* <em>gc</em> 显示垃圾回收堆信息。</td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gc 3431      </span><br><span class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">1536.0 1536.0 967.7   0.0   128000.0 79183.5   131072.0   125499.8  46720.0 45479.5 5248.0 4909.1  11563   54.785  66      9.381   64.166</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;后缀C为容量,U为已使用空间,T为时间；首字符S为survivor区域，E为eden区，O为老年区,M为MetaSpace;CCS为压缩类空间,YGC为年轻代垃圾回收，FGC为FullGC;GCT为垃圾回收总时间。这里空间大小单位为KB，时间单位为秒，YGC和FGC单位为次。</p>
+<ul>
+<li><em>gccapacity</em> 显示各代容量统计信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gccapacity 3431</span><br><span class="line"> NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC       MCMN     MCMX      MC     CCSMN    CCSMX     CCSC    YGC    FGC </span><br><span class="line">131072.0 131072.0 131072.0 1536.0 1536.0 128000.0   131072.0   131072.0   131072.0   131072.0      0.0 1091584.0  46720.0      0.0 1048576.0   5248.0  11600    67</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;NGC:新生代大小,OGC:老年代大小,MCM:meta space大小;MN:最小值,MX:最大值；其他参考<em>gc</em>选项。</p>
+<ul>
+<li><em>gccause</em> 汇总垃圾统计信息(同-gcutil)和原因。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gccause 3431   </span><br><span class="line">  S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT    LGCC                 GCC                 </span><br><span class="line">  0.00  57.54  50.05  69.07  97.34  93.54  11624   55.100    67    9.567   64.667 Allocation Failure   No GC</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;这里的空间为已使用的百分比表示，如S1为57.54表示survivor 1已使用了57.54%。LGCC为最近一次造成垃圾回收的原因，GCC为当前垃圾回收的原因。</p>
+<ul>
+<li><em>gcnew</em> 年轻代对象的信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcnew 3431 </span><br><span class="line"> S0C    S1C    S0U    S1U   TT MTT  DSS      EC       EU     YGC     YGCT  </span><br><span class="line">1536.0 1536.0 1014.0    0.0  1  15 1536.0 128000.0  23834.4  11673   55.350</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;TT：晋升阈值；MIT：最大晋升阈值；DSS:期望幸存区大小。</p>
+<ul>
+<li><em>gcnewcapacity</em> 年轻代对象的信息及其占用量。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcnewcapacity 3431</span><br><span class="line">  NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC </span><br><span class="line">  131072.0   131072.0   131072.0  10752.0   1536.0  10752.0   1536.0   130048.0   128000.0 11696    67</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;CMX:容量最大值。</p>
+<ul>
+<li><em>gcold</em> 老年区以及元区域的对象统计信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcold 3431        </span><br><span class="line">   MC       MU      CCSC     CCSU       OC          OU       YGC    FGC    FGCT     GCT   </span><br><span class="line"> 46720.0  45479.5   5248.0   4909.1    131072.0    117544.4  11705    67    9.567   65.092</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>gcoldcapacity</em> 老年区以及元区域的对象以及容量信息统计信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcoldcapacity 3431</span><br><span class="line">   OGCMN       OGCMX        OGC         OC       YGC   FGC    FGCT     GCT   </span><br><span class="line">   131072.0    131072.0    131072.0    131072.0 11709    67    9.567   65.126</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>gcmetacapacity</em> metaspace区域大小信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcmetacapacity 3431</span><br><span class="line">   MCMN       MCMX        MC       CCSMN      CCSMX       CCSC     YGC   FGC    FGCT     GCT   </span><br><span class="line">       0.0  1091584.0    46720.0        0.0  1048576.0     5248.0 11714    67    9.567   65.152</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>gcutil</em> 垃圾回收统计信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcutil 3431        </span><br><span class="line">  S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">  0.00  65.01  30.50  92.93  97.34  93.54  11718   55.611    67    9.567   65.177</span><br></pre></td></tr></table></figure>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;这里的空间描述为使用百分比。</p>
+<ul>
+<li><em>printcompilation</em> 当前VM执行的信息</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -printcompilation 3431</span><br><span class="line">Compiled  Size  Type Method</span><br><span class="line">   12444   1734    1 org&#x2F;quartz&#x2F;core&#x2F;QuartzSchedulerThread run</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="center">列名</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Compiled</td>
+<td align="center">最近编译的方法执行的编译任务数</td>
+</tr>
+<tr>
+<td align="center">Size</td>
+<td align="center">最近方法生成的字节码的大小</td>
+</tr>
+<tr>
+<td align="center">Type</td>
+<td align="center">最近编译类型</td>
+</tr>
+<tr>
+<td align="center">Method</td>
+<td align="center">最近编译方法 类名 方法名</td>
+</tr>
+</tbody></table>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;带时间戳，没3行显示一次头部，采样间隔为1秒，采样5次：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jstat -gcutil -t -h3 3431 1s 5 </span><br><span class="line">Timestamp         S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">       195385.4   0.00  55.53  12.10  58.00  97.34  93.54  11756   55.817    68   10.046   65.864</span><br><span class="line">       195386.4   0.00  55.53  22.52  58.00  97.34  93.54  11756   55.817    68   10.046   65.864</span><br><span class="line">       195387.4   0.00  55.53  24.07  58.00  97.34  93.54  11756   55.817    68   10.046   65.864</span><br><span class="line">Timestamp         S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">       195388.4   0.00  55.53  34.22  58.00  97.34  93.54  11756   55.817    68   10.046   65.864</span><br><span class="line">       195389.4   0.00  55.53  35.81  58.00  97.34  93.54  11756   55.817    68   10.046   65.864</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html#BEHEIDCB" target="_blank" rel="noopener">Oracle jstat官方文档</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2018/03/25/jstat%E5%91%BD%E4%BB%A4/" data-id="ckaqo6uz1001428o64sa4hgrd" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/26/jstack%E5%91%BD%E4%BB%A4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          jstack命令
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/25/jps%E5%91%BD%E4%BB%A4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">jps命令</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

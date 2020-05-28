@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>服务容错(二) 熔断降级 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="熔断降级当某个服务持续不可用时，我们不希望继续调用它造成其他服务卡住不可用；此时超时机制并不能改善该状况，会导致整个调用链时间增长且增大负载，而重试机制更会恶化该状况，此时就需要熔断了。 熔断在服务持续不可用时，从消费者的可用服务提供者的列表中将该服务提供者标记为短路状态，在调用时忽略该提供者以避免上述提及状况。 降级则是在服务提供者不可用时进行本地操作调用。 DubboDubbo本身并未提供熔断">
+<meta property="og:type" content="article">
+<meta property="og:title" content="服务容错(二) 熔断降级">
+<meta property="og:url" content="http://lyyljs.site/2019/03/29/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%BA%8C-%E7%86%94%E6%96%AD%EF%BC%8C%E9%99%8D%E7%BA%A7%EF%BC%8C%E9%99%90%E6%B5%81/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="熔断降级当某个服务持续不可用时，我们不希望继续调用它造成其他服务卡住不可用；此时超时机制并不能改善该状况，会导致整个调用链时间增长且增大负载，而重试机制更会恶化该状况，此时就需要熔断了。 熔断在服务持续不可用时，从消费者的可用服务提供者的列表中将该服务提供者标记为短路状态，在调用时忽略该提供者以避免上述提及状况。 降级则是在服务提供者不可用时进行本地操作调用。 DubboDubbo本身并未提供熔断">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/hystrix-command-flow-chart.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/circuit-breaker.png">
+<meta property="article:published_time" content="2019-03-29T11:38:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="spring cloud">
+<meta property="article:tag" content="dubbo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lyyljs.site/images/cloud/hystrix-command-flow-chart.png">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-服务容错-二-熔断，降级，限流" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/29/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%BA%8C-%E7%86%94%E6%96%AD%EF%BC%8C%E9%99%8D%E7%BA%A7%EF%BC%8C%E9%99%90%E6%B5%81/" class="article-date">
+  <time datetime="2019-03-29T11:38:00.000Z" itemprop="datePublished">2019-03-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      服务容错(二) 熔断降级
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="熔断降级"><a href="#熔断降级" class="headerlink" title="熔断降级"></a>熔断降级</h3><p>当某个服务持续不可用时，我们不希望继续调用它造成其他服务卡住不可用；此时超时机制并不能改善该状况，会导致整个调用链时间增长且增大负载，而重试机制更会恶化该状况，此时就需要熔断了。</p>
+<p>熔断在服务持续不可用时，从消费者的可用服务提供者的列表中将该服务提供者标记为短路状态，在调用时忽略该提供者以避免上述提及状况。</p>
+<p>降级则是在服务提供者不可用时进行本地操作调用。</p>
+<h5 id="Dubbo"><a href="#Dubbo" class="headerlink" title="Dubbo"></a>Dubbo</h5><p>Dubbo本身并未提供熔断机制，仅提供简单的降级操作，通过配置mock值：</p>
+<ul>
+<li>return =&gt; return null</li>
+<li>fail =&gt; default</li>
+<li>force =&gt; default</li>
+<li>fail:throw/return foo =&gt; throw/return foo</li>
+<li>force:throw/return foo =&gt; throw/return foo</li>
+<li>fail/force:className =&gt; className::method()</li>
+</ul>
+<p>这里的返回foo可以是对应的json字符串，true，false，null，数字，字符串…</p>
+<p>其中 <strong>default</strong> 会去寻找 <strong>fooServiceMock</strong>类 下的同名方法来执行。如果指定了类，则执行对应类的同名方法。</p>
+<p>其实现在<strong>org.apache.dubbo.rpc.cluster.support.wrapper</strong>包下的<strong>MockClusterInvoker</strong>类中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">public class MockClusterInvoker&lt;T&gt; implements Invoker&lt;T&gt; &#123;</span><br><span class="line">	...</span><br><span class="line">	public Result invoke(Invocation invocation) throws RpcException &#123;</span><br><span class="line">        Result result &#x3D; null;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 从配置中获取mock参数值</span><br><span class="line">        String value &#x3D; directory.getUrl().getMethodParameter(invocation.getMethodName(), Constants.MOCK_KEY, Boolean.FALSE.toString()).trim();</span><br><span class="line">        &#x2F;&#x2F; 服务提供者未设定或设定为false则直接进行rpc调用</span><br><span class="line">        if (value.length() &#x3D;&#x3D; 0 || value.equalsIgnoreCase(&quot;false&quot;)) &#123;</span><br><span class="line">            &#x2F;&#x2F;no mock</span><br><span class="line">            result &#x3D; this.invoker.invoke(invocation);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 服务提供者设定为强制使用本地mock</span><br><span class="line">        &#125; else if (value.startsWith(&quot;force&quot;)) &#123;</span><br><span class="line">            if (logger.isWarnEnabled()) &#123;</span><br><span class="line">                logger.warn(&quot;force-mock: &quot; + invocation.getMethodName() + &quot; force-mock enabled , url : &quot; + directory.getUrl());</span><br><span class="line">            &#125;</span><br><span class="line">            &#x2F;&#x2F;force:direct mock</span><br><span class="line">            result &#x3D; doMockInvoke(invocation, null);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 正常调用，在失败后才降级</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            &#x2F;&#x2F;fail-mock</span><br><span class="line">            try &#123;</span><br><span class="line">                result &#x3D; this.invoker.invoke(invocation);</span><br><span class="line">            &#125; catch (RpcException e) &#123;</span><br><span class="line">                if (e.isBiz()) &#123;</span><br><span class="line">                    throw e;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                if (logger.isWarnEnabled()) &#123;</span><br><span class="line">                    logger.warn(&quot;fail-mock: &quot; + invocation.getMethodName() + &quot; fail-mock enabled , url : &quot; + directory.getUrl(), e);</span><br><span class="line">                &#125;</span><br><span class="line">                &#x2F;&#x2F; 失败后的降级调用</span><br><span class="line">                &#x2F;&#x2F; 寻找对应的mockInvoker调用invoke</span><br><span class="line">                result &#x3D; doMockInvoke(invocation, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>mock进行调用如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">final public class MockInvoker&lt;T&gt; implements Invoker&lt;T&gt; &#123;</span><br><span class="line">	...</span><br><span class="line">	public Result invoke(Invocation invocation) throws RpcException &#123;</span><br><span class="line">    	&#x2F;&#x2F; 获取url中mock属性</span><br><span class="line">        String mock &#x3D; getUrl().getParameter(invocation.getMethodName() + &quot;.&quot; + Constants.MOCK_KEY);</span><br><span class="line">        if (invocation instanceof RpcInvocation) &#123;</span><br><span class="line">            ((RpcInvocation) invocation).setInvoker(this);</span><br><span class="line">        &#125;</span><br><span class="line">        if (StringUtils.isBlank(mock)) &#123;</span><br><span class="line">            mock &#x3D; getUrl().getParameter(Constants.MOCK_KEY);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (StringUtils.isBlank(mock)) &#123;</span><br><span class="line">            throw new RpcException(new IllegalAccessException(&quot;mock can not be null. url :&quot; + url));</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 解析并修正mock参数</span><br><span class="line">        &#x2F;&#x2F; 将fail&#x2F;force去掉，如果未设置参数则改为default&#x2F;null etc</span><br><span class="line">        &#x2F;&#x2F; eg. fail:throw&#x2F;return foo &#x3D;&gt; throw&#x2F;return foo</span><br><span class="line">        mock &#x3D; normalizeMock(URL.decode(mock));</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; return行为</span><br><span class="line">        if (mock.startsWith(Constants.RETURN_PREFIX)) &#123;</span><br><span class="line">            mock &#x3D; mock.substring(Constants.RETURN_PREFIX.length()).trim();</span><br><span class="line">            &#x2F;&#x2F; 将mock字符串解析为对应方法的返回值类型并返回</span><br><span class="line">            try &#123;</span><br><span class="line">                Type[] returnTypes &#x3D; RpcUtils.getReturnTypes(invocation);</span><br><span class="line">                Object value &#x3D; parseMockValue(mock, returnTypes);</span><br><span class="line">                return new RpcResult(value);</span><br><span class="line">            &#125; catch (Exception ew) &#123;</span><br><span class="line">                throw new RpcException(&quot;mock return invoke error. method :&quot; + invocation.getMethodName()</span><br><span class="line">                        + &quot;, mock:&quot; + mock + &quot;, url: &quot; + url, ew);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 抛出行为</span><br><span class="line">        &#125; else if (mock.startsWith(Constants.THROW_PREFIX)) &#123;</span><br><span class="line">            mock &#x3D; mock.substring(Constants.THROW_PREFIX.length()).trim();</span><br><span class="line">            &#x2F;&#x2F; mock空时抛出默认异常信息</span><br><span class="line">            if (StringUtils.isBlank(mock)) &#123;</span><br><span class="line">                throw new RpcException(&quot;mocked exception for service degradation.&quot;);</span><br><span class="line">            &#125; else &#123; &#x2F;&#x2F; user customized class</span><br><span class="line">            	&#x2F;&#x2F; mock作为类名，获取该异常类进行抛出</span><br><span class="line">                &#x2F;&#x2F; 如果throws缓存小于1000（硬编码）则将该异常类缓存</span><br><span class="line">                Throwable t &#x3D; getThrowable(mock);</span><br><span class="line">                throw new RpcException(RpcException.BIZ_EXCEPTION, t);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 执行自定义类</span><br><span class="line">        &#125; else &#123; &#x2F;&#x2F;impl mock</span><br><span class="line">            try &#123;</span><br><span class="line">            	&#x2F;&#x2F; 如果mock为default或空，则寻找fooServiceMock类下的同名方法，否则寻找类名为mock的同名方法</span><br><span class="line">                &#x2F;&#x2F; 如果mocks缓存数量小于10000（硬编码）还会将该mockInvoker进行缓存</span><br><span class="line">                Invoker&lt;T&gt; invoker &#x3D; getInvoker(mock);</span><br><span class="line">                return invoker.invoke(invocation);</span><br><span class="line">            &#125; catch (Throwable t) &#123;</span><br><span class="line">                throw new RpcException(&quot;Failed to create mock implementation class &quot; + mock, t);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Hystrix"><a href="#Hystrix" class="headerlink" title="Hystrix"></a>Hystrix</h3><p>Hystrix 是 Netflix 公司为解决分布式服务容错所提供的一个组件，它也提供了熔断降级的功能。</p>
+<h5 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h5><p><img src="/images/cloud/hystrix-command-flow-chart.png" alt="hystrix-command-flow-chart"></p>
+<p>上图是 Hystrix 的流程图，当发起一个请求时：</p>
+<p>1.构建一个 Command </p>
+<p>构建 Command 对象，把依赖调用封装进 run 方法中；它可以是 HystrixCommand 来处理单个响应，或使用 HystrixObservableCommand 来处理一系列的观察事件（参见RxJava）。但事实上，HystrixCommand 最终仍然是通过 Observable 来实现的。</p>
+<p>2.调用方法执行命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">K             value   &#x3D; command.execute(); &#x2F;&#x2F; 阻塞</span><br><span class="line">Future&lt;K&gt;     fValue  &#x3D; command.queue();	&#x2F;&#x2F; 异步</span><br><span class="line">Observable&lt;K&gt; ohValue &#x3D; command.observe();         &#x2F;&#x2F;hot observable 参见RxJava</span><br><span class="line">Observable&lt;K&gt; ocValue &#x3D; command.toObservable();    &#x2F;&#x2F;cold observable 参见RxJava</span><br></pre></td></tr></table></figure>
+
+<p>3.查询本地缓存</p>
+<p>如果该 Command 的本地缓存开启，则查询本地缓存，如命中则直接返回。</p>
+<p>4.短路状态查询</p>
+<p>如果短路，则直接跳到第8步，进行降级操作。</p>
+<p>5.容量查询</p>
+<p>查询线程池/队列/信号量是否有足够的资源执行 Command ，如无，则跳至 8 ，进行降级操作。</p>
+<p>6.执行 Command</p>
+<p>执行操作，如果执行失败或超时，则跳至 8 ，进行降级操作。</p>
+<p>7.结果反馈</p>
+<p>将5，6的执行结果反馈，计入状态统计。如果达到熔断指标则将服务短路。</p>
+<p>8.降级</p>
+<p>执行降级操作，如果没有降级方法或降级方法执行失败，则抛出错误。</p>
+<p>9.返回结果</p>
+<h5 id="熔断机制"><a href="#熔断机制" class="headerlink" title="熔断机制"></a>熔断机制</h5><p>下面的图展示了HystrixCommand和HystrixObservableCommand如何与HystrixCircuitBroker进行交互。</p>
+<p><img src="/images/cloud/circuit-breaker.png" alt="circuit-breaker.png"></p>
+<p>短路逻辑如下：</p>
+<ol>
+<li><p>请求满足了一定的阈值（HystrixCommandProperties.circuitBreakerRequestVolumeThreshold()）</p>
+</li>
+<li><p>错误发生所占的百分比超过了设定的错误发生的阈值（HystrixCommandProperties.circuitBreakerErrorThresholdPercentage()）</p>
+</li>
+<li><p>短路器状态由CLOSE转为OPEN</p>
+</li>
+<li><p>当短路器状态转为OPEN，则熔断所有的请求</p>
+</li>
+<li><p>一定时间之后HystrixCommandProperties.circuitBreakerSleepWindowInMilliseconds()，下一个的请求会被通过（Half Open），如果该请求执行失败，回路器会在睡眠窗口期间返回OPEN；如果该请求成功，重置为CLOSE，重新从1开始判断。</p>
+</li>
+</ol>
+<p>代码其实现如下：</p>
+<p>在hystrix-core项目中，<strong>AbstractCommand</strong>类下首先与短路器进行交互。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line">private Observable&lt;R&gt; applyHystrixSemantics(final AbstractCommand&lt;R&gt; _cmd) &#123;</span><br><span class="line">       &#x2F;&#x2F; mark that we&#39;re starting execution on the ExecutionHook</span><br><span class="line">       &#x2F;&#x2F; if this hook throws an exception, then a fast-fail occurs with no fallback.  No state is left inconsistent</span><br><span class="line">       executionHook.onStart(_cmd);</span><br><span class="line"></span><br><span class="line">       &#x2F;* determine if we&#39;re allowed to execute *&#x2F;</span><br><span class="line">       &#x2F;&#x2F; 短路器是否允许请求，参见流程图右上</span><br><span class="line">       &#x2F;&#x2F; 即是否短路</span><br><span class="line">       if (circuitBreaker.allowRequest()) &#123;</span><br><span class="line">       	&#x2F;&#x2F; 获取信号量</span><br><span class="line">           final TryableSemaphore executionSemaphore &#x3D; getExecutionSemaphore();</span><br><span class="line">           final AtomicBoolean semaphoreHasBeenReleased &#x3D; new AtomicBoolean(false);</span><br><span class="line">           final Action0 singleSemaphoreRelease &#x3D; new Action0() &#123;</span><br><span class="line">               @Override</span><br><span class="line">               public void call() &#123;</span><br><span class="line">                   if (semaphoreHasBeenReleased.compareAndSet(false, true)) &#123;</span><br><span class="line">                       executionSemaphore.release();</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;;</span><br><span class="line"></span><br><span class="line">           final Action1&lt;Throwable&gt; markExceptionThrown &#x3D; new Action1&lt;Throwable&gt;() &#123;</span><br><span class="line">               @Override</span><br><span class="line">               public void call(Throwable t) &#123;</span><br><span class="line">                   eventNotifier.markEvent(HystrixEventType.EXCEPTION_THROWN, commandKey);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;;</span><br><span class="line">           </span><br><span class="line">           &#x2F;&#x2F; 尝试获取信号量</span><br><span class="line">           if (executionSemaphore.tryAcquire()) &#123;</span><br><span class="line">               try &#123;</span><br><span class="line">                   &#x2F;* used to track userThreadExecutionTime *&#x2F;</span><br><span class="line">                   executionResult &#x3D; executionResult.setInvocationStartTime(System.currentTimeMillis());</span><br><span class="line">                   &#x2F;&#x2F; 执行命令，并添加相应处理</span><br><span class="line">                   return executeCommandAndObserve(_cmd)</span><br><span class="line">                           .doOnError(markExceptionThrown)</span><br><span class="line">                           .doOnTerminate(singleSemaphoreRelease)</span><br><span class="line">                           .doOnUnsubscribe(singleSemaphoreRelease);</span><br><span class="line">               &#125; catch (RuntimeException e) &#123;</span><br><span class="line">                   return Observable.error(e);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; else &#123;</span><br><span class="line">           	&#x2F;&#x2F; 获取信号量失败，则进行降级处理</span><br><span class="line">               return handleSemaphoreRejectionViaFallback();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; else &#123;</span><br><span class="line">       	&#x2F;&#x2F; 处于短路状态，进行降级处理</span><br><span class="line">           return handleShortCircuitViaFallback();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   ...</span><br><span class="line">   </span><br><span class="line">       private Observable&lt;R&gt; executeCommandAndObserve(final AbstractCommand&lt;R&gt; _cmd) &#123;</span><br><span class="line">       final HystrixRequestContext currentRequestContext &#x3D; HystrixRequestContext.getContextForCurrentThread();</span><br><span class="line">       </span><br><span class="line">       ...</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F; 成功回调，重置短路状态</span><br><span class="line">       final Action0 markOnCompleted &#x3D; new Action0() &#123;</span><br><span class="line">           @Override</span><br><span class="line">           public void call() &#123;</span><br><span class="line">               if (!commandIsScalar()) &#123;</span><br><span class="line">                   long latency &#x3D; System.currentTimeMillis() - executionResult.getStartTimestamp();</span><br><span class="line">                   eventNotifier.markCommandExecution(getCommandKey(), properties.executionIsolationStrategy().get(), (int) latency, executionResult.getOrderedList());</span><br><span class="line">                   eventNotifier.markEvent(HystrixEventType.SUCCESS, commandKey);</span><br><span class="line">                   executionResult &#x3D; executionResult.addEvent((int) latency, HystrixEventType.SUCCESS);</span><br><span class="line">                   circuitBreaker.markSuccess();</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F; 失败回调，对Exception进行相应处理</span><br><span class="line">       &#x2F;&#x2F; 在handler里，则会进行降级操作(Fallback)</span><br><span class="line">       final Func1&lt;Throwable, Observable&lt;R&gt;&gt; handleFallback &#x3D; new Func1&lt;Throwable, Observable&lt;R&gt;&gt;() &#123;</span><br><span class="line">           @Override</span><br><span class="line">           public Observable&lt;R&gt; call(Throwable t) &#123;</span><br><span class="line">               Exception e &#x3D; getExceptionFromThrowable(t);</span><br><span class="line">               executionResult &#x3D; executionResult.setExecutionException(e);</span><br><span class="line">               if (e instanceof RejectedExecutionException) &#123;</span><br><span class="line">                   return handleThreadPoolRejectionViaFallback(e);</span><br><span class="line">               &#125; else if (t instanceof HystrixTimeoutException) &#123;</span><br><span class="line">                   return handleTimeoutViaFallback();</span><br><span class="line">               &#125; else if (t instanceof HystrixBadRequestException) &#123;</span><br><span class="line">                   return handleBadRequestByEmittingError(e);</span><br><span class="line">               &#125; else &#123;</span><br><span class="line">                   &#x2F;*</span><br><span class="line">                    * Treat HystrixBadRequestException from ExecutionHook like a plain HystrixBadRequestException.</span><br><span class="line">                    *&#x2F;</span><br><span class="line">                   if (e instanceof HystrixBadRequestException) &#123;</span><br><span class="line">                       eventNotifier.markEvent(HystrixEventType.BAD_REQUEST, commandKey);</span><br><span class="line">                       return Observable.error(e);</span><br><span class="line">                   &#125;</span><br><span class="line"></span><br><span class="line">                   return handleFailureViaFallback(e);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">       </span><br><span class="line">       ...</span><br><span class="line"></span><br><span class="line">       Observable&lt;R&gt; execution;</span><br><span class="line">       &#x2F;&#x2F; 是否开启超时设定，是则添加超时操作</span><br><span class="line">       &#x2F;&#x2F; executeCommandWithSpecifiedIsolation：</span><br><span class="line">       &#x2F;&#x2F; 线程隔离，状态判断etc...</span><br><span class="line">       if (properties.executionTimeoutEnabled().get()) &#123;</span><br><span class="line">           execution &#x3D; executeCommandWithSpecifiedIsolation(_cmd)</span><br><span class="line">                   .lift(new HystrixObservableTimeoutOperator&lt;R&gt;(_cmd));</span><br><span class="line">       &#125; else &#123;</span><br><span class="line">           execution &#x3D; executeCommandWithSpecifiedIsolation(_cmd);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       return execution.doOnNext(markEmits)</span><br><span class="line">               .doOnCompleted(markOnCompleted)</span><br><span class="line">               .onErrorResumeNext(handleFallback)</span><br><span class="line">               .doOnEach(setRequestContext);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再来看短路器 HystrixCircuitBreaker，这是个接口，其实现为HystrixCircuitBreakerImpl。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">private final HystrixCommandProperties properties;</span><br><span class="line">      private final HystrixCommandMetrics metrics;</span><br><span class="line"></span><br><span class="line">      &#x2F;* track whether this circuit is open&#x2F;closed at any given point in time (default to false&#x3D;&#x3D;closed) *&#x2F;</span><br><span class="line">      private AtomicBoolean circuitOpen &#x3D; new AtomicBoolean(false);</span><br><span class="line"></span><br><span class="line">      &#x2F;* when the circuit was marked open or was last allowed to try a &#39;singleTest&#39; *&#x2F;</span><br><span class="line">      private AtomicLong circuitOpenedOrLastTestedTime &#x3D; new AtomicLong();</span><br><span class="line">      </span><br><span class="line">      &#x2F;**</span><br><span class="line">      * 执行成功</span><br><span class="line">      * 在短路器打开时，将其关闭，并重置计数流</span><br><span class="line">      *&#x2F;</span><br><span class="line">      public void markSuccess() &#123;</span><br><span class="line">          if (circuitOpen.get()) &#123;</span><br><span class="line">              if (circuitOpen.compareAndSet(true, false)) &#123;</span><br><span class="line">                  &#x2F;&#x2F;win the thread race to reset metrics</span><br><span class="line">                  &#x2F;&#x2F;Unsubscribe from the current stream to reset the health counts stream.  This only affects the health counts view,</span><br><span class="line">                  &#x2F;&#x2F;and all other metric consumers are unaffected by the reset</span><br><span class="line">                  metrics.resetStream();</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      &#x2F;&#x2F; 判断是否允许请求（短路）</span><br><span class="line">      public boolean allowRequest() &#123;</span><br><span class="line">      	&#x2F;&#x2F; 配置文件强制打开短路器，则拒绝所有请求</span><br><span class="line">          if (properties.circuitBreakerForceOpen().get()) &#123;</span><br><span class="line">              &#x2F;&#x2F; properties have asked us to force the circuit open so we will allow NO requests</span><br><span class="line">              return false;</span><br><span class="line">          &#125;</span><br><span class="line">          &#x2F;&#x2F; 配置文件强制关闭短路器，但仍然调用isOpen()方法进行统计</span><br><span class="line">          if (properties.circuitBreakerForceClosed().get()) &#123;</span><br><span class="line">              &#x2F;&#x2F; we still want to allow isOpen() to perform it&#39;s calculations so we simulate normal behavior</span><br><span class="line">              isOpen();</span><br><span class="line">              &#x2F;&#x2F; properties have asked us to ignore errors so we will ignore the results of isOpen and just allow all traffic through</span><br><span class="line">              return true;</span><br><span class="line">          &#125;</span><br><span class="line">          return !isOpen() || allowSingleTest();</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      public boolean isOpen() &#123;</span><br><span class="line">      	&#x2F;&#x2F; 获取短路器状态，如果打开则直接返回</span><br><span class="line">          if (circuitOpen.get()) &#123;</span><br><span class="line">              &#x2F;&#x2F; if we&#39;re open we immediately return true and don&#39;t bother attempting to &#39;close&#39; ourself as that is left to allowSingleTest and a subsequent successful test to close</span><br><span class="line">              return true;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          &#x2F;&#x2F; we&#39;re closed, so let&#39;s see if errors have made us so we should trip the circuit open</span><br><span class="line">          &#x2F;&#x2F; 获取计数器</span><br><span class="line">          HealthCounts health &#x3D; metrics.getHealthCounts();</span><br><span class="line"></span><br><span class="line">          &#x2F;&#x2F; check if we are past the statisticalWindowVolumeThreshold</span><br><span class="line">          &#x2F;&#x2F; 检查请求总数是否大于阈值</span><br><span class="line">          if (health.getTotalRequests() &lt; properties.circuitBreakerRequestVolumeThreshold().get()) &#123;</span><br><span class="line">              &#x2F;&#x2F; we are not past the minimum volume threshold for the statisticalWindow so we&#39;ll return false immediately and not calculate anything</span><br><span class="line">              return false;</span><br><span class="line">          &#125;</span><br><span class="line">          </span><br><span class="line">          &#x2F;&#x2F; 请求总数已大于阈值</span><br><span class="line">          &#x2F;&#x2F; 则检查错误百分比是否大于阈值</span><br><span class="line">          if (health.getErrorPercentage() &lt; properties.circuitBreakerErrorThresholdPercentage().get()) &#123;</span><br><span class="line">              return false;</span><br><span class="line">          &#125; else &#123;</span><br><span class="line">          	&#x2F;&#x2F; 两者都大于阈值，则将开关打开</span><br><span class="line">              &#x2F;&#x2F; our failure rate is too high, trip the circuit</span><br><span class="line">              if (circuitOpen.compareAndSet(false, true)) &#123;</span><br><span class="line">                  &#x2F;&#x2F; if the previousValue was false then we want to set the currentTime</span><br><span class="line">                  circuitOpenedOrLastTestedTime.set(System.currentTimeMillis());</span><br><span class="line">                  return true;</span><br><span class="line">              &#125; else &#123;</span><br><span class="line">              	&#x2F;&#x2F; 开关打开失败（可能其他线程打开了），但阈值仍然是超过的，所以仍然返回true</span><br><span class="line">                  &#x2F;&#x2F; How could previousValue be true? If another thread was going through this code at the same time a race-condition could have</span><br><span class="line">                  &#x2F;&#x2F; caused another thread to set it to true already even though we were in the process of doing the same</span><br><span class="line">                  &#x2F;&#x2F; In this case, we know the circuit is open, so let the other thread set the currentTime and report back that the circuit is open</span><br><span class="line">                  return true;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      &#x2F;**</span><br><span class="line">      * 是否允许单个请求进行测试（half-open）</span><br><span class="line">      * 在短路一段时间（超过睡眠窗口时间）后，允许一个请求来尝试以判断连通状态</span><br><span class="line">      *&#x2F;</span><br><span class="line">      public boolean allowSingleTest() &#123;</span><br><span class="line">      	&#x2F;&#x2F; 短路器打开时间或上次测试连通时间</span><br><span class="line">          long timeCircuitOpenedOrWasLastTested &#x3D; circuitOpenedOrLastTestedTime.get();</span><br><span class="line">          &#x2F;&#x2F; 1) if the circuit is open</span><br><span class="line">          &#x2F;&#x2F; 2) and it&#39;s been longer than &#39;sleepWindow&#39; since we opened the circuit</span><br><span class="line">          if (circuitOpen.get() &amp;&amp; System.currentTimeMillis() &gt; timeCircuitOpenedOrWasLastTested + properties.circuitBreakerSleepWindowInMilliseconds().get()) &#123;</span><br><span class="line">              &#x2F;&#x2F; We push the &#39;circuitOpenedTime&#39; ahead by &#39;sleepWindow&#39; since we have allowed one request to try.</span><br><span class="line">              &#x2F;&#x2F; If it succeeds the circuit will be closed, otherwise another singleTest will be allowed at the end of the &#39;sleepWindow&#39;.</span><br><span class="line">              &#x2F;&#x2F; 尝试更新测试时间</span><br><span class="line">              if (circuitOpenedOrLastTestedTime.compareAndSet(timeCircuitOpenedOrWasLastTested, System.currentTimeMillis())) &#123;</span><br><span class="line">                  &#x2F;&#x2F; if this returns true that means we set the time so we&#39;ll return true to allow the singleTest</span><br><span class="line">                  &#x2F;&#x2F; if it returned false it means another thread raced us and allowed the singleTest before we did</span><br><span class="line">                  return true;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">          return false;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/03/29/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%BA%8C-%E7%86%94%E6%96%AD%EF%BC%8C%E9%99%8D%E7%BA%A7%EF%BC%8C%E9%99%90%E6%B5%81/" data-id="ckaqo6uzv002b28o6cv9s0urs" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/03/30/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%9B%9B-hystrix/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          spring cloud实践(四) hystrix
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/03/18/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%89-ribbon/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">spring cloud实践(三) ribbon</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

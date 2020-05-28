@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>服务容错(三) 限流 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="限流的目的是通过对并发访问&#x2F;请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。 一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如nginx的limit_conn模块，用来限制瞬时并发连接数）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="服务容错(三) 限流">
+<meta property="og:url" content="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="限流的目的是通过对并发访问&#x2F;请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。 一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如nginx的limit_conn模块，用来限制瞬时并发连接数）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-04-09T13:35:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="spring cloud">
+<meta property="article:tag" content="dubbo">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-服务容错-三-限流" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" class="article-date">
+  <time datetime="2019-04-09T13:35:00.000Z" itemprop="datePublished">2019-04-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      服务容错(三) 限流
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>限流的目的是通过对并发访问/请求进行限速或者一个时间窗口内的的请求进行限速来保护系统，一旦达到限制速率则可以拒绝服务（定向到错误页或告知资源没有了）、排队或等待（比如秒杀、评论、下单）、降级（返回兜底数据或默认数据，如商品详情页库存默认有货）。</p>
+<p>一般开发高并发系统常见的限流有：限制总并发数（比如数据库连接池、线程池）、限制瞬时并发数（如nginx的limit_conn模块，用来限制瞬时并发连接数）、限制时间窗口内的平均速率（如Guava的RateLimiter、nginx的limit_req模块，限制每秒的平均速率）；其他还有如限制远程接口调用速率、限制MQ的消费速率。另外还可以根据网络连接数、网络流量、CPU或内存负载等来限流。</p>
+<h4 id="Dubbo"><a href="#Dubbo" class="headerlink" title="Dubbo"></a>Dubbo</h4><p>Dubbo关于限速的类在dubbo-rpc-api项目中org.apache.dubbo.rpc.filter包里。(2.7.1)</p>
+<h5 id="TPSLimitFilter"><a href="#TPSLimitFilter" class="headerlink" title="TPSLimitFilter"></a>TPSLimitFilter</h5><p>首先看TPSFilterLimiter，TPSFilterLimiter是一个简单的流量流入限制器，作用于服务提供者。当有请求进来时，看是否有容量能继续处理该请求，有则执行请求，否则抛出RpcException。</p>
+<p>判断容量流程：</p>
+<ol>
+<li><p>当前时间是否大于上次容量重置时间+设置的重置时间间隔，是则将容量重置为预设容量，并更新重置时间</p>
+</li>
+<li><p>如果当前容量大于0，则尝试减去1，成功则放行，否则失败 </p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class TpsLimitFilter implements Filter &#123;</span><br><span class="line">    private final TPSLimiter tpsLimiter &#x3D; new DefaultTPSLimiter();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Result invoke(Invoker&lt;?&gt; invoker, Invocation invocation) throws RpcException &#123;</span><br><span class="line">    	&#x2F;&#x2F; 判断限流器是否允许请求</span><br><span class="line">        if (!tpsLimiter.isAllowable(invoker.getUrl(), invocation)) &#123;</span><br><span class="line">            throw new RpcException(</span><br><span class="line">                    &quot;Failed to invoke service &quot; +</span><br><span class="line">                            invoker.getInterface().getName() +</span><br><span class="line">                            &quot;.&quot; +</span><br><span class="line">                            invocation.getMethodName() +</span><br><span class="line">                            &quot; because exceed max service tps.&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return invoker.invoke(invocation);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>跳转至tpsLimiter.isAllowable</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public boolean isAllowable(URL url, Invocation invocation) &#123;</span><br><span class="line">		&#x2F;&#x2F; 获取URL中请求频率限制（数量）</span><br><span class="line">     int rate &#x3D; url.getParameter(Constants.TPS_LIMIT_RATE_KEY, -1);</span><br><span class="line">     &#x2F;&#x2F; 获取URL中请求数量重置时间(单位时间)</span><br><span class="line">     long interval &#x3D; url.getParameter(Constants.TPS_LIMIT_INTERVAL_KEY,</span><br><span class="line">             Constants.DEFAULT_TPS_LIMIT_INTERVAL);</span><br><span class="line">     String serviceKey &#x3D; url.getServiceKey();</span><br><span class="line">     if (rate &gt; 0) &#123;</span><br><span class="line">     	&#x2F;&#x2F; 状态信息，无则新建</span><br><span class="line">         StatItem statItem &#x3D; stats.get(serviceKey);</span><br><span class="line">         if (statItem &#x3D;&#x3D; null) &#123;</span><br><span class="line">             stats.putIfAbsent(serviceKey,</span><br><span class="line">                     new StatItem(serviceKey, rate, interval));</span><br><span class="line">             statItem &#x3D; stats.get(serviceKey);</span><br><span class="line">         &#125;</span><br><span class="line">         return statItem.isAllowable();</span><br><span class="line">     &#125; else &#123;</span><br><span class="line">         StatItem statItem &#x3D; stats.get(serviceKey);</span><br><span class="line">         if (statItem !&#x3D; null) &#123;</span><br><span class="line">             stats.remove(serviceKey);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     return true;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续转入statItem.isAllowable()</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public boolean isAllowable() &#123;</span><br><span class="line">    long now &#x3D; System.currentTimeMillis();</span><br><span class="line">    &#x2F;&#x2F; 当前时间是否大于上次重置时间+重置时间间隔</span><br><span class="line">    if (now &gt; lastResetTime + interval) &#123;</span><br><span class="line">    	&#x2F;&#x2F; 重置计数，更新重置时间</span><br><span class="line">        token.set(rate);</span><br><span class="line">        lastResetTime &#x3D; now;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int value &#x3D; token.get();</span><br><span class="line">    boolean flag &#x3D; false;</span><br><span class="line">    &#x2F;&#x2F; 尝试获取资源</span><br><span class="line">    while (value &gt; 0 &amp;&amp; !flag) &#123;</span><br><span class="line">        flag &#x3D; token.compareAndSet(value, value - 1);</span><br><span class="line">        value &#x3D; token.get();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return flag;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="ExecuteLimitFilter"><a href="#ExecuteLimitFilter" class="headerlink" title="ExecuteLimitFilter"></a>ExecuteLimitFilter</h5><p>ExecuteLimitFilter是一个限制同时执行数的限制器，同TPSLimitFilter相同作用于服务提供者。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public class ExecuteLimitFilter implements Filter &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Result invoke(Invoker&lt;?&gt; invoker, Invocation invocation) throws RpcException &#123;</span><br><span class="line">        URL url &#x3D; invoker.getUrl();</span><br><span class="line">        String methodName &#x3D; invocation.getMethodName();</span><br><span class="line">        &#x2F;&#x2F; 获取最大并发执行数</span><br><span class="line">        int max &#x3D; url.getMethodParameter(methodName, Constants.EXECUTES_KEY, 0);</span><br><span class="line">        &#x2F;&#x2F; RpcStatus中保存了调用的一些信息，如当前执行数，执行总次数，失败次数等</span><br><span class="line">        &#x2F;&#x2F; beginCount方法尝试增加method的active即当前执行数，如果原子增加后大于max则减去并返回false，否则成功，且增加URL的active</span><br><span class="line">        if (!RpcStatus.beginCount(url, methodName, max)) &#123;</span><br><span class="line">            throw new RpcException(&quot;Failed to invoke method &quot; + invocation.getMethodName() + &quot; in provider &quot; +</span><br><span class="line">                    url + &quot;, cause: The service using threads greater than &lt;dubbo:service executes&#x3D;\&quot;&quot; + max +</span><br><span class="line">                    &quot;\&quot; &#x2F;&gt; limited.&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F; 成功获取容量，继续执行</span><br><span class="line">        long begin &#x3D; System.currentTimeMillis();</span><br><span class="line">        boolean isSuccess &#x3D; true;</span><br><span class="line">        try &#123;</span><br><span class="line">            return invoker.invoke(invocation);</span><br><span class="line">        &#125; catch (Throwable t) &#123;</span><br><span class="line">            isSuccess &#x3D; false;</span><br><span class="line">            if (t instanceof RuntimeException) &#123;</span><br><span class="line">                throw (RuntimeException) t;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                throw new RpcException(&quot;unexpected exception when ExecuteLimitFilter&quot;, t);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">        	&#x2F;&#x2F; 释放资源，减去active，并对URL和method进行统计</span><br><span class="line">            RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isSuccess);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="ActiveLimitFilter"><a href="#ActiveLimitFilter" class="headerlink" title="ActiveLimitFilter"></a>ActiveLimitFilter</h5><p>ActiveLimitFilter是一个限制并发执行数（或占用连接的请求数）的限制器。有别于上面两个限制器，该限制器作用于消费端。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">public Result invoke(Invoker&lt;?&gt; invoker, Invocation invocation) throws RpcException &#123;</span><br><span class="line">    URL url &#x3D; invoker.getUrl();</span><br><span class="line">    String methodName &#x3D; invocation.getMethodName();</span><br><span class="line">    &#x2F;&#x2F; 获取最大活跃数</span><br><span class="line">    int max &#x3D; invoker.getUrl().getMethodParameter(methodName, Constants.ACTIVES_KEY, 0);</span><br><span class="line">    &#x2F;&#x2F; 根据url和method获取状态信息</span><br><span class="line">    RpcStatus count &#x3D; RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName());</span><br><span class="line">    &#x2F;&#x2F; 同ExecuteLimitFilter，尝试获取资源</span><br><span class="line">    if (!count.beginCount(url, methodName, max)) &#123;</span><br><span class="line">    	&#x2F;&#x2F; 获取失败</span><br><span class="line">        long timeout &#x3D; invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, 0);</span><br><span class="line">        long start &#x3D; System.currentTimeMillis();</span><br><span class="line">        &#x2F;&#x2F; 超时剩余时间</span><br><span class="line">        long remain &#x3D; timeout;</span><br><span class="line">        synchronized (count) &#123;</span><br><span class="line">        	&#x2F;&#x2F; 重复尝试获取资源，如获取失败则释放锁并进行等待</span><br><span class="line">            &#x2F;&#x2F; 如果因资源释放被唤醒，则竞争资源</span><br><span class="line">            &#x2F;&#x2F; 或因超时被唤醒</span><br><span class="line">            &#x2F;&#x2F; 在时间耗尽后，则抛出错误</span><br><span class="line">            while (!count.beginCount(url, methodName, max)) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    count.wait(remain);</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                    &#x2F;&#x2F; ignore</span><br><span class="line">                &#125;</span><br><span class="line">                long elapsed &#x3D; System.currentTimeMillis() - start;</span><br><span class="line">                remain &#x3D; timeout - elapsed;</span><br><span class="line">                if (remain &lt;&#x3D; 0) &#123;</span><br><span class="line">                    throw new RpcException(&quot;Waiting concurrent invoke timeout in client-side for service:  &quot;</span><br><span class="line">                            + invoker.getInterface().getName() + &quot;, method: &quot;</span><br><span class="line">                            + invocation.getMethodName() + &quot;, elapsed: &quot; + elapsed</span><br><span class="line">                            + &quot;, timeout: &quot; + timeout + &quot;. concurrent invokes: &quot; + count.getActive()</span><br><span class="line">                            + &quot;. max concurrent invoke limit: &quot; + max);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    &#x2F;&#x2F; 获取资源成功</span><br><span class="line">    boolean isSuccess &#x3D; true;</span><br><span class="line">    long begin &#x3D; System.currentTimeMillis();</span><br><span class="line">    try &#123;</span><br><span class="line">        return invoker.invoke(invocation);</span><br><span class="line">    &#125; catch (RuntimeException t) &#123;</span><br><span class="line">        isSuccess &#x3D; false;</span><br><span class="line">        throw t;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">    	&#x2F;&#x2F; 释放资源，并通知其他等待资源的线程</span><br><span class="line">        count.endCount(url, methodName, System.currentTimeMillis() - begin, isSuccess);</span><br><span class="line">        if (max &gt; 0) &#123;</span><br><span class="line">            synchronized (count) &#123;</span><br><span class="line">                count.notifyAll();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Spring-Cloud-Gateway"><a href="#Spring-Cloud-Gateway" class="headerlink" title="Spring Cloud Gateway"></a>Spring Cloud Gateway</h4><p>在之前的实践有提及spring cloud gateway的限流，现在来看看其实现。(版本2.1.1)</p>
+<p>其代码在spring-cloud-gateway-core下的 org.springframework.cloud.gateway.filter.ratelimit 包中。</p>
+<p>查看 RedisRateLimiter 类的 isAllowed 方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">public Mono&lt;Response&gt; isAllowed(String routeId, String id) &#123;</span><br><span class="line">   	&#x2F;&#x2F; 检查组件是否初始化成功</span><br><span class="line">	if (!this.initialized.get()) &#123;</span><br><span class="line">		throw new IllegalStateException(&quot;RedisRateLimiter is not initialized&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	Config routeConfig &#x3D; loadConfiguration(routeId);</span><br><span class="line"></span><br><span class="line">       &#x2F;&#x2F; 允许用户每秒处理多少个请求;令牌桶的填充速率。</span><br><span class="line">	int replenishRate &#x3D; routeConfig.getReplenishRate();</span><br><span class="line"></span><br><span class="line">       &#x2F;&#x2F; 令牌桶的容量，允许在一秒钟内的最大请求数</span><br><span class="line">	int burstCapacity &#x3D; routeConfig.getBurstCapacity();</span><br><span class="line"></span><br><span class="line">	try &#123;</span><br><span class="line">       	&#x2F;&#x2F; 获取redis keys, 包括一个tokenKey和一个timestampKey</span><br><span class="line">		List&lt;String&gt; keys &#x3D; getKeys(id);</span><br><span class="line"></span><br><span class="line">		&#x2F;&#x2F; The arguments to the LUA script. time() returns unixtime in seconds.</span><br><span class="line">           &#x2F;&#x2F; 生成用于执行LUA脚本的参数</span><br><span class="line">           &#x2F;&#x2F; 1. replenishRate, 2. burstCapacity</span><br><span class="line">           &#x2F;&#x2F; 3. 当前时间戳, 4. 请求数 这里恒为1</span><br><span class="line">		List&lt;String&gt; scriptArgs &#x3D; Arrays.asList(replenishRate + &quot;&quot;,</span><br><span class="line">				burstCapacity + &quot;&quot;, Instant.now().getEpochSecond() + &quot;&quot;, &quot;1&quot;);</span><br><span class="line">           &#x2F;&#x2F; Lua脚本返回参数：允许的请求数，剩下的令牌数</span><br><span class="line">		Flux&lt;List&lt;Long&gt;&gt; flux &#x3D; this.redisTemplate.execute(this.script, keys,</span><br><span class="line">				scriptArgs);</span><br><span class="line">                   </span><br><span class="line">           &#x2F;&#x2F; 失败处理，进行记录，将结果写入Header回应</span><br><span class="line">           </span><br><span class="line">		return flux.onErrorResume(throwable -&gt; Flux.just(Arrays.asList(1L, -1L)))</span><br><span class="line">				.reduce(new ArrayList&lt;Long&gt;(), (longs, l) -&gt; &#123;</span><br><span class="line">					longs.addAll(l);</span><br><span class="line">					return longs;</span><br><span class="line">				&#125;).map(results -&gt; &#123;</span><br><span class="line">					boolean allowed &#x3D; results.get(0) &#x3D;&#x3D; 1L;</span><br><span class="line">					Long tokensLeft &#x3D; results.get(1);</span><br><span class="line"></span><br><span class="line">					Response response &#x3D; new Response(allowed,</span><br><span class="line">							getHeaders(routeConfig, tokensLeft));</span><br><span class="line"></span><br><span class="line">					if (log.isDebugEnabled()) &#123;</span><br><span class="line">						log.debug(&quot;response: &quot; + response);</span><br><span class="line">					&#125;</span><br><span class="line">					return response;</span><br><span class="line">				&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">	catch (Exception e) &#123;</span><br><span class="line">		log.error(&quot;Error determining if user allowed from redis&quot;, e);</span><br><span class="line">	&#125;</span><br><span class="line">	return Mono.just(new Response(true, getHeaders(routeConfig, -1L)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>来查看lua脚本，位于同一项目下resources/META-INF/scripts下。</p>
+<p>关键字为 1.tokenKey 和 2.timestampKey</p>
+<p>脚本入参依次为：1. replenishRate（令牌填充速率） 2. burstCapacity（最大请求数） 3. 当前时间戳, 4. 请求数 这里恒为1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">local tokens_key &#x3D; KEYS[1]</span><br><span class="line">local timestamp_key &#x3D; KEYS[2]</span><br><span class="line"></span><br><span class="line">local rate &#x3D; tonumber(ARGV[1])</span><br><span class="line">local capacity &#x3D; tonumber(ARGV[2])</span><br><span class="line">local now &#x3D; tonumber(ARGV[3])</span><br><span class="line">local requested &#x3D; tonumber(ARGV[4])</span><br><span class="line"></span><br><span class="line">-- 每次填充时间</span><br><span class="line">local fill_time &#x3D; capacity&#x2F;rate</span><br><span class="line">-- 存活时间</span><br><span class="line">local ttl &#x3D; math.floor(fill_time*2)</span><br><span class="line"></span><br><span class="line">-- 从redis获取剩余令牌数</span><br><span class="line">local last_tokens &#x3D; tonumber(redis.call(&quot;get&quot;, tokens_key))</span><br><span class="line">-- 不存在则进行初始化</span><br><span class="line">if last_tokens &#x3D;&#x3D; nil then</span><br><span class="line">  last_tokens &#x3D; capacity</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 从redis获取上次刷新时间</span><br><span class="line">local last_refreshed &#x3D; tonumber(redis.call(&quot;get&quot;, timestamp_key))</span><br><span class="line">if last_refreshed &#x3D;&#x3D; nil then</span><br><span class="line">  last_refreshed &#x3D; 0</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 上次刷新至今经过的时间</span><br><span class="line">local delta &#x3D; math.max(0, now-last_refreshed)</span><br><span class="line">-- 填充token后token数量</span><br><span class="line">local filled_tokens &#x3D; math.min(capacity, last_tokens+(delta*rate))</span><br><span class="line">-- 判断是否能够允许</span><br><span class="line">local allowed &#x3D; filled_tokens &gt;&#x3D; requested</span><br><span class="line">local new_tokens &#x3D; filled_tokens</span><br><span class="line">local allowed_num &#x3D; 0</span><br><span class="line"></span><br><span class="line">-- 如果可行，则减去请求数</span><br><span class="line">if allowed then</span><br><span class="line">  new_tokens &#x3D; filled_tokens - requested</span><br><span class="line">  allowed_num &#x3D; 1</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 结果写入redis</span><br><span class="line">redis.call(&quot;setex&quot;, tokens_key, ttl, new_tokens)</span><br><span class="line">redis.call(&quot;setex&quot;, timestamp_key, ttl, now)</span><br><span class="line"></span><br><span class="line">-- 返回允许数量，剩余token数量</span><br><span class="line">return &#123; allowed_num, new_tokens &#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" data-id="ckaqo6uzs002628o6faue56xb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          使用docker搭建gitlab,postgres,redis
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">spring cloud实践(八) elk</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

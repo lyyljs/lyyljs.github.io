@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>spring cloud实践(七) sleuth | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="链路追踪随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。 分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。 一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。 spring cloud sleuthspri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring cloud实践(七) sleuth">
+<meta property="og:url" content="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="链路追踪随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。 分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。 一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。 spring cloud sleuthspri">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/trace-id.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/traces.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/trace.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/dependencies.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/dependency1.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/dependency2.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/kibana-zipkin-index.png">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/kibana-zipkin-discover.png">
+<meta property="article:published_time" content="2019-04-08T10:33:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="spring cloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/trace-id.png">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-spring-cloud实践-七-sleuth" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" class="article-date">
+  <time datetime="2019-04-08T10:33:00.000Z" itemprop="datePublished">2019-04-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      spring cloud实践(七) sleuth
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="链路追踪"><a href="#链路追踪" class="headerlink" title="链路追踪"></a>链路追踪</h4><p>随着业务发展，后端服务单元不断增加，导致一个前端请求需要诸多后端服务参与，这也使得如果请求出现问题变慢难以定位原因。此时就需要链路追踪系统。</p>
+<p>分布式链路追踪系统会跟进一个请求到底有哪些服务参与，参与的顺序又是怎样的，从而达到每个请求的步骤清晰可见，出了问题，很快定位。</p>
+<p>一般地，一个分布式链路追踪系统分为三个部分：数据收集，数据存储和数据展示。</p>
+<h4 id="spring-cloud-sleuth"><a href="#spring-cloud-sleuth" class="headerlink" title="spring cloud sleuth"></a>spring cloud sleuth</h4><p>spring cloud sleuth 是 spring cloud 的分布式链路追踪解决方案的实现。</p>
+<h5 id="基本术语"><a href="#基本术语" class="headerlink" title="基本术语"></a>基本术语</h5><p>Spring Cloud Sleuth采用的是Google的开源项目<a href="https://ai.google/research/pubs/pub36356" target="_blank" rel="noopener">Dapper</a>的专业术语。</p>
+<ul>
+<li><p><strong>Span</strong>: 基本工作单元，发送一个远程调度任务 就会产生一个Span，Span是一个64位ID唯一标识的，Trace是用另一个64位ID唯一标识的，Span还有其他数据信息，比如摘要、时间戳事件、Span的ID、以及进度ID。</p>
+</li>
+<li><p><strong>Trace</strong>: 一系列Span组成的一个树状结构。请求一个微服务系统的API接口，这个API接口，需要调用多个微服务，调用每个微服务都会产生一个新的Span，所有由这个请求产生的Span组成了这个Trace。</p>
+</li>
+<li><p><strong>Annotation</strong>: 用来及时记录一个事件的，一些核心注解用来定义一个请求的开始和结束。在sleuth使用了<a href="https://github.com/openzipkin/brave" target="_blank" rel="noopener">Brave</a>以后，已不需要使用这些特定事件来让zipkin理解是client或server，事件的开始以及结束。但为了学习的目的，仍然将这些行为标注出来。这些注解包括以下：</p>
+<ul>
+<li>cs: Client Sent，客户端发送一个请求，这个注解描述了这个Span的开始</li>
+<li>sr: Server Received，服务端获得请求并准备开始处理它，如果将其sr减去cs时间戳便可得到网络传输的时间。</li>
+<li>ss: Server Sent，服务端发送响应，该注解表明请求处理的完成(当请求返回客户端)，如果ss的时间戳减去sr时间戳，就可以得到服务器请求的时间。</li>
+<li>cr: Client Received，客户端接收响应，此时Span的结束，如果cr的时间戳减去cs时间戳便可以得到整个请求所消耗的时间。</li>
+</ul>
+</li>
+</ul>
+<p>下图展示了工作图：<br><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/trace-id.png" alt="Sleuth Working"></p>
+<h4 id="zipkin"><a href="#zipkin" class="headerlink" title="zipkin"></a>zipkin</h4><p>Zipkin 是一个开放源代码分布式的跟踪系统，由Twitter公司开源，它致力于收集服务的定时数据，以解决微服务架构中的延迟问题，包括数据的收集、存储、查找和展现。</p>
+<p>每个服务向zipkin报告计时数据，zipkin会根据调用关系通过Zipkin UI生成依赖关系图，显示了多少跟踪请求通过每个服务，该系统让开发者可通过一个 Web 前端轻松的收集和分析数据，例如用户每次请求服务的处理时间等，可方便的监测系统中存在的瓶颈。</p>
+<p>Zipkin提供了可插拔数据存储方式：In-Memory、MySql、Cassandra以及Elasticsearch。接下来的测试为方便直接采用In-Memory方式进行存储，生产推荐Elasticsearch。</p>
+<h4 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h4><h5 id="搭建zipkin-server"><a href="#搭建zipkin-server" class="headerlink" title="搭建zipkin server"></a>搭建zipkin server</h5><p>新建zipkin server项目,zipkin 可以使用 http,rabbitmq 等方式来进行数据交换，这里采用rabbitmq的方式。在持久化方面可使用 mysql,elasticsearch 等方式，这里采用elasticsearch。</p>
+<ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">&lt;parent&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-boot-starter-parent&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;2.1.4.RELEASE&lt;&#x2F;version&gt;</span><br><span class="line">	&lt;relativePath&#x2F;&gt; &lt;!-- lookup parent from repository --&gt;</span><br><span class="line">&lt;&#x2F;parent&gt;</span><br><span class="line">&lt;groupId&gt;lyyljs.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">&lt;artifactId&gt;zipkinserver&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;version&gt;0.0.1-SNAPSHOT&lt;&#x2F;version&gt;</span><br><span class="line">&lt;name&gt;zipkinserver&lt;&#x2F;name&gt;</span><br><span class="line">&lt;description&gt;Demo project for Spring Boot&lt;&#x2F;description&gt;</span><br><span class="line"></span><br><span class="line">&lt;properties&gt;</span><br><span class="line">	&lt;java.version&gt;1.8&lt;&#x2F;java.version&gt;</span><br><span class="line">	&lt;spring-cloud.version&gt;Greenwich.RELEASE&lt;&#x2F;spring-cloud.version&gt;</span><br><span class="line">	&lt;zipkin.version&gt;2.12.8&lt;&#x2F;zipkin.version&gt;</span><br><span class="line">&lt;&#x2F;properties&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependencies&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">   		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">   		&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">   		&lt;groupId&gt;io.zipkin.java&lt;&#x2F;groupId&gt;</span><br><span class="line">   		&lt;artifactId&gt;zipkin-server&lt;&#x2F;artifactId&gt;</span><br><span class="line">   		&lt;version&gt;$&#123;zipkin.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">   		&lt;groupId&gt;io.zipkin.java&lt;&#x2F;groupId&gt;</span><br><span class="line">   		&lt;artifactId&gt;zipkin-autoconfigure-ui&lt;&#x2F;artifactId&gt;</span><br><span class="line">   		&lt;version&gt;$&#123;zipkin.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">           &lt;groupId&gt;io.zipkin.java&lt;&#x2F;groupId&gt;</span><br><span class="line">           &lt;artifactId&gt;zipkin-autoconfigure-collector-rabbitmq&lt;&#x2F;artifactId&gt;</span><br><span class="line">           &lt;version&gt;$&#123;zipkin.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">       &lt;&#x2F;dependency&gt;</span><br><span class="line">       &lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;io.zipkin.java&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;zipkin-autoconfigure-storage-elasticsearch&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;version&gt;$&#123;zipkin.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">   		&lt;groupId&gt;org.springframework.amqp&lt;&#x2F;groupId&gt;</span><br><span class="line">   		&lt;artifactId&gt;spring-rabbit&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line"></span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">	&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;&#x2F;dependencies&gt;</span><br><span class="line"></span><br><span class="line">&lt;dependencyManagement&gt;</span><br><span class="line">	&lt;dependencies&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;spring-cloud-dependencies&lt;&#x2F;artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;spring-cloud.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">			&lt;type&gt;pom&lt;&#x2F;type&gt;</span><br><span class="line">			&lt;scope&gt;import&lt;&#x2F;scope&gt;</span><br><span class="line">		&lt;&#x2F;dependency&gt;</span><br><span class="line">	&lt;&#x2F;dependencies&gt;</span><br><span class="line">&lt;&#x2F;dependencyManagement&gt;</span><br><span class="line"></span><br><span class="line">&lt;build&gt;</span><br><span class="line">	&lt;plugins&gt;</span><br><span class="line">		&lt;plugin&gt;</span><br><span class="line">			&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;spring-boot-maven-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">		&lt;&#x2F;plugin&gt;</span><br><span class="line">	&lt;&#x2F;plugins&gt;</span><br><span class="line">&lt;&#x2F;build&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加配置application.yml</li>
+</ul>
+<p>zipkin server 采用了 armeria 作为web容器，所以这里需要将默认的web容器监听端口关闭，并对配置 armeria。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">server:</span><br><span class="line">   port: -1</span><br><span class="line">   register:</span><br><span class="line">    port1: 8000</span><br><span class="line">    port2: 8001</span><br><span class="line">    port3: 8002</span><br><span class="line"></span><br><span class="line">armeria:</span><br><span class="line">  ports:</span><br><span class="line">    - port: 9411</span><br><span class="line">      protocol: HTTP</span><br><span class="line"></span><br><span class="line">zipkin:</span><br><span class="line">  storage:</span><br><span class="line">    StorageComponent: elasticsearch</span><br><span class="line">    type: elasticsearch</span><br><span class="line">    elasticsearch:</span><br><span class="line">      hosts: localhost:9200</span><br><span class="line">  collector:</span><br><span class="line">    rabbitmq:</span><br><span class="line">      addresses: localhost:5672</span><br><span class="line">      username: guest</span><br><span class="line">      password: guest</span><br><span class="line">      queue: zipkin</span><br><span class="line"></span><br><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-zipkin-server</span><br><span class="line"></span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port1&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为启动类添加注解</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">@EnableEurekaClient</span><br><span class="line">@EnableZipkinServer</span><br><span class="line">public class ZipkinserverApplication &#123;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动</li>
+</ul>
+<p>访问 <a href="http://localhost:9411/zipkin" target="_blank" rel="noopener">http://localhost:9411/zipkin</a> 进入可视化页面。</p>
+<h5 id="为producer添加追踪组件"><a href="#为producer添加追踪组件" class="headerlink" title="为producer添加追踪组件"></a>为producer添加追踪组件</h5><ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  		&lt;groupId&gt;org.springframework.amqp&lt;&#x2F;groupId&gt;</span><br><span class="line">  		&lt;artifactId&gt;spring-rabbit&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">  		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">  		&lt;artifactId&gt;spring-cloud-starter-zipkin&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-producer</span><br><span class="line">  zipkin:</span><br><span class="line">    #base-url: http:&#x2F;&#x2F;localhost:9411</span><br><span class="line">     sender:</span><br><span class="line">       type: rabbit</span><br><span class="line">  sleuth:</span><br><span class="line">    messaging:</span><br><span class="line">      rabbit:</span><br><span class="line">       enabled: true</span><br><span class="line">    sampler:</span><br><span class="line">      #应采样的请求的概率。 例如。 应该对1.0  -  100％的请求进行抽样。 精度仅为整数（即不支持0.1％的迹线）。</span><br><span class="line">      probability: 1.0</span><br><span class="line">  rabbitmq:</span><br><span class="line">    host: localhost</span><br><span class="line">    port: 5672</span><br><span class="line">    username: guest</span><br><span class="line">    password: guest</span><br></pre></td></tr></table></figure>
+
+<h5 id="为consumer添加追踪组件"><a href="#为consumer添加追踪组件" class="headerlink" title="为consumer添加追踪组件"></a>为consumer添加追踪组件</h5><p>同producer相同</p>
+<ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">  		&lt;artifactId&gt;spring-cloud-starter-zipkin&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">  		&lt;groupId&gt;org.springframework.amqp&lt;&#x2F;groupId&gt;</span><br><span class="line">  		&lt;artifactId&gt;spring-rabbit&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-consumer</span><br><span class="line">  zipkin:</span><br><span class="line">    #base-url: http:&#x2F;&#x2F;localhost:9411</span><br><span class="line">    sender:</span><br><span class="line">      type: rabbit</span><br><span class="line">  sleuth:</span><br><span class="line">    messaging:</span><br><span class="line">      rabbit:</span><br><span class="line">       enabled: true</span><br><span class="line">    sampler:</span><br><span class="line">      #应采样的请求的概率。 例如。 应该对1.0  -  100％的请求进行抽样。 精度仅为整数（即不支持0.1％的迹线）。</span><br><span class="line">      probability: 1.0</span><br><span class="line">  rabbitmq:</span><br><span class="line">    host: localhost</span><br><span class="line">    port: 5672</span><br><span class="line">    username: guest</span><br><span class="line">    password: guest</span><br></pre></td></tr></table></figure>
+
+<h5 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h5><p>访问 <a href="http://localhost:9001/hello/lyyljs" target="_blank" rel="noopener">http://localhost:9001/hello/lyyljs</a>, 然后在zipkin server可视化页面查看</p>
+<p>路径追踪:<br><img src="/images/cloud/traces.png" alt="traces"></p>
+<p>可点击进入trace详情<br><img src="/images/cloud/trace.png" alt="trace"></p>
+<p>依赖分析:<br><img src="/images/cloud/dependencies.png" alt="dependencies"></p>
+<p>可点击服务查看详情:</p>
+<p><img src="/images/cloud/dependency1.png" alt="dependencies"></p>
+<p><img src="/images/cloud/dependency2.png" alt="dependencies"></p>
+<p>在kibana建立index:</p>
+<p><img src="/images/cloud/kibana-zipkin-index.png" alt="kibana"></p>
+<p>在kibana查看elasticsearch的数据:</p>
+<p><img src="/images/cloud/kibana-zipkin-discover.png" alt="kibana"></p>
+<hr>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><p><a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-sleuth/2.1.0.RELEASE/single/spring-cloud-sleuth.html" target="_blank" rel="noopener">spring cloud sleuth官方文档</a></p>
+</li>
+<li><p><a href="https://github.com/openzipkin/zipkin" target="_blank" rel="noopener">zipkin github</a></p>
+</li>
+<li><p><a href="https://line.github.io/armeria/" target="_blank" rel="noopener">armeria官方文档</a></p>
+</li>
+<li><p><a href="https://github.com/line/armeria-examples" target="_blank" rel="noopener">armeria-examples</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" data-id="ckaqo6uz3001628o6eeudatvm" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          spring cloud实践(八) elk
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用docker搭建elasticsearch和kibana</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

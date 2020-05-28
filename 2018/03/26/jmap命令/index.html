@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>jmap命令 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;打印可共享内存map或堆内存细节信息。使用时可能需要root权限。 概要jmap [options] pid jmap [options] executable core jmap [options] [pid] [server-id@] remote-hostname-or-IP options 命令行选项。 pid Java进程号。 execut">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jmap命令">
+<meta property="og:url" content="http://lyyljs.site/2018/03/26/jmap%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;打印可共享内存map或堆内存细节信息。使用时可能需要root权限。 概要jmap [options] pid jmap [options] executable core jmap [options] [pid] [server-id@] remote-hostname-or-IP options 命令行选项。 pid Java进程号。 execut">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-26T11:28:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="java命令">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-jmap命令" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/26/jmap%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time datetime="2018-03-26T11:28:00.000Z" itemprop="datePublished">2018-03-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      jmap命令
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;打印可共享内存map或堆内存细节信息。使用时可能需要root权限。</p>
+<h3 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h3><p><strong>jmap</strong> [options] <em>pid</em></p>
+<p><strong>jmap</strong> [options] <em>executable</em> <em>core</em></p>
+<p><strong>jmap</strong> [options] [pid] [server-id@] remote-hostname-or-IP</p>
+<p><strong>options</strong> 命令行选项。</p>
+<p><strong>pid</strong> Java进程号。</p>
+<p><strong>executable</strong> 可执行命令。</p>
+<p><strong>core</strong> 需要打印内存信息的core文件。</p>
+<p><strong>remote-hostname-or-IP</strong> 多个调试服务器在同一个远程主机上运行时使用的可选唯一标识。</p>
+<h3 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;<em>jmap</em>主要用于打印指定Java进程(或核心文件、远程调试服务器)的共享对象内存映射或堆内存细节。如果进程运行在64位虚拟机上，则可能需要使用-J-d64选项。</p>
+<h3 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h3><p><strong>&lt; no option &gt;</strong> 如果使用不带选项参数的jmap打印共享对象映射，将会打印目标虚拟机中加载的每个共享对象的起始地址、映射大小以及共享对象文件的路径全称。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % sudo jmap 3431</span><br><span class="line">Attaching to process ID 3431, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.66-b17</span><br><span class="line">0x0000000000400000	7K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;bin&#x2F;java</span><br><span class="line">0x00007f95eee86000	48K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libmanagement.so</span><br><span class="line">0x00007f95ef592000	86K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libgcc_s.so.1</span><br><span class="line">0x00007f95ef7a8000	250K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libsunec.so</span><br><span class="line">0x00007f95efbef000	90K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libnio.so</span><br><span class="line">0x00007f9611931000	113K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libnet.so</span><br><span class="line">0x00007f96279cc000	121K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libzip.so</span><br><span class="line">0x00007f9627be7000	50K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_files-2.15.so</span><br><span class="line">0x00007f9627df4000	46K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_nis-2.15.so</span><br><span class="line">0x00007f962c0ce000	94K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnsl-2.15.so</span><br><span class="line">0x00007f962c2e8000	34K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_compat-2.15.so</span><br><span class="line">0x00007f962c4f1000	220K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libjava.so</span><br><span class="line">0x00007f962c71d000	64K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libverify.so</span><br><span class="line">0x00007f962c92c000	31K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;librt-2.15.so</span><br><span class="line">0x00007f962cb34000	1006K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libm-2.15.so</span><br><span class="line">0x00007f962ce30000	16516K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;server&#x2F;libjvm.so</span><br><span class="line">0x00007f962de0a000	1772K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libc-2.15.so</span><br><span class="line">0x00007f962e1ca000	14K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libdl-2.15.so</span><br><span class="line">0x00007f962e3ce000	100K	&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8&#x2F;lib&#x2F;amd64&#x2F;jli&#x2F;libjli.so</span><br><span class="line">0x00007f962e5e4000	132K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libpthread-2.15.so</span><br><span class="line">0x00007f962e801000	145K	&#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;ld-2.15.so</span><br></pre></td></tr></table></figure>
+
+<p><strong>-dump:[live,] format=b, file=<em>filename</em></strong> 以hprof二进制格式转储Java堆到指定<em>filename<em>的文件中。live子选项是可选的。如果指定了live子选项，堆中只有活动的对象会被转储。可使用</em>jhat</em>,<em>Visual GC</em>,<em>eclipse Memory Analyzer</em>等工具进行分析。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jmap -dump:format&#x3D;b,file&#x3D;test.bin 3431</span><br><span class="line">Dumping heap to&#x2F;home&#x2F;lyyljs&#x2F;test.bin ...</span><br><span class="line">Heap dump file created</span><br><span class="line">-&gt; % jhat test.bin </span><br><span class="line">Reading from test.bin...</span><br><span class="line">Dump file created Mon Mar 26 14:09:49 CST 2018</span><br><span class="line">Snapshot read, resolving...</span><br><span class="line">Resolving 1250155 objects...</span><br><span class="line">Chasing references, expect 250 dots..........................................................................................................................................................................................................................................................</span><br><span class="line">Eliminating duplicate references..........................................................................................................................................................................................................................................................</span><br><span class="line">Snapshot resolved.</span><br><span class="line">Started HTTP server on port 7000</span><br><span class="line">Server is ready.#可以通过ip:7000访问查看分析。</span><br></pre></td></tr></table></figure>
+
+<p><strong>-finalizerinfo</strong> 打印等待终结（finalization）的对象信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % sudo jmap -finalizerinfo 3431</span><br><span class="line">Attaching to process ID 3431, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.66-b17</span><br><span class="line">Number of objects pending for finalization: 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>-heap</strong> 打印一个堆的摘要信息,，包括使用的GC算法、堆配置信息和分代堆使用信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % sudo jmap -heap 3431 </span><br><span class="line">Attaching to process ID 3431, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.66-b17</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Parallel GC with 2 thread(s)</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio         &#x3D; 0</span><br><span class="line">   MaxHeapFreeRatio         &#x3D; 100</span><br><span class="line">   MaxHeapSize              &#x3D; 268435456 (256.0MB)</span><br><span class="line">   NewSize                  &#x3D; 134217728 (128.0MB)</span><br><span class="line">   MaxNewSize               &#x3D; 134217728 (128.0MB)</span><br><span class="line">   OldSize                  &#x3D; 134217728 (128.0MB)</span><br><span class="line">   NewRatio                 &#x3D; 2</span><br><span class="line">   SurvivorRatio            &#x3D; 10</span><br><span class="line">   MetaspaceSize            &#x3D; 62914560 (60.0MB)</span><br><span class="line">   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)</span><br><span class="line">   MaxMetaspaceSize         &#x3D; 17592186044415 MB</span><br><span class="line">   G1HeapRegionSize         &#x3D; 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">PS Young Generation</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity &#x3D; 131072000 (125.0MB)</span><br><span class="line">   used     &#x3D; 73502080 (70.0970458984375MB)</span><br><span class="line">   free     &#x3D; 57569920 (54.9029541015625MB)</span><br><span class="line">   56.07763671875% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity &#x3D; 1572864 (1.5MB)</span><br><span class="line">   used     &#x3D; 987520 (0.9417724609375MB)</span><br><span class="line">   free     &#x3D; 585344 (0.5582275390625MB)</span><br><span class="line">   62.784830729166664% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity &#x3D; 1572864 (1.5MB)</span><br><span class="line">   used     &#x3D; 0 (0.0MB)</span><br><span class="line">   free     &#x3D; 1572864 (1.5MB)</span><br><span class="line">   0.0% used</span><br><span class="line">PS Old Generation</span><br><span class="line">   capacity &#x3D; 134217728 (128.0MB)</span><br><span class="line">   used     &#x3D; 30292192 (28.888885498046875MB)</span><br><span class="line">   free     &#x3D; 103925536 (99.11111450195312MB)</span><br><span class="line">   22.56944179534912% used</span><br><span class="line"></span><br><span class="line">19790 interned Strings occupying 1802464 bytes.</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>-histo[:live]</strong> 打印堆的柱状图。其中包括每个Java类,对象数量,内存大小,完全限定的类名。打印的JVM内部类名称将会带有一个****<em>前缀。如果指定了</em>live*子选项，则只计算活动的对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jmap -histo 3431 &gt; test.histo</span><br><span class="line">-&gt; % less test.histo </span><br><span class="line"> num     #instances         #bytes  class name</span><br><span class="line"> 序号	实例数量			字节数		类名</span><br><span class="line">----------------------------------------------</span><br><span class="line">   1:        289741       37478104  [C</span><br><span class="line">   2:         97559       31077664  [B</span><br><span class="line">   3:        192282        4614768  java.lang.String</span><br><span class="line">   4:         21694        3215944  [I</span><br><span class="line">   5:         76700        2454400  java.util.HashMap$Node</span><br><span class="line">   6:         31789        1531960  [Ljava.lang.Object;</span><br><span class="line">   7:         20941        1507752  java.lang.reflect.Field</span><br><span class="line">   8:         15375        1353000  java.lang.reflect.Method</span><br><span class="line">   9:         11452        1214248  [Ljava.util.HashMap$Node;</span><br><span class="line">  10:          7957         888752  java.lang.Class</span><br><span class="line">  11:         27131         868192  java.util.concurrent.ConcurrentHashMap$Node</span><br><span class="line">  ...</span><br><span class="line">  3299:             1             16  sun.util.locale.provider.TimeZoneNameUtility$TimeZoneNameGetter</span><br><span class="line">3300:             1             16  sun.util.resources.LocaleData</span><br><span class="line">3301:             1             16  sun.util.resources.LocaleData$LocaleDataResourceBundleControl</span><br><span class="line">Total       1213485      100989464</span><br></pre></td></tr></table></figure>
+
+<p><strong>-clstats</strong> 打印Java堆的类加载统计信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % sudo jmap -clstats 3431</span><br><span class="line">Attaching to process ID 3431, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.66-b17</span><br><span class="line">finding class loader instances ..</span><br><span class="line">done.</span><br><span class="line">computing per loader stat ..done.</span><br><span class="line">please wait.. computing liveness.........liveness analysis may be inaccurate ...</span><br><span class="line">class_loader	classes	bytes	parent_loader	alive?	type</span><br><span class="line">类加载器地址	加载类数量	加载类大小	父加载器	是否存活	类加载器类型</span><br><span class="line"></span><br><span class="line">&lt;bootstrap&gt;	2778	4860705	  null  	live	&lt;internal&gt;</span><br><span class="line">0x00000000f02caf28	1	1473	0x00000000f056f510	dead	sun&#x2F;reflect&#x2F;DelegatingClassLoader@0x0000000100009df8</span><br><span class="line">0x00000000f02cbd38	1	1471	  null  	dead	sun&#x2F;reflect&#x2F;DelegatingClassLoader@0x0000000100009df8</span><br><span class="line">0x00000000f0174730	0	0	0x00000000f056f510	live	java&#x2F;util&#x2F;ResourceBundle$RBClassLoader@0x00000001000c72f8</span><br><span class="line">0x00000000f05410b8	138	282890	  null  	live	sun&#x2F;misc&#x2F;Launcher$ExtClassLoader@0x000000010000fa30</span><br><span class="line">0x00000000f056f510	4783	7865232	0x00000000f05410b8	live	sun&#x2F;misc&#x2F;Launcher$AppClassLoader@0x000000010000f688</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">total &#x3D; 167	8001	13646309	    N&#x2F;A    	alive&#x3D;8, dead&#x3D;159	    N&#x2F;A</span><br></pre></td></tr></table></figure>
+
+<p><strong>-F</strong> 强制模式。如果指定的pid没有响应使用该选项，<em>live</em>子选项不支持该模式。</p>
+<p><strong>-h|-help</strong> 打印帮助信息。</p>
+<p><strong>-J<em>flag</em></strong> 指定传递给运行jmap的JVM的参数。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jmap.html#CEGCECJB" target="_blank" rel="noopener">Oracle jmap官方文档</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2018/03/26/jmap%E5%91%BD%E4%BB%A4/" data-id="ckaqo6uyp000p28o6gnvr92r7" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/04/09/%E5%AD%97%E7%AC%A6%E6%B4%BB%E8%B7%83%E6%8E%92%E5%BA%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          字符活跃排序
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/26/jstack%E5%91%BD%E4%BB%A4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">jstack命令</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

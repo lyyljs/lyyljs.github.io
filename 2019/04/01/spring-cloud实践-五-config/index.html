@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>spring cloud实践(五) config | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在项目多了以后，我们需要一个配置中心来统一管理配置文件，spring cloud config应运而生。 spring cloud config配置文件在git上新建文件夹repo_configs；新增配置文件  fooservice-dev.yml fooservice-pro.yml fooservice-test.yml  内容为： 12hello:    msg: hello dev&amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring cloud实践(五) config">
+<meta property="og:url" content="http://lyyljs.site/2019/04/01/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%BA%94-config/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="在项目多了以后，我们需要一个配置中心来统一管理配置文件，spring cloud config应运而生。 spring cloud config配置文件在git上新建文件夹repo_configs；新增配置文件  fooservice-dev.yml fooservice-pro.yml fooservice-test.yml  内容为： 12hello:    msg: hello dev&amp;#x">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/config_web_content.jpg">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/config_load_test.jpg">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/configCenterWithEureka.jpg">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/config_load_test.jpg">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/refresh_config.jpg">
+<meta property="og:image" content="http://lyyljs.site/images/cloud/config_bus_update.jpg">
+<meta property="article:published_time" content="2019-04-01T15:22:53.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="开发者">
+<meta property="article:tag" content="程序猿">
+<meta property="article:tag" content="程序媛">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="代码">
+<meta property="article:tag" content="Developer">
+<meta property="article:tag" content="Programmer">
+<meta property="article:tag" content="Coder">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lyyljs.site/images/cloud/config_web_content.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-spring-cloud实践-五-config" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/01/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%BA%94-config/" class="article-date">
+  <time datetime="2019-04-01T15:22:53.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      spring cloud实践(五) config
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在项目多了以后，我们需要一个配置中心来统一管理配置文件，spring cloud config应运而生。</p>
+<h4 id="spring-cloud-config"><a href="#spring-cloud-config" class="headerlink" title="spring cloud config"></a>spring cloud config</h4><h5 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h5><p>在git上新建文件夹repo_configs；新增配置文件</p>
+<ul>
+<li>fooservice-dev.yml</li>
+<li>fooservice-pro.yml</li>
+<li>fooservice-test.yml</li>
+</ul>
+<p>内容为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hello: </span><br><span class="line">   msg: hello dev&#x2F;pro&#x2F;test</span><br></pre></td></tr></table></figure>
+
+<h5 id="spring-cloud-config-server"><a href="#spring-cloud-config-server" class="headerlink" title="spring cloud config server"></a>spring cloud config server</h5><p>新建项目config.center</p>
+<ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-cloud-config-server&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8011</span><br><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-config-center</span><br><span class="line">  cloud:</span><br><span class="line">    config:</span><br><span class="line">      server:</span><br><span class="line">        git:</span><br><span class="line">          #uri: git@github.com:lyyljs&#x2F;eureka.git  # 配置git仓库的地址</span><br><span class="line">          uri: https:&#x2F;&#x2F;github.com&#x2F;lyyljs&#x2F;eureka.git</span><br><span class="line">          search-paths: repo_configs   # git仓库地址下的相对地址，可以配置多个，用,分割。</span><br><span class="line">          username: lyyljs # git 用户名</span><br><span class="line">          password:  # git 密码 使用https协议时使用</span><br><span class="line">#          ignoreLocalSshSettings: true # 是否忽略默认的ssh配置，默认会使用~&#x2F;.ssh&#x2F;known_hosts，etc&#x2F;ssh&#x2F;ssh_config  </span><br><span class="line">#          hostKey: id_eclipse_rsa # 使用自定义的 hostKey</span><br><span class="line">#          hostKeyAlgorithm: ssh-rsa # 自定义的算法</span><br><span class="line">#          privateKey: # 私钥内容</span><br><span class="line">          #knownHostsFile: # knownHost文件位置</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动类添加注解 @EnableConfigServer</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">@EnableConfigServer</span><br><span class="line">public class ConfigCenterApplication &#123;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>启动查看抓取是否成功<br><img src="/images/cloud/config_web_content.jpg" alt="config_server_load_test"></p>
+</li>
+<li><p>路径转换规则</p>
+</li>
+</ul>
+<p>仓库中的配置文件会被转换成web接口，访问可以参照以下的规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#123;application&#125;&#x2F;&#123;profile&#125;[&#x2F;&#123;label&#125;]</span><br><span class="line">&#x2F;&#123;application&#125;-&#123;profile&#125;.yml</span><br><span class="line">&#x2F;&#123;label&#125;&#x2F;&#123;application&#125;-&#123;profile&#125;.yml</span><br><span class="line">&#x2F;&#123;application&#125;-&#123;profile&#125;.properties</span><br><span class="line">&#x2F;&#123;label&#125;&#x2F;&#123;application&#125;-&#123;profile&#125;.properties</span><br></pre></td></tr></table></figure>
+
+<h5 id="spring-cloud-config-client"><a href="#spring-cloud-config-client" class="headerlink" title="spring cloud config client"></a>spring cloud config client</h5><p>修改producer项目</p>
+<ul>
+<li><p>添加依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-cloud-config-client&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加配置文件</p>
+</li>
+</ul>
+<p>需要添加 bootstrap.yml ， spring cloud config 默认会从中读取相关信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  cloud:</span><br><span class="line">     config:</span><br><span class="line">        name: fooservice # 参照转换规则 &#123;application&#125;</span><br><span class="line">        profile: dev # 参照转换规则 &#123;profile&#125;</span><br><span class="line">        uri: http:&#x2F;&#x2F;localhost:8011&#x2F; # 配置中心的具体地址</span><br><span class="line">        label: master # git分支</span><br><span class="line">     	discovery:</span><br><span class="line">         enabled: false # 是否使用发现服务如eureka来定位config center，默认false</span><br><span class="line">         #serviceId: configserver  # 定义该服务id，默认configcenter</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注解</li>
+</ul>
+<p>无需添加额外注解</p>
+<ul>
+<li>新增接口以测试</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Value(&quot;$&#123;hello.msg&#125;&quot;)</span><br><span class="line">private String helloMsg;</span><br><span class="line"></span><br><span class="line">@RequestMapping(&quot;&#x2F;say&#x2F;hello&quot;)</span><br><span class="line">public String sayHello() &#123;</span><br><span class="line">	return helloMsg;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试</li>
+</ul>
+<p><img src="/images/cloud/config_load_test.jpg" alt="config_load_test"></p>
+<h4 id="spring-cloud-config-高可用"><a href="#spring-cloud-config-高可用" class="headerlink" title="spring cloud config 高可用"></a>spring cloud config 高可用</h4><p>为 spring cloud config server 集群使用注册中心 eureka</p>
+<h5 id="spring-cloud-config-server-1"><a href="#spring-cloud-config-server-1" class="headerlink" title="spring cloud config server"></a>spring cloud config server</h5><ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8011</span><br><span class="line">  register:</span><br><span class="line">    port1: 8000</span><br><span class="line">    port2: 8001</span><br><span class="line">    port3: 8002</span><br><span class="line"></span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port1&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>为启动类添加注解 @EnableDiscoveryClient</p>
+</li>
+<li><p>启动，在eureka控制台查看，可以看到config center已经注册到了eureka</p>
+</li>
+</ul>
+<p><img src="/images/cloud/configCenterWithEureka.jpg" alt="configCenterWithEureka"></p>
+<h5 id="spring-cloud-config-client-1"><a href="#spring-cloud-config-client-1" class="headerlink" title="spring cloud config client"></a>spring cloud config client</h5><ul>
+<li>配置文件</li>
+</ul>
+<p>修改 bootstrap.yml</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-producer</span><br><span class="line">  cloud:</span><br><span class="line">     config:</span><br><span class="line">        name: fooservice # 参照规则 &#123;application&#125;</span><br><span class="line">        profile: dev # 参照规则 &#123;profile&#125;</span><br><span class="line">        #uri: http:&#x2F;&#x2F;localhost:8011&#x2F; # 配置中心的具体地址</span><br><span class="line">        label: master # git分支</span><br><span class="line">        discovery:</span><br><span class="line">         enabled: true # 是否使用发现服务如eureka来定位config center，默认false</span><br><span class="line">         serviceId: spring-cloud-config-center  # 定义该服务id，默认configcenter</span><br><span class="line">         </span><br><span class="line">server:</span><br><span class="line">  #port: 9000</span><br><span class="line">  #port: 8999</span><br><span class="line">  port: 8998</span><br><span class="line">  register:</span><br><span class="line">    port1: 8000</span><br><span class="line">    port2: 8001</span><br><span class="line">    port3: 8002</span><br><span class="line">         </span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.register.port1&#125;&#x2F;eureka&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>enruka配置等从 application.yml 移至 bootstrap.yml</p>
+<ul>
+<li>启动验证</li>
+</ul>
+<p><img src="/images/cloud/config_load_test.jpg" alt="config_load_test"></p>
+<h4 id="refresh"><a href="#refresh" class="headerlink" title="refresh"></a>refresh</h4><p>在启动producer后，如果更改了配置文件，producer内仍然是启动时的值，现在改造producer让它更改配置文件后刷新。</p>
+<ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;spring-boot-starter-actuator&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>暴露refresh接口</li>
+</ul>
+<p>在application.yml中添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">management:</span><br><span class="line">   endpoints:</span><br><span class="line">      web:</span><br><span class="line">         exposure:</span><br><span class="line">            include: refresh</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加需要refresh的类</li>
+</ul>
+<p>在 HelloController 上添加注解 @RefreshScope</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@RestController</span><br><span class="line">@RefreshScope</span><br><span class="line">@RequestMapping(&quot;&#x2F;hello&quot;)</span><br><span class="line">public class HelloController &#123;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>启动验证</p>
+<ul>
+<li>访问 <a href="http://localhost:8998/hello/say/hello" target="_blank" rel="noopener">http://localhost:8998/hello/say/hello</a> ， 显示内容为 hello dev；</li>
+<li>更新 git 文件 fooservice-dev.yml , 内容修改为 hello dev 1</li>
+<li>Post 访问 <a href="http://localhost:8998/actuator/refresh（" target="_blank" rel="noopener">http://localhost:8998/actuator/refresh（</a> eg：curl -X POST <a href="http://localhost:8998/actuator/refresh）" target="_blank" rel="noopener">http://localhost:8998/actuator/refresh）</a></li>
+<li>再次访问 <a href="http://localhost:8998/hello/say/hello，" target="_blank" rel="noopener">http://localhost:8998/hello/say/hello，</a> 内容已更改为 hello dev 1</li>
+</ul>
+<p><img src="/images/cloud/refresh_config.jpg" alt="refresh_config"></p>
+</li>
+</ul>
+<h4 id="spring-cloud-bus"><a href="#spring-cloud-bus" class="headerlink" title="spring cloud bus"></a>spring cloud bus</h4><p>在更新配置后，如果有多个项目，每个项目都得访问一次refresh接口。spring cloud bus 可以让我们从这个重复的劳动中解放出来。</p>
+<p>spring cloud bus需要mq的支持，mq需要支持acmq协议或者使用kafka。</p>
+<p>这里使用rabbit mq。</p>
+<h5 id="对应用进行改造"><a href="#对应用进行改造" class="headerlink" title="对应用进行改造"></a>对应用进行改造</h5><ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">  		&lt;artifactId&gt;spring-cloud-starter-bus-amqp&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加rabbit mq配置</li>
+</ul>
+<p>在application.yml中添加mq配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">   rabbitmq:</span><br><span class="line">    host: localhost</span><br><span class="line">    port: 5672</span><br><span class="line">    username: guest</span><br><span class="line">    password: guest</span><br></pre></td></tr></table></figure>
+
+<h5 id="对config-server改造"><a href="#对config-server改造" class="headerlink" title="对config server改造"></a>对config server改造</h5><ul>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  		&lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">  		&lt;artifactId&gt;spring-cloud-starter-bus-amqp&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改配置文件</li>
+</ul>
+<p>暴露bus-refresh接口，添加mq配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">management:</span><br><span class="line">   endpoints:</span><br><span class="line">      web:</span><br><span class="line">         exposure:</span><br><span class="line">            include: bus-refresh</span><br><span class="line"></span><br><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-config-center</span><br><span class="line">  rabbitmq:</span><br><span class="line">     host: localhost</span><br><span class="line">     port: 5672</span><br><span class="line">     username: guest</span><br><span class="line">     password: guest</span><br></pre></td></tr></table></figure>
+
+<h5 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h5><ul>
+<li><p>启动config center，并分别使用8998，8999端口启动producer；</p>
+</li>
+<li><p>访问 <a href="http://localhost:8998/hello/say/hello，http://localhost:8999/hello/say/hello；显示信息" target="_blank" rel="noopener">http://localhost:8998/hello/say/hello，http://localhost:8999/hello/say/hello；显示信息</a> hello dev 1；</p>
+</li>
+<li><p>更新git上的配置文件，内容为 hello dev bus update；</p>
+</li>
+<li><p>curl -X POST <a href="http://localhost:8011/actuator/bus-refresh" target="_blank" rel="noopener">http://localhost:8011/actuator/bus-refresh</a> 手动触发bus事件（如果配置了git的wenbook则自动触发）</p>
+</li>
+<li><p>再次访问 <a href="http://localhost:8998/hello/say/hello，http://localhost:8999/hello/say/hello；显示信息" target="_blank" rel="noopener">http://localhost:8998/hello/say/hello，http://localhost:8999/hello/say/hello；显示信息</a> hello dev bus update，成功更新配置</p>
+</li>
+</ul>
+<p><img src="/images/cloud/config_bus_update.jpg" alt="bus_refresh_config"></p>
+<hr>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><ul>
+<li><p><a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.1.0.RELEASE/single/spring-cloud-config.html#_spring_cloud_config_client" target="_blank" rel="noopener">spring cloud config文档</a></p>
+</li>
+<li><p><a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-bus/2.1.0.RELEASE/single/spring-cloud-bus.html" target="_blank" rel="noopener">spring cloud bus文档</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/04/01/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%BA%94-config/" data-id="ckaqo6uzb001h28o66uhu2guz" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/04/03/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AD-gateway/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          spring cloud实践(六) gateway
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/03/30/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%9B%9B-hystrix/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">spring cloud实践(四) hystrix</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

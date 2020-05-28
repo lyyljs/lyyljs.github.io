@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>使用docker搭建gitlab,postgres,redis | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="直接使用gitlab-ce镜像从docker hub上找到社区版的gitlab镜像，然后从readme指南找到示例docker-compose.yml，稍作修改便可直接使用。 创建config,logs,data文件夹； 创建docker-compose.yml文件如下： 1234567891011121314151617181920version: &#39;3&#39;services:  g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用docker搭建gitlab,postgres,redis">
+<meta property="og:url" content="http://lyyljs.site/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="直接使用gitlab-ce镜像从docker hub上找到社区版的gitlab镜像，然后从readme指南找到示例docker-compose.yml，稍作修改便可直接使用。 创建config,logs,data文件夹； 创建docker-compose.yml文件如下： 1234567891011121314151617181920version: &#39;3&#39;services:  g">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-04-11T09:40:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-使用docker搭建gitlab" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/" class="article-date">
+  <time datetime="2019-04-11T09:40:00.000Z" itemprop="datePublished">2019-04-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用docker搭建gitlab,postgres,redis
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="直接使用gitlab-ce镜像"><a href="#直接使用gitlab-ce镜像" class="headerlink" title="直接使用gitlab-ce镜像"></a>直接使用gitlab-ce镜像</h4><p>从docker hub上找到社区版的gitlab镜像，然后从readme指南找到示例docker-compose.yml，稍作修改便可直接使用。</p>
+<p>创建config,logs,data文件夹；</p>
+<p>创建docker-compose.yml文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3&#39;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  gitlab:</span><br><span class="line">    container_name: gitlab</span><br><span class="line">    image: gitlab&#x2F;gitlab-ce</span><br><span class="line">    hostname: gitlab</span><br><span class="line">    #restart: always</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;8443:443&quot;</span><br><span class="line">      - &quot;8989:8989&quot;</span><br><span class="line">      - &quot;2222:22&quot;</span><br><span class="line">    environment:</span><br><span class="line">      GITLAB_OMNIBUS_CONFIG: |</span><br><span class="line">        external_url &#39;http:&#x2F;&#x2F;127.0.0.1:8989&#39;</span><br><span class="line"></span><br><span class="line">    volumes:</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;config:&#x2F;etc&#x2F;gitlab</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;logs:&#x2F;var&#x2F;log&#x2F;gitlab</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;data:&#x2F;var&#x2F;opt&#x2F;gitlab</span><br></pre></td></tr></table></figure>
+
+<p>在开始时映射端口未加引号导致出现端口映射错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for gitlab Cannot create container for service gitlab: invalid port specification: &quot;133342&quot;</span><br></pre></td></tr></table></figure>
+
+<p>原因可参考<a href="https://forums.docker.com/t/docker-failing-to-correctly-process-valid-yaml-config/183/3" target="_blank" rel="noopener">docker错误解析yml配置</a>，在端口加上引号即可解决。</p>
+<h4 id="使用外置redis和postgres"><a href="#使用外置redis和postgres" class="headerlink" title="使用外置redis和postgres"></a>使用外置redis和postgres</h4><p>gitlab镜像自带了redis和postgres，这里可以改用外置的redis和postgres。</p>
+<h5 id="docker搭建postgres"><a href="#docker搭建postgres" class="headerlink" title="docker搭建postgres"></a>docker搭建postgres</h5><p>先使用docker搭建postgres。</p>
+<ul>
+<li><p>创建postgres文件夹用于存储数据。</p>
+</li>
+<li><p>使用docker network create dbnetwork创建docker网络用于容器间互通。</p>
+</li>
+<li><p>创建docker-compose.yml文件如下：</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3.1&#39;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line"></span><br><span class="line">  postgres:</span><br><span class="line">    container_name: postgres</span><br><span class="line">    hostname: postgres</span><br><span class="line">    image: postgres</span><br><span class="line">    #restart: always</span><br><span class="line">    networks:</span><br><span class="line">      - default</span><br><span class="line">      - dbnetwork</span><br><span class="line">    ports:</span><br><span class="line">      - 5432:5432</span><br><span class="line">    environment:</span><br><span class="line">      POSTGRES_USER: lyyljs</span><br><span class="line">      POSTGRES_PASSWORD: 123456</span><br><span class="line">    volumes:</span><br><span class="line">      - ~&#x2F;dbs&#x2F;postgres:&#x2F;var&#x2F;lib&#x2F;postgresql&#x2F;data</span><br><span class="line"></span><br><span class="line">networks:</span><br><span class="line">  dbnetwork:</span><br><span class="line">    external: true</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>如果本机有装psql客户端，则使用命令 <strong>psql -h 127.0.0.1 -U lyyljs</strong> 命令连接数据库。然后创建数据库gitlabhq: CREATE DATABASE gitlabhq OWNER lyyljs;</p>
+</li>
+<li><p>如果没有装psql，则可使用docker 镜像<a href="https://hub.docker.com/_/adminer" target="_blank" rel="noopener">adminer</a>，并创建数据库。</p>
+</li>
+</ul>
+<h5 id="gitlab使用外置postgres"><a href="#gitlab使用外置postgres" class="headerlink" title="gitlab使用外置postgres"></a>gitlab使用外置postgres</h5><p>修改gitlab的docker-compose.yml，使其使用该容器postgres。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3&#39;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  gitlab:</span><br><span class="line">    container_name: gitlab</span><br><span class="line">    image: gitlab&#x2F;gitlab-ce</span><br><span class="line">    hostname: gitlab</span><br><span class="line">    #restart: always</span><br><span class="line">    networks:</span><br><span class="line">      - default</span><br><span class="line">      - dbnetwork</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;8443:443&quot;</span><br><span class="line">      - &quot;8989:8989&quot;</span><br><span class="line">      - &quot;10022:22&quot;</span><br><span class="line">    environment:</span><br><span class="line">      GITLAB_OMNIBUS_CONFIG: |</span><br><span class="line">        external_url &#39;http:&#x2F;&#x2F;127.0.0.1:8989&#39;</span><br><span class="line">        postgresql[&#39;enable&#39;] &#x3D; false</span><br><span class="line">        gitlab_rails[&#39;db_adapter&#39;] &#x3D; &#39;postgresql&#39;</span><br><span class="line">        gitlab_rails[&#39;db_encoding&#39;] &#x3D; &#39;utf8&#39;</span><br><span class="line">        gitlab_rails[&#39;db_host&#39;] &#x3D; &#39;postgres&#39;</span><br><span class="line">        gitlab_rails[&#39;db_port&#39;] &#x3D; &#39;5432&#39;</span><br><span class="line">        gitlab_rails[&#39;db_username&#39;] &#x3D; &#39;lyyljs&#39;</span><br><span class="line">        gitlab_rails[&#39;db_password&#39;] &#x3D; &#39;123456&#39;</span><br><span class="line">        gitlab_rails[&#39;db_database&#39;] &#x3D; &quot;gitlabhq&quot;</span><br><span class="line"></span><br><span class="line">    volumes:</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;config:&#x2F;etc&#x2F;gitlab</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;logs:&#x2F;var&#x2F;log&#x2F;gitlab</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;data:&#x2F;var&#x2F;opt&#x2F;gitlab</span><br><span class="line"></span><br><span class="line">networks:</span><br><span class="line">  dbnetwork:</span><br><span class="line">    external: true</span><br></pre></td></tr></table></figure>
+
+<p>可通过 docker exec -it gitlab /bin/bash 进入gitlab容器控制台，再通过 psql -h postgres -U lyyljs 测试连通，访问外置数据库。</p>
+<h5 id="docker搭建redis"><a href="#docker搭建redis" class="headerlink" title="docker搭建redis"></a>docker搭建redis</h5><ul>
+<li><p>创建redis文件夹用于存储持久化数据。</p>
+</li>
+<li><p>然后使用docker-compose.yml快速搭建redis。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3.1&#39;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  redis:</span><br><span class="line">    container_name: redis</span><br><span class="line">    hostname: redis</span><br><span class="line">    image: redis</span><br><span class="line">    #restart: always</span><br><span class="line">    networks:</span><br><span class="line">      - default</span><br><span class="line">      - dbnetwork</span><br><span class="line">    ports:</span><br><span class="line">      - 6379:6379</span><br><span class="line">    volumes:</span><br><span class="line">      - ~&#x2F;dbs&#x2F;redis:&#x2F;data</span><br><span class="line">networks:</span><br><span class="line">  dbnetwork:</span><br><span class="line">    external: true</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动后本地可使用 redis-cli 直接连接，并使用 get a 测试连通。</li>
+</ul>
+<p>但此时有问题是redis默认是没有密码的，现在想使用自定义配置。新建redis.conf文件，从官方包下copy内容，添加需要密码，并取消只监听localhost。</p>
+<p>从<a href="https://hub.docker.com/_/redis" target="_blank" rel="noopener">官网文档</a>上根据docker命令修改image。</p>
+<p>新建Dockerfile文件，内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM redis</span><br><span class="line">COPY redis.conf &#x2F;usr&#x2F;local&#x2F;etc&#x2F;redis&#x2F;redis.conf</span><br><span class="line">CMD [ &quot;redis-server&quot;, &quot;&#x2F;usr&#x2F;local&#x2F;etc&#x2F;redis&#x2F;redis.conf&quot; ]</span><br></pre></td></tr></table></figure>
+
+<p>然后修改docker-compose.yml文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3.1&#39;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  redis:</span><br><span class="line">    container_name: redis</span><br><span class="line">    hostname: redis</span><br><span class="line">    build: .</span><br><span class="line">    #restart: always</span><br><span class="line">    networks:</span><br><span class="line">      - default</span><br><span class="line">      - dbnetwork</span><br><span class="line">    ports:</span><br><span class="line">      - 6379:6379</span><br><span class="line">    volumes:</span><br><span class="line">      - ~&#x2F;dbs&#x2F;redis:&#x2F;data</span><br><span class="line">networks:</span><br><span class="line">  dbnetwork:</span><br><span class="line">    external: true</span><br></pre></td></tr></table></figure>
+
+<p>docker-compose up –build 启动后报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># Can&#39;t chdir to &#39;&#x2F;usr&#x2F;local&#x2F;var&#x2F;db&#x2F;redis&#x2F;&#39;: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>该错误有一个已关闭的<a href="https://github.com/docker-library/redis/issues/93" target="_blank" rel="noopener">git issue</a>给出了解决方案，即手动创建这个不存在的文件夹。</p>
+<p>重新修改 Dockerfile 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FROM redis</span><br><span class="line">COPY redis.conf &#x2F;usr&#x2F;local&#x2F;etc&#x2F;redis&#x2F;redis.conf</span><br><span class="line">RUN mkdir -p &#x2F;usr&#x2F;local&#x2F;var&#x2F;db&#x2F;redis</span><br><span class="line">CMD [ &quot;redis-server&quot;, &quot;&#x2F;usr&#x2F;local&#x2F;etc&#x2F;redis&#x2F;redis.conf&quot; ]</span><br></pre></td></tr></table></figure>
+
+<p>docker-compose up –build，启动成功，使用 redis-cli -a 123456 连接，并执行 get a，测试成功。</p>
+<h5 id="gitlab-使用外置redis"><a href="#gitlab-使用外置redis" class="headerlink" title="gitlab 使用外置redis"></a>gitlab 使用外置redis</h5><p>修改docker-compose.yml文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;3&#39;</span><br><span class="line"></span><br><span class="line">services:</span><br><span class="line">  gitlab:</span><br><span class="line">    container_name: gitlab</span><br><span class="line">    image: gitlab&#x2F;gitlab-ce</span><br><span class="line">    hostname: gitlab</span><br><span class="line">    #restart: always</span><br><span class="line">    networks:</span><br><span class="line">      - default</span><br><span class="line">      - dbnetwork</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;8443:443&quot;</span><br><span class="line">      - &quot;8989:8989&quot;</span><br><span class="line">      - &quot;10022:22&quot;</span><br><span class="line">    environment:</span><br><span class="line">      GITLAB_OMNIBUS_CONFIG: |</span><br><span class="line">        external_url &#39;http:&#x2F;&#x2F;127.0.0.1:8989&#39;</span><br><span class="line">        postgresql[&#39;enable&#39;] &#x3D; false</span><br><span class="line">        gitlab_rails[&#39;db_adapter&#39;] &#x3D; &#39;postgresql&#39;</span><br><span class="line">        gitlab_rails[&#39;db_encoding&#39;] &#x3D; &#39;utf8&#39;</span><br><span class="line">        gitlab_rails[&#39;db_host&#39;] &#x3D; &#39;postgres&#39;</span><br><span class="line">        gitlab_rails[&#39;db_port&#39;] &#x3D; &#39;5432&#39;</span><br><span class="line">        gitlab_rails[&#39;db_username&#39;] &#x3D; &#39;lyyljs&#39;</span><br><span class="line">        gitlab_rails[&#39;db_password&#39;] &#x3D; &#39;123456&#39;</span><br><span class="line">        gitlab_rails[&#39;db_database&#39;] &#x3D; &quot;gitlabhq&quot;</span><br><span class="line">        redis[&#39;enable&#39;] &#x3D; false</span><br><span class="line">        gitlab_rails[&#39;redis_host&#39;] &#x3D; &#39;redis&#39;</span><br><span class="line">        gitlab_rails[&#39;redis_port&#39;] &#x3D; 6379</span><br><span class="line">        gitlab_rails[&#39;redis_password&#39;] &#x3D; &#39;123456&#39;</span><br><span class="line">        gitlab_rails[&#39;redis_database&#39;] &#x3D; 2</span><br><span class="line"></span><br><span class="line">    volumes:</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;config:&#x2F;etc&#x2F;gitlab</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;logs:&#x2F;var&#x2F;log&#x2F;gitlab</span><br><span class="line">      - ~&#x2F;dbs&#x2F;gitlab&#x2F;data:&#x2F;var&#x2F;opt&#x2F;gitlab</span><br><span class="line"></span><br><span class="line">networks:</span><br><span class="line">  dbnetwork:</span><br><span class="line">    external: true</span><br></pre></td></tr></table></figure>
+
+<p>如果遇到redis持久化错误，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MISCONF Redis is configured to save RDB snapshots, but is currently not able to persist on disk.</span><br></pre></td></tr></table></figure>
+
+<p>检查redis的compose配置挂载位置是否与redis.conf中持久化存储位置dir配置相同。</p>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p>访问<a href="http://localhost:8989/，创建root账号，配置好ssh" target="_blank" rel="noopener">http://localhost:8989/，创建root账号，配置好ssh</a> keys后，新建项目gateway。</p>
+<p>在本地gateway项目执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br><span class="line"></span><br><span class="line">git remote add origin ssh:&#x2F;&#x2F;git@127.0.0.1:10022&#x2F;root&#x2F;gateway.git</span><br><span class="line"></span><br><span class="line">git add .</span><br><span class="line"></span><br><span class="line">git commit -m &quot;init&quot;</span><br><span class="line"></span><br><span class="line">git push -u origin master</span><br></pre></td></tr></table></figure>
+
+<p>刷新网页即可看见已经提交的文件了。</p>
+<h4 id="清理none-image"><a href="#清理none-image" class="headerlink" title="清理none image"></a>清理none image</h4><p>在配置redis时，因为修改Dockerfile文件导致有名称为 none 的image产生，使用 docker rmi $(docker images -f “dangling=true” -q) 命令移除多余的image。 </p>
+<hr>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><p><a href="https://hub.docker.com/_/postgres" target="_blank" rel="noopener">docker hub postgres</a></p>
+</li>
+<li><p><a href="https://hub.docker.com/_/redis" target="_blank" rel="noopener">docker hub redis</a></p>
+</li>
+<li><p><a href="https://forums.docker.com/t/docker-failing-to-correctly-process-valid-yaml-config/183/3" target="_blank" rel="noopener">docker错误解析yml配置</a></p>
+</li>
+<li><p><a href="https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/docker/README.md" target="_blank" rel="noopener">gitlab docker readme</a></p>
+</li>
+<li><p><a href="https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/files/gitlab-config-template/gitlab.rb.template" target="_blank" rel="noopener">GITLAB_OMNIBUS_CONFIG template</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/" data-id="ckaqo6uzl001v28o60uyc8639" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          docker搭建jenkins
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">服务容错(三) 限流</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

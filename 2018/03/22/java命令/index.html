@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>java命令 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="摘要&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;java [options] classname [args] &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;java [options] -jar filename [args] &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;java命令用以启动一个Java应用。它会启动Java Runtime Environment(JRE)来加载指定的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java命令">
+<meta property="og:url" content="http://lyyljs.site/2018/03/22/java%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="摘要&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;java [options] classname [args] &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;java [options] -jar filename [args] &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;java命令用以启动一个Java应用。它会启动Java Runtime Environment(JRE)来加载指定的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-22T16:58:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="java命令">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-java命令" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/22/java%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time datetime="2018-03-22T16:58:00.000Z" itemprop="datePublished">2018-03-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      java命令
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>java</strong> [options] classname [args]</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>java</strong> [options] -jar filename [args]</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>java</strong>命令用以启动一个Java应用。它会启动Java Runtime Environment(JRE)来加载指定的class中的<strong>main()</strong>方法。该方法必须满足以下条件：</p>
+<ul>
+<li>用public和static关键字进行修饰 </li>
+<li>不能返回任何值（void）</li>
+<li>接受字符串数组(String[] args)为入参</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;一个标准的方法声明如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args)</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;不合法的方法声明示例:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void main(String[] args)&#123;&#x2F;&#x2F;不是static方法</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static void main(String[] args)&#123;&#x2F;&#x2F;方法不是public</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private void main(String[] args)&#123;&#x2F;&#x2F;方法不是public</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public int main(String[] args)&#123;&#x2F;&#x2F;有返回值</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void test_main(String[] args)&#123;&#x2F;&#x2F;方法名不是main</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void main()&#123;&#x2F;&#x2F;没有字符串数组入参</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void main(int[] args)&#123;&#x2F;&#x2F;没有字符串数组入参</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void main(String[] args, int[] args2)&#123;&#x2F;&#x2F;多出了整型数组入参</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;但使用<strong>final</strong>关键字进行修饰是合法的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="title">main</span><span class="params">(String[] args)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;默认情况下，java命令的第一个非option的参数是指定启动的class名。如果启动参数中有<strong>-jar</strong>，则该参数是一个包含了class和resource文件的jar文件的名称。初始启动的class必须在<strong>MANIFEST.MF</strong>文件中<strong>Main-Class</strong>进行声明。一个<strong>MANIFEST.MF</strong>文件示例如下：</p>
+<blockquote>
+<p>Manifest-Version: 1.0<br>Class-Path: . test_lib/my-common-utils-1.1.jar test_lib/asm-5.0.3.jar<br>Main-Class: lyyljs.demo.application</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>Class-Path</strong> 依赖的jar文件位置, <strong>.</strong>代表启动jar包与依赖jar包文件的相对路径，其后是所依赖的jar包，多个文件以空格隔开。<strong>Main-Class</strong>指定启动jar包的入口类名,main方法需要在该类中。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;JRE按以下路径顺序搜索并装载所有需要的类:</p>
+<ol>
+<li>引导类路径(bootstrap class path)：java_home/jre/lib，包含了组成java平台的类,包含rt.jar和i18n.jar等基础jar包中的类。</li>
+<li>扩展类路径(installed extensions): java_home/jre/lib/ext，包含了使用java扩展机制的类,。</li>
+<li>用户自定义路径(user’s class path): 开发者定义的类或者没有使用java扩展机制的第三方产品所在路径。一般在命令行中使用-classpath选项或者使用CLASSPATH环境变量来确定这些类的位，或者自己写ClassLoader加载。</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在class文件或jar文件名后面的参数会传入到<strong>main()</strong>方法中。</p>
+<h3 id="OPTIONS"><a href="#OPTIONS" class="headerlink" title="OPTIONS"></a>OPTIONS</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>java</strong>命令有非常多的启动选项，可大致被分为以下类别：</p>
+<ul>
+<li>标准选项（Standard Options）</li>
+<li>非标准选项（Non-Standard Options）</li>
+<li>高级运行时参数（Advanced Runtime Options）</li>
+<li>高级JIT编译器参数（Advanced JIT Compiler Options）</li>
+<li>高级服务能力参数（Advanced Serviceability Options）</li>
+<li>高级垃圾回收参数（Advanced Garbage Collection Options）</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;标准选项是所有的Java虚拟机(JVM)都有实现的。这些选项是用于一些通用的操作，如检查JRE的版本，设定class路径，打开额外的输出信息等。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;非标准选项是仅对HotSpot JVM适用的一些通用选项，其他版本的虚拟机不保证实现或实现有所变化。这些选项以<strong>-X</strong>开头。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;高级选项(Advanced options)一般不推荐使用。这些选项是在调整有特定的JVM表现需求时所使用的。同时这些选项也不保证被所有虚拟机支持或实现有所不同。这些选项以<strong>-XX</strong>开头。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;布尔值的选项一般用于启用一个默认关闭的选项或关闭一个默认启用的选项。这些选项不需要在后面增加额外的参数。布尔型<strong>-XX</strong>选项使用+号来启用(<strong>-XX</strong>:+OptionName)，使用-号来关闭(<strong>-XX:</strong>-OptionName)。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;对那些需要参数值的选项，参数值和选项之间可能用空格，冒号(-Xloggc:logs/gc.log)，等号(-XX:MetaspaceSize=60m)隔开，也可能直接跟在选项之后(-Xms2560m)。如果使用字节(byte)作为单位的话，则在数字后可以不加后缀。否则可以使用k表示KB，m表示MB，g表示GB，这些后缀不区分大小写。例如想要设置为8GB大小，可以使用<strong>8g</strong>，<strong>8192m</strong>，<strong>8388608k</strong>或者<strong>8589934592</strong>来作为参数值。如果想要使用百分比，则使用0到1之间的数字为参数值(如使用<strong>0.25</strong>来表示25%)。</p>
+<h3 id="标准选项-Standard-Options"><a href="#标准选项-Standard-Options" class="headerlink" title="标准选项(Standard Options)"></a>标准选项(Standard Options)</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;这些常用选项被所有JVM支持。</p>
+<blockquote>
+<p>-agentlib:<em>libname</em>[=options]</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;加载指定本地代理库(native agent library)。如果是多个库，可用逗号隔开。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;例如启动时加了<strong>-agentlib:foo</strong>，则JVM会尝试从LD_LIBRARY_PATH这个系统变量(linux下)所指定的路径下去加载名为libfoo.so的库(OS X是DYLD_LIBRARY_PATH)。而这样的库理论上是JVM TI的功能，具体可以参考<a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html?spm=a2c4e.11153940.blogcont368436.7.1c1760c4O4ESH4" target="_blank" rel="noopener">JVM TI规范</a>。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>-agentlib:hprof=cpu=samples,interval=20,depth=3</strong>该示例为使用堆追踪工具(HPROF)库每20ms，栈深度为3对CPU信息进行采样。</p>
+<blockquote>
+<p>-agentpath:<em>pathname</em>[=options]</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定加载本地代理库的绝对路径，等价于在<strong>-agentlib</strong>选项使用绝对路径和库名。</p>
+<blockquote>
+<p>-client</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用JVM Client模式，64位的jdk会忽略该参数并自动使用Server模式替代。不建议在生产环境下使用。</p>
+<blockquote>
+<p>-server</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用JVM Server模式，64位JDK仅支持server模式。</p>
+<blockquote>
+<p>-D<em>property</em>=<em>value</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定系统属性值。property代表值的名称，是一个无空格的字符串。value代表值，是一个字符串。如果value中有空格则需要用引号包起来(如<strong>-Dfoo=”foo bar”</strong>)。运行在此虚拟机之上的应用程序可用<strong>System.getProperty(“propertyName”)</strong>得到value的值。</p>
+<blockquote>
+<p>-d32</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在32位环境下跑应用。如果是非32位的环境则会报错。在32为环境下默认会使用该选项，在64位环境则会默认使用<strong>-d64</strong>。</p>
+<blockquote>
+<p>-d64</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在64为环境下跑应用。如果为非64位环境则会报错。当前仅HopSpot Server VM支持该64位操作（java 8发布时），如果使用了<strong>-server</strong>则必须使用该选项。如果使用了<strong>-client</strong>则会忽略<strong>-d64</strong>。如果没有指定-d32或者-d64，则默认运行在32位模式。除非仅有64位系统。该选项会在未来的版本进行修改。</p>
+<blockquote>
+<p>-disableassertions[:[packagename]…|:classname]<br>-da[:[packagename]…|:classname]</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;关闭断言(assertions)。默认情况下是全局关闭的。该选项后面没有参数的时候<strong>-disableassertions</strong>(<strong>-da</strong>)会关闭所有的用户类的断言。如果在指定的packagename后面加<strong>…</strong>(-da:pkg1…)，则会关闭在该包下与其所有子包的断言，如果进有<strong>…</strong>而没有包名(-da:…)，则会关闭缺省包(无名包)的assertion。如果参数为class名则会关闭该class的断言(-da:MyClass)。该选项会对所有的类加载器(class loader)和系统类(system class)生效。但这里有一个例外：当没有任何参数的时候该选项不会对系统类生效。如果想关闭系统类的断言，可以使用<strong>-disablesystemassertions</strong>(<strong>-dsa</strong>)。如果先要启用断言，可以使用<strong>-enableassertions</strong>(<strong>-ea</strong>)。</p>
+<blockquote>
+<p>java -ea:com.wombat.fruitbat… -da:com.wobat.fruitbat.MyClass</p>
+</blockquote>
+<p>表示启用了<strong>com.wombat.fruitbat</strong>包下面的断言，但对该包下的<strong>MyClass</strong>类禁用了断言。</p>
+<blockquote>
+<p>-disablesystemassertions<br>-dsa</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;关闭系统类的断言。</p>
+<blockquote>
+<p>-enableassertions[:[packagename]…|:classname]<br>-ea[:[packagename]…|:classname]</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启断言。使用方法同<strong>-da</strong>。同样的，该选项在无参时对系统类不生效，需使用<strong>-enableassertions</strong>(<strong>-ea</strong>)选项。</p>
+<blockquote>
+<p>-enablesystemassertions<br>-esa</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启系统类的断言</p>
+<blockquote>
+<p>-help<br>-?</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示java命令的帮助信息（不会启动jvm）。</p>
+<blockquote>
+<p>-jar <em>filename</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;执行指定jar文件。</p>
+<blockquote>
+<p>-javaagent:<em>jarpath</em>[=options]</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定加载java agent路径。</p>
+<blockquote>
+<p>-jre-restrict-search | -no-jre-restrict-search</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在版本搜索时包含/排除用户私有JRE。</p>
+<blockquote>
+<p>-showversion</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示版本信息并继续执行应用。</p>
+<blockquote>
+<p>-splash:imgname</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定图片作为启动画面。例：使用images文件夹下的splash.gif作为启动画面：<strong>-splash:images/splash.gif</strong></p>
+<blockquote>
+<p>-verbose:class</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;输出虚拟机装入的类的信息。格式为<strong>Loaded java.io.FilePermission$1 from shared objects file</strong>。当虚拟机报告类找不到或类冲突时可用此参数来诊断来查看虚拟机从装入类的情况。</p>
+<blockquote>
+<p>-verbose:gc</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示垃圾回收事件信息。格式为<strong>GC (Allocation Failure)  140301K-&gt;31727K(251392K), 0.0232518 secs</strong>。该参数用来监视虚拟机内存回收的情况。</p>
+<blockquote>
+<p>-verbose:jni</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示使用本地方法和其他JNI活动信息。格式为<strong>Dynamic-linking native method HelloNative.sum … JNI</strong>。该参数用来监视虚拟机调用本地方法的情况，在发生jni错误时可为诊断提供便利。</p>
+<blockquote>
+<p>-version</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示版本信息并退出。</p>
+<h3 id="非标准选项-Non-Standard-Options"><a href="#非标准选项-Non-Standard-Options" class="headerlink" title="非标准选项(Non-Standard Options)"></a>非标准选项(Non-Standard Options)</h3><blockquote>
+<p>-X</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示所有<strong>-X</strong>选项的帮助信息。</p>
+<blockquote>
+<p>-Xbatch</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;关闭后台编译。默认情况下，JVM首先会以解释器来运行方法，同时在后台进行编译，当编译结束后停止使用解释器运行该方法。<strong>-Xbatch</strong>会禁止掉后台编译，所有的编译工作都会最为一个前台任务进行直到编译结束。该选项等价于<strong>-XX:-BackgroundCompilation</strong>。</p>
+<blockquote>
+<p>-Xbootclasspath:path</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定文件夹，JAR文件和zip文件（以分号隔开）来搜索启动类文件。以用来替代jdk内的启动类文件。但不要使用该选项指定一个重写了rt.jar包内的class文件的包来部署应用，这会违反JRE字节码协议。</p>
+<blockquote>
+<p>-Xbootclasspath/a:path | Xbootclasspath/p:path</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;与上面的命令不同的，这两个命令不会替换掉默认的启动类路径，而是在其后面(/a)或前面(/p)追加路径。</p>
+<blockquote>
+<p>-Xcheck:jni</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;对JNI功能做额外的检查。它在提交JNI请求前会检查传递给JNI的参数和运行环境数据。如果有任何可能造成本地代码出错的数据则会中断并抛出一个致命错误。同时该选项也会降低性能。</p>
+<blockquote>
+<p>-Xcomp</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在首次调用时强制编译方法。默认情况下，在client 模式下会解释调用1000次方法，server模式下会解释调用10000次来为高效编译搜集信息。使用<strong>-Xcomp</strong>会停用解释器调用来增加编译的表现，代价是会降低效率。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;也可以使用<strong>-XX:CompileThreshold</strong>来改变在编译前解释器调用方法的次数。</p>
+<blockquote>
+<p>-Xdebug</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; 啥都不做，保留字。</p>
+<blockquote>
+<p>-Xdiag</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示额外的诊断信息。</p>
+<blockquote>
+<p>-Xfuture</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用严格的class文件格式检查。建议开发者启用该选项，因为该选项会在未来的分支中变为默认选项。</p>
+<blockquote>
+<p>-Xint</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使应用仅在解释器模式下执行。编译器被禁止工作，并且所有的二进制代码都使用解释器执行。</p>
+<blockquote>
+<p>-Xinternalversion</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示更多的JVM版本信息并退出执行。</p>
+<blockquote>
+<p>-Xloggc:<em>filename</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定gc日志信息输出文件。如果同时使用了<strong>-verbose:gc</strong>命令则<strong>-verbose:gc</strong>命令不会生效。</p>
+<blockquote>
+<p>-Xmaxjitcodesize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定最大jit编译代码缓存。默认值为240m；如果使用<strong>-XX:-TieredCompilation</strong>禁用了多层编译模式，则该默认值为48m。该选项等价于<strong>-XX:ReservedCodeCacheSize</strong>。</p>
+<blockquote>
+<p>-Xmixed</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使所有的字节码（除热门方法外，被编译为本地代码了）在解释器模式下执行。</p>
+<blockquote>
+<p>-Xmn<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定堆中新生代的初始和最大内存大小。堆中的新生代区域是gc最常发生的地方。如果新生代区域太小，则有大量的新生代垃圾回收行为；如果新生代区域设定过大，则会导致仅执行会花费较长时间的FC。Oracle建议该值设定为整个堆大小的一半到四分之一之间。可以使用<strong>-XX:NewSize</strong>（设定初始值）和<strong>-XX:MaxNewSize</strong>（设定最大值）两个选项来替换。</p>
+<blockquote>
+<p>-Xms<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定堆的初始大小。该值必须为1024的倍数（若不加单位）且必须大于1MB。如未设定该值，该值为新生代和老年带的大小之和。</p>
+<blockquote>
+<p>-Xmx<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定内存搜集池的最大大小。该值必须为1024的整数倍（不加单位）且大于2MB。该选项的默认值根据运行时环境配置有所变化。在生产环境下，一般将<strong>-Xms</strong>和<strong>-Xmx</strong>的值设为一致。该选项等价于<strong>-XX:MaxHeapSize</strong>。</p>
+<blockquote>
+<p>-Xss<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置线程栈大小。其默认值根据环境不同如下：</p>
+<ul>
+<li>Linux/ARM(32-bit): 320KB</li>
+<li>Linux/i386(32-bit): 320KB</li>
+<li>Linux/x64(64-bit): 1024KB</li>
+<li>OS X(64-bit): 1024KB</li>
+<li>Oracle Solaris/i386(32-bit): 320KB</li>
+<li>Oracle Solaris/x64(64-bit): 1024KB</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;该选项等价于<strong>-XX:ThreadStackSize</strong>。Xss越大，每个线程的大小就越大，占用的内存越多，能容纳的线程就越少；Xss越小，则递归的深度越小，容易出现栈溢出 java.lang.StackOverflowError。减少局部变量的声明，可以节省栈帧大小，增加调用深度。</p>
+<blockquote>
+<p>-Xnoclassgc</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;关闭类的gc。这会节省gc时间（STW的时间也会节省）。当该选项开启时，类对象在gc过程中则会被认为一直存活。这会使内存不会被回收，有可能会抛出一个内存错误。</p>
+<blockquote>
+<p>-Xprof</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;适用于开发环境调试，会输出观察信息到标准输出。</p>
+<blockquote>
+<p>-Xrs</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;减少虚拟机中操作系统的信号（singals）的使用。关闭钩子(Shutdown hooks)会在一个java应用被关闭时有序启动，即使JVM突然挂掉。当<strong>-Xrs</strong>启用时，SIGINT，SIGTERM，SIGHUP和SIGQUIT这些被JVM使用的信号量不会被JVM所改变，且这些信号量的处理器也不会装入系统。该参数通常用在虚拟机以后台服务方式运行时使用（如Servlet）。</p>
+<blockquote>
+<p>-Xshare:<em>mode</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定共享类(CDS)模式。有以下模式可选：</p>
+<ul>
+<li>auto 尽可能的使用CDS。该选项为32位HotSpot Client VM的默认值。</li>
+<li>on 使用CDS。如果类数据共享不能被使用则打印错误信息并推出。</li>
+<li>off 不适用CDS。是32位Client模式下HotSpot VM的默认值。也是64位HotSpot VM的默认值。</li>
+<li>dump 手动生成CDS结构。</li>
+</ul>
+<blockquote>
+<p>-XshowSettings:<em>category</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示设定并继续。category参数值如下：</p>
+<ul>
+<li>all 显示所有类别的设定。这是默认值。</li>
+<li>locale 显示本地相关的设定。</li>
+<li>properties 显示系统值相关的设定。</li>
+<li>vm 显示JVM的设定。</li>
+</ul>
+<blockquote>
+<p>-Xusealtsigs</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;JVM内部使用其他信号量替代SIGUSR1和SIGUSR2信号量。该选项等同于<strong>-XX:UseAltSigs</strong>。</p>
+<blockquote>
+<p>-Xverify:<em>mode</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置二进制代码校验器工作模式。二进制代码校验用来帮助定位一些问题，但同时也会增加运行应用的开销。其可选模式如下：</p>
+<ul>
+<li>none 不验证。会减少启动时间但也会降低java提供的保护性。</li>
+<li>remote 验证那些不是由bootstrap类加载器加载的类。这是默认选项。</li>
+<li>all 验证所有类。</li>
+</ul>
+<h3 id="高级运行时参数-Advanced-Runtime-Options"><a href="#高级运行时参数-Advanced-Runtime-Options" class="headerlink" title="高级运行时参数(Advanced Runtime Options)"></a>高级运行时参数(Advanced Runtime Options)</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;这些选项控制HopSpot VM运行时的行为。</p>
+<blockquote>
+<p>-XX:+CheckEndorsedAndExtDirs</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;这个选项将会阻止<strong>java</strong>命令运行应用，除非没有用到endorsed-standards override机制和扩展机制。这个选项会检查应用是否使用了下面的机制之一：</p>
+<ul>
+<li>设置了<strong>java.ext.dirs</strong>或<strong>java.endorsed.dirs</strong>系统属性值。</li>
+<li><strong>lib/endorsed</strong>文件夹存在且不为空。</li>
+<li><strong>lib/ext</strong>目录包含了除JDK中之外的JAR。</li>
+<li>系统范围的特定于平台的扩展目录包含了任意的JAR文件。</li>
+</ul>
+<blockquote>
+<p>-XX:+DisableAttachMechanism</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;此选项将禁止工具连接到JVM。默认该选项是关闭的，即允许工具连接之JVM，如jcmd、jstack、jmap和jinfo等命令。</p>
+<blockquote>
+<p>-XX:ErrorFile=<em>filename</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定一个路径和文件名用来存储致命错误发生时的错误信息。默认情况下这个文件会被创建在当前目录，命名为<strong>hs_err_pid[pid].log</strong>。其中[pid]是造成错误的进程标识。下面的例子展示了怎样设置默认的日志文件（需要指出的是进程标识用%p来表示）：<br><strong>-XX:ErrorFile=./hs_err_pid%p.log</strong><br>如果这个文件不能被创建在指定的目录下的话（因为空间不足、权限问题、或者其他问题）。这个文件就会创建在系统临时目录/tmp下。</p>
+<blockquote>
+<p>-XX:+FailOverToOldVerifier</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;当新的类型检查其验证失败时使用老的验证器替代。 默认这个选项是关闭的且当classes使用新版本的二进制代码时会被忽略（即关闭）。如果使用老的字节码版本的话，可以开启这个选项。 </p>
+<blockquote>
+<p>-XX:+FlightRecorder | -XX:-FlightRecorder</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在应用运行期间启用|关闭Java Flight Recorder(JFR)。这是一个商业特性(Oracle要收费的)需要和<strong>-XX:+UnlockCommercialFeatures</strong>选项一起使用：<strong>java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder</strong>。如果启动时没有提供该参数，任然可以通过<strong>jcmd</strong>来动态启用。</p>
+<blockquote>
+<p>-XX:FlightRecorderOptions=<em>parameter</em>=<em>value</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置参数来控制JFR的行为。这是一个商业特性，需和<strong>-XX:+UnlockCommercialFeatures</strong>选项一起使用。这个选项仅仅当JFR可用的时候才能使用（也就是使用了<strong>-XX:+FlightRecorder</strong>选项）。</p>
+<blockquote>
+<p>-XX:LargePageSizeInBytes=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在Solaris上，通过该值设置堆内存页的最大大小。这个参数必须是2的幂（无单位时）。默认情况下该值为0，此时JVM会自动选择大小值。</p>
+<blockquote>
+<p>-XX:MaxDirectMemorySize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置New I/O(<strong>java.nio</strong>包)的直接缓存最大容量。默认情况下该值为0，即JVM会自动大小。多用于网络编程如Netty。</p>
+<blockquote>
+<p>-XX:NativeMemoryTracking=<em>mode</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定追踪JVM本地内存使用情况，mode可用的参数如下所示：</p>
+<ul>
+<li>off </br>&nbsp;&nbsp;&nbsp;&nbsp;不跟踪本地内存使用。这是默认的模式。</li>
+<li>sumary </br>&nbsp;&nbsp;&nbsp;&nbsp;仅仅跟踪JVM子系统的内存使用，如Java堆，类，代码和线程。</li>
+<li>detail </br>&nbsp;&nbsp;&nbsp;&nbsp;除了跟踪JVM子系统的内存使用,还追踪单个调用点(CallSite)，虚拟内存区域和它提交的区域的内存使用。</li>
+</ul>
+<blockquote>
+<p>-XX:ObjectAlignmentInBytes=<em>alignment</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置java对象的内存对齐，默认是8字节，指定的值必须是2的幂，且必须在8和256之间。该选项使在大堆的时候可以压缩指针。堆的大小限制计算：4GB * ObjectAlignmentInBytes。<br>值得注意的是，当该值增大时，对象之间的未使用空间也会增加。此时在大堆中使用压缩指针就得不到收益。</p>
+<blockquote>
+<p>-XX:OnError=<em>string</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置一系列以分号隔开自定义命令，当发生致命错误时执行。如果命令包含空格就需要使用引号括起来。<strong>-XX:OnError=”gcore %p;dbx - %p”</strong>展示了当发生致命错误时，启用gcore命令来创建内核图像，且debugger开始附加到进程上来防备不可恢复的错误（<strong>%p</strong>为当前进程）。</p>
+<blockquote>
+<p>-XX:OnOutOfMemoryError=<em>string</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置在第一次抛出OOM错误时执行的一系列以分号隔开自定义命令。如果命令包含空格就需要使用引号括起来。</p>
+<blockquote>
+<p>-XX:+PerfDataSaveToFile</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;如果这个选项开启了，那么当应用退出的时候会保存jstat的二进制数据到hsperfdata_&lt;pid&gt;文件（&lt;pid&gt;为应用的进程号）。使用<strong>jstat</strong>命令来展示该文件保存的性能数据:<strong>jstat -class file:///&lt;path&gt;/hsperfdata_&lt;pid&gt;</strong>&nbsp;&nbsp;&nbsp;&nbsp;<strong>jstat -gc file:///&lt;path&gt;/hsperfdata_&lt;pid&gt;</strong></p>
+<blockquote>
+<p>-XX:+PrintCommendLineFlags</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;输出JVM设置的选项和值，比如：堆大小、垃圾回收器等。默认这个选项是关闭的。</p>
+<blockquote>
+<p>-XX:+PrintNMTStatistics</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;如果-XX:NativeMemoryTracking选项开启，那么这个选项会在JVM退出的时候打印本地内存的收集数据。默认这个选项是关闭的。 </p>
+<blockquote>
+<p>-XX:+RelaxAccessControlCheck</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;减少访问控制检查，默认这个选项是关闭的且如果class是最近版本的二进制代码该选项会被忽略（当作关闭）。</p>
+<blockquote>
+<p>-XX:+ResourceManagement</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在程序运行期间，启动资源管理。<br>这是一个商业特性，所以需要你开启<strong>-XX:+UnlockCommercialFeatures</strong>选项。</p>
+<blockquote>
+<p>-XX:ResourceManagementSampleInterval=<em>value</em> (milliseconds)</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置资源管理的采样间隔。只有在<strong>-XX:+ResourceManagement</strong>选项开启的情况下，才能使用这个选项。</p>
+<blockquote>
+<p>-XX:SharedArchiveFile=<em>path</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定类数据分享(CDS)文档目录。</p>
+<blockquote>
+<p>-XX:SharedClassListFile=<em>file_name</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定一个文本文件，其中包含要存储到类共享文档中的类名。这个文件中的类名使用”/”代替”.”。比如要指定java.lang.Object和hello.Main两个类，如下： <strong>java/lang/Object</strong> &nbsp;&nbsp;&nbsp;&nbsp;<strong>hello/Main</strong><br>这些在文件中指定的类是被应用经常使用的类，他们可能是应用路径、扩展路径和引导路径下的类。 </p>
+<blockquote>
+<p>-XX:+ShowMessageBoxOnError</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;当JVM发生不可恢复的错误的时候，弹出一个框。这会阻止JVM退出，这时我们可以连接JVM来调试引发JVM退出的原因。默认这个选项是关闭的。 </p>
+<blockquote>
+<p>-XX:StartFlightRecording=<em>parameter</em>=<em>value</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;为应用开启JFR。这是一个商业特性，需要和-XX:+UnlockCommercialFeatures选项一起使用。这个选项类似在应用运行时使用JFR.start命令。</p>
+<blockquote>
+<p>-XX:ThreadStackSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置线程栈大小。该选项等同于<strong>-Xss</strong>，默认值取决于平台：</p>
+<ul>
+<li>Linux/ARM(32-bit): 320KB</li>
+<li>Linux/i386(32-bit): 320KB</li>
+<li>Linux/x64(64-bit): 1024KB</li>
+<li>OS X(64-bit): 1024KB</li>
+<li>Oracle Solaris/i386(32-bit): 320KB</li>
+<li>Oracle Solaris/x64(64-bit): 1024KB</li>
+</ul>
+<blockquote>
+<p>-XX:+TraceClassLoading</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启动类加载跟踪。默认这个选项是关闭的。</p>
+<blockquote>
+<p>-XX:+TraceClassLoadingPreorder</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;按照引用顺序跟踪类加载。默认这个选项是关闭的。</p>
+<blockquote>
+<p>-XX:+TraceClassResolution</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;跟踪常量池。默认这个选项是关闭的。</p>
+<blockquote>
+<p>-XX:+TraceClassUnloading</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;跟踪类的卸载，默认这个选项是关闭的。</p>
+<blockquote>
+<p>-XX:+TraceLoaderConstraints</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;跟踪加载器约束记录，默认是关闭的。<a href="http://kzl.iteye.com/blog/1131835" target="_blank" rel="noopener">测试链接</a></p>
+<blockquote>
+<p>-XX:+UnlockCommercialFeatures</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用商业特性。默认情况下为关闭。也可食用<strong>jcmd</strong>来开启。</p>
+<blockquote>
+<p>-XX:+UseAltSigs</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;JVM内部使用其他信号量替代SIGUSR1和SIGUSR2信号量。默认禁用。该选项等同于<strong>-Xusealtsigs</strong>。</p>
+<blockquote>
+<p>-XX:+UserAppCDS</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启应用类数据共享(AppCDS)。为了使用AppCDS，必须在CDS dump期间（参考<strong>-Xshare:dump</strong>）使用-XX:SharedClassListFile和-XX:SharedArchiveFile 两个选项。<br>这是一个商业特性，所以也需要使用<strong>-XX:+UnlockComme<br>rcialFeatures</strong>。这也是一个体验特性，可能在未来的版本改变。</p>
+<blockquote>
+<p>-XX:-UseBiasedLocking</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;禁止使用偏向锁。有一些应用中用到了大量的没有竞争的同步，这时使用这个选项会提升性能。反之应用可能因为使用更重的锁模式而降低性能。</p>
+<blockquote>
+<p>-XX:-UseCompressedOops</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;禁止使用压缩指针。默认情况下压缩指针开启，且在Java堆大小小于32G时会压缩指针。当这个选项开启的时候，对象引用是32位的而不是64位，这在小于32G的堆大小时会提高性能。该选项近在64位JVM下生效。在堆大小大于32G时，也可以通过<strong>-XX:ObjectAlignmentInBytes</strong>选项来启用压缩指针。</p>
+<blockquote>
+<p>-XX:+UseHugeTLBFS</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用大的内存分页。在linux上的<strong>-XX:+UseLargePages</strong>选项。该选项默认关闭。该选项会在内存预留时预收集所有的大的分页，因此JVM不能动态的增减大分页内存区域。如想要这种表现，查看<strong>-XX:UseTransparentHugePages</strong>选项。</p>
+<blockquote>
+<p>-XX:+UseLargePages</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用大的内存分页。默认情况下该选项关闭且大分页内存不会被使用。</p>
+<blockquote>
+<p>-XX:+UseMembar</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在线程状态转化时使用内存栅栏。除了ARM服务器外的所有平台都是默认关闭的（ARM服务器不建议关闭此选项）。</p>
+<blockquote>
+<p>-XX:+UsePerfData</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用<strong>perfdata</strong>特性。该选项默认开启以允许监控JVM性能。关闭使用<strong>-XX:-UsePerfData</strong>。</p>
+<blockquote>
+<p>-XX:+UseTransparentHugePages</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在linux系统中，启用大的内存分页是可以动态增减的。该选项默认关闭。在创建巨型分页时可能会遇到问题，该选项为实验选项。<a href="https://www.cnblogs.com/kerrycode/p/7760026.html" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<p>-XX:+AllowUserSignalHandlers</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;允许应用使用信号处理器， 默认是不允许的。</p>
+<h3 id="高级JIT编译器参数-Advanced-JIT-Compiler-Options"><a href="#高级JIT编译器参数-Advanced-JIT-Compiler-Options" class="headerlink" title="高级JIT编译器参数(Advanced JIT Compiler Options)"></a>高级JIT编译器参数(Advanced JIT Compiler Options)</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;这些选项控制着JVM(HotSpot)JIT编译表现。</p>
+<blockquote>
+<p>-XX:+AggressiveOpts</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;通过选项来引入新的优化特性，这些特性可能在未来的版本作为默认值。默认情况下，该选项关闭且实验性的功能特性不会被使用。</p>
+<blockquote>
+<p>-XX:AllocateInstancePrefetchLines=<em>lines</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定在实例分配指针前预取行数。默认值为1。仅JVM(HotSpot) Server支持该选项。</p>
+<blockquote>
+<p>-XX:AllocatePrefetchDistance=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置对象分配的预取间隔。新对象写入时所用的内存空间都是根据从上次分配的对象的地址开始预取该值大小空间。每个java线程都有自己的分配点。这个选项的默认值跟平台有关。该值默认为-1。仅JVM(HotSpot) Server支持该选项。</p>
+<blockquote>
+<p>-XX:AllocatePrefetchInstr=<em>instruction</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在分配指针之前预读取指令条数。仅JVM(HotSpot) Server支持该选项。取值范围为0-3。实际操作取决于平台。默认情况下该值为0。</p>
+<blockquote>
+<p>-XX:AllocatePrefetchLines=<em>lines</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用JIT编译代码生成的预取指令在最后一个对象分配后加载的缓存行数。如果最后一个分配对象是实例，则默认值是1，是数组则为3。仅JVM(HotSpot) Server支持该选项。</p>
+<blockquote>
+<p>-XX:AllocatePrefetchStepSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;为顺序预取指令设定步长大小。默认值为16 bytes。仅JVM(HotSpot) Server支持该选项。</p>
+<blockquote>
+<p>-XX:AllocatePrefetchStyle=<em>style</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;生成预取指令的代码样式。仅JVM(HotSpot) Server支持该选项。<em>style</em>值为0-3的整数：</p>
+<ul>
+<li>0 不生成预取指令</li>
+<li>1 在每次分配后执行预取指令。该值为默认值。</li>
+<li>2 使用本地线程分配区(TLAB thread-local allocation block)水印指针(watermark pointer)来决定何时执行预取指令。</li>
+<li>3 在SPARC使用BIS指令来分配预取。</li>
+</ul>
+<blockquote>
+<p>-XX:+BackgroundCompilation</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启后台编译。该选项默认开启。使用<strong>-XX:-BackgroundCompilation</strong>（该指令等价于<strong>-Xbatch</strong>）关闭后台编译。</p>
+<blockquote>
+<p>-XX:CICompilerCount=<em>threads</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定编译器编译时使用线程数。在server JVM下默认值为2，在client模式下为1，该值会在多层编译启用时扩展。</p>
+<blockquote>
+<p>-XX:CodeCacheMinimumFreeSpace=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;编译所需最小空间。如果空闲空间小于此值,则编译会停止。默认是500K。</p>
+<blockquote>
+<p>-XX:CompileCommand=<em>command</em>,<em>method</em>[,option]</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用命令执行指定方法。不编译String的indexOf()方法：<strong>-XX:CompileComand=exclude,java/lang/String.indexOf</strong>。这里需要class的全名，包括包和其子包，使用/隔开。为了更易于使用，也可以使用格式化方法名<strong>-XX:+PrintCompilation</strong>和<strong>-XX:+LogCompilation</strong>选项：<strong>-XX:CompileCommand=exclue,java.lang.String::indexOf</strong>。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;如果方法不带有签名，则该指令会被应用至所有该方法名的方法。当然，也可以在class文件格式中指定该方法签名。这种情况下需要用引号括起来，否则shell会将分号当作命令的结束。例如不编译String的indexOf(String)方法：<strong>-XX:CompileCommand=”exclude,java/lang/String.indexOf,(Ljava/lang/String;)I”</strong>。也可以使用(*)作为通配符来匹配包名或类名，例如不编译所有class中的indexOf()方法：<strong>-XX:CompileCommand=exclude,*.indexOf</strong>。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用空格作分隔符可以更好的传参：<strong>-XX:CompileCommand=”exclude java/lang/String indexOf”</strong>。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在解析通过命令行使用了该选项传递的参数后，JIT编译器会继续从<strong>.hotspot_compiler</strong>文件中读取命令。可以在该文件增加自己的命令或使用<strong>-XX:CompileCommandFile</strong>指定读取的文件。增加多个命令的情况下，可多次使用该命令或者用<strong>\n</strong>隔开。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;可选命令如下：</p>
+<ul>
+<li><em>break</em>  JVM以debug模式运行时，在方法编译开始处设置断点。</li>
+<li><em>compileonly</em>  只编译指定的方法。其替代选项为<strong>-XX:CompileOnly</strong>。</li>
+<li><em>dontinline</em>  阻止特定方法内联。</li>
+<li><em>exclude</em>  不编译制定方法。</li>
+<li><em>help</em>  打印该选项(-XX:CompileCommand)的帮助信息。</li>
+<li><em>inline</em>  尝试内联指定方法。</li>
+<li><em>log</em>  只记录指定方法的编译信息（当使用<strong>-XX:+LogCompilation</strong>选项时）。默认会为所有方法记录。</li>
+<li><em>option</em>  传递一个JIT编译选项替换最后一个参数（选项）。该编译选项会设定在方法名后的末尾。如在StringBuffer的append()方法后启用<strong>BlockLayoutFrequency</strong>选项：<strong>-XX:CompileCommand=option,java/lang/StringBuffer.append,BlockLayoutByFrequency</strong>。可以指定多个编译选项，用逗号或空格隔开。</li>
+<li><em>quiet</em>  不打印编译命令。默认情况下，若使用了<strong>-XX:CompileCommand</strong>则会在标准输出中打印相应信息，如不编译String的indexOf()方法，则会在标准输出中打印：<strong>CompilerOracle: exclude java/lang/String.indexOf</strong>。可以在其他编译指令之前使用该值去掉打印。</li>
+</ul>
+<blockquote>
+<p>-XX:CompileCommandFile=<em>filename</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定JIT编译器命令读取文件。默认使用<strong>.hotspot_compiler</strong>文件来存储指令。每行代表一个命令。更多信息参见<strong>-XX:CompileCommand</strong>选项。</p>
+<blockquote>
+<p>-XX:CompileOnly=<em>methods</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定一个方法列（以逗号隔开），仅指定的方法会被编译。指定语法参考<strong>-XX:CompileCommand</strong>（如java/lang/String.length）。但通配符是无法使用的。但是可以通过指定类名或包名来设定其中的所有方法，或不指定包和类会匹配所有该名称的方法。如</p>
+<p><strong>-XX:CompileOnly=java/lang/String</strong></p>
+<p><strong>-XX:CompileOnly=java/lang</strong></p>
+<p><strong>-XX:CompileOnly=.length</strong></p>
+<blockquote>
+<p>-XX:CompileThreshold=<em>invocations</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;编译阈值。在调用解释器该阈值次数后编译。server JVM默认为10000，在此期间JIT编译器会收集信息以更有效率的进行编译。client JVM默认为1500。当多层编译启用时(<strong>-XX:+TieredCompilation</strong>)该选项会被忽略。可以通过<strong>-Xcomp</strong>选项关闭解释器执行以直接编译。</p>
+<blockquote>
+<p>-XX:+DoEscapeAnalysis</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打开转义分析，JVM会对代码做一些深度优化。该选项默认开启。可用过<strong>-XX:-DoEscapeAnalysis</strong>关闭。仅JVM(HotSpot) Server支持该选项。</p>
+<blockquote>
+<p>-XX:InitialCodeCacheSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;初始化的代码缓存的大小，默认500KB。这个值应当不小于系统最小内存页的大小。</p>
+<blockquote>
+<p>-XX:+Inline</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;编译时方法内联。默认是开启的。通过<strong>-XX:-Inline</strong>关闭。</p>
+<blockquote>
+<p>-XX:InlineSmallCode=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置最大内联方法的代码长度，默认是1000字节，只有小于这个设置的方法才会被编译内联。</p>
+<blockquote>
+<p>-XX:+LogCompilation</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;编译时日志输出，在编译时会有一个hotspot.log的日志输出到当前工作目录下。可以用<strong>-XX:LogFile</strong>指定不同的文件。默认这个参数是关闭的，即编译日志不输出。这个参数需要和<strong>-XX:UnlockDiagnosticVMOptions</strong>一起使用。也可以使用<strong>-XX:+PrintCompilation</strong>选项在控制台打印编译过程信息。</p>
+<blockquote>
+<p>-XX:MaxInlineSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;编译内联的方法的最大大小。默认是35，高于35个字节的字节码不会被内联。</p>
+<blockquote>
+<p>-XX:MaxNodeLimit=<em>nodes</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;单个方法在编译期间最大可用节点数。默认值为65000。</p>
+<blockquote>
+<p>-XX:MaxTrivialSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;简单方法内联最大大小。默认为6字节。</p>
+<blockquote>
+<p>-XX:+OptimizeStringConcat</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;字符串concat优化。默认开启。使用<strong>-XX:-OptimizeStringConcat</strong>关闭。仅server JVM(HotSpot)支持。</p>
+<blockquote>
+<p>-XX:+PrintAssembly</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;通过使用外部的disassembler.so库打印汇编的字节码和native方法来辅助分析。默认是不开启的，需要和<strong>-XX:UnlockDiagnosticVMOptions</strong>一起使用。</p>
+<blockquote>
+<p>-XX:+PrintCompilation</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;将方法编译过程打印到控制台。默认不开启。可以通过<strong>-XX:+LogCompilation</strong>选项记录到文件。</p>
+<blockquote>
+<p>-XX:+PrintInlining</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;将内联方法打印出来。默认不开启。需要和<strong>-XX:+UnlockDiagnosticVMOption</strong>选项一起使用。</p>
+<blockquote>
+<p>-XX:ReservedCodeCacheSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置为了JIT编译代码的最大代码cache大小。这个设置默认是240MB，如果关掉了多层编译，则大小是48MB。该选项最大可设置值为2G，大于会出错。这个设置必须比初始化的<strong>-XX:InitialCodeCacheSize=<em>size</em></strong>设置值大。该选项等价于<strong>-Xmaxjitcodesize</strong>。</p>
+<blockquote>
+<p>-XX:RTMAbortRatio=<em>abort_ratio</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定RTM中止比率,该比率为所有执行的RTM事务的百分比（％）。如果一些被中止的事务变得大于该比率，则编译的代码将被去优化。<strong>-XX:+UseRTMDeopt</strong>启用时该选项的比率生效。默认值为50。这意味着如果50％的事务被中止，编译后的代码将被去优化。</p>
+<blockquote>
+<p>-XX:RTMRetryCount=<em>number_of_retries</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;当RTM锁定代码中止或繁忙时，将重试此选项指定的次数，然后再回到正常的锁定机制。该选项的默认值为5。<strong>-XX:UseRTMLocking</strong>必须被启用。</p>
+<blockquote>
+<p>-XX:-TieredCompilation</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;关闭多层编译。默认启用。仅server JVM(HotSpot)支持。</p>
+<blockquote>
+<p>-XX:+UseAES</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持针对Intel，AMD和SPARC硬件的基于硬件的AES内在函数。Intel Westmere（2010年及之后版本），AMD Bulldozer（2011和更新版）以及SPARC（T4及更高版本）都是受支持的硬件。<strong>UseAES</strong>与<strong>UseAESIntrinsics</strong>结合使用。</p>
+<blockquote>
+<p>-XX:+UseAESIntrinsics</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;UseAES和UseAESIntrinsics标志默认情况下启用，仅支持32位和64位server JVM(HotSpot)。使用<strong>-XX:-UseAES -XX:-UseAESIntrinsics</strong>禁用基于硬件的AES内在函数。</p>
+<blockquote>
+<p>-XX:+UseCodeCacheFlushing</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持在关闭编译器之前清除代码缓存。默认开启。使用<strong>-XX:-UseCodeCacheFlushing</strong>来关闭。</p>
+<blockquote>
+<p>-XX:+UseCondCardMark</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在更新卡片表之前，可以检查该卡是否已被标记。默认情况下禁用此选项，只能在具有多个套接字的机器上使用该选项，从而提高依赖并发操作的Java应用程序的性能。仅支持server JVM(HotSpot)。</p>
+<blockquote>
+<p>-XX:+UseRTMDeopt</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;根据中断比例自动调整RTM锁定。该比例由<strong>-XX:RTMAbortRatio</strong>指定。如果中止事务的数量超过中止比率，则包含该锁的方法将被去优化，并将所有锁重新编译为普通锁。默认禁用。<strong>-XX:+UseRTMLocking</strong>必须被启用。</p>
+<blockquote>
+<p>-XX:+UseRTMLocking</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;为所有膨胀锁生成受限制的事务内存（RTM）锁定代码，此情况下正常锁定机制作为后备。该选项默认禁用。与RTM相关的选项仅适用于支持事务同步扩展（TSX）的x86 CPU上的server JVM(HotSpot)。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;RTM是英特尔TSX的一部分，它是一个x86指令集扩展，有助于创建多线程应用程序。RTM引入了新的指令XBEGIN，XABORT，XEND，和XTEST。该指令XBEGIN和XEND指令包含一组要作为事务运行的指令。如果在运行事务时没有发现任何冲突，则内存和寄存器修改将在指令中一起通过XEND指令提交。XABORT指令可用于明确地中止一个事务，XEND指令用于检查一组指令是否在运行一个事务。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;当另一个线程尝试访问相同的事务时，事务的锁定会被膨胀，从而阻塞非最早请求访问该事务的线程。RTM要求在事务中止或失败的情况下指定后备操作集。RTM锁是一个被委派给TSX系统的锁。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;RTM可以在关键区域（不能被多个线程同时访问的代码）的低冲突高度竞争的锁中提高性能。RTM还提高了粗粒度锁定的性能，这通常在多线程应用程序中表现不佳。（粗粒锁定是长时间保持锁定的策略，以最大限度地减少锁和释放锁的开销，而细粒度锁定是通过仅在必要时锁定并尽快解锁来实现最大并行度的策略。）同时对于使用轻量级锁的不同的线程，RTM可以减少伪缓存行共享(false cache line sharing | cache line ping-pong)。当来自不同处理器的多个线程正在访问不同的资源时，但资源共享相同的缓存行。结果，处理器反复使其他处理器的高速缓存行无效，这迫使他们从主存储器而不是其高速缓存读取。</p>
+<blockquote>
+<p>-XX:+UseSHA</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在SPARC硬件上启用基于硬件的SHA加密哈希内在函数。该选项和<strong>UseSHA1Intrinsics</strong>, <strong>UseSHA256Intrinsics</strong>和<strong>UseSHA512Intrinsics</strong>联合使用。<br>这些选项默认启用，仅受SPARC T4或更新的机器且为64位server JVM(HotSpot)支持。该特性仅在使用<strong>sun.security.provider.Sun</strong>的SHA操作时有效。使用<strong>-XX:-UseSHA</strong>关闭所有SHA内在函数。</p>
+<blockquote>
+<p>-XX:+UseSHA1Intrinsics</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用SHA-1加密内在函数。</p>
+<blockquote>
+<p>-XX:+UseSHA256Intrinsics</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用SHA-224和SHA-256加密内在函数。</p>
+<blockquote>
+<p>-XX:+UseSHA512Intrinsics</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用SHA-384和SHA-512加密内在函数。</p>
+<blockquote>
+<p>-XX:+UseSuperWord</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启转换标量(scalar)操作至超字(superword)操作。默认开启。通过<strong>-XX:-UseSuperWord</strong>关闭。仅受server JVM(HotSpot)支持。</p>
+<h3 id="高级服务能力参数Advanced-Serviceability-Options"><a href="#高级服务能力参数Advanced-Serviceability-Options" class="headerlink" title="高级服务能力参数Advanced Serviceability Options)"></a>高级服务能力参数Advanced Serviceability Options)</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;这部分参数提供了系统信息收集和扩展性的debug功能。</p>
+<blockquote>
+<p>-XX:+ExtendedDTraceProbes</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打开额外的dtrace工具探针，默认是关闭的，且dtrace仅做标准探测。</p>
+<blockquote>
+<p>-XX:+HeapDumpOnOutOfMemory</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置当java.lang.OutOfMemoryError发生时，用堆分析(HPROF)将heap内存dump到当前目录的一个文件。可以通过<strong>-XX:HeapDumpPath</strong>指定dump的路径和文件。默认关闭。</p>
+<blockquote>
+<p>-XX:HeapDumpPath=<em>path</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;当使用<strong>-XX:+HeapDumpOnOutOfMemoryError</strong>时，设定dump的文件路径与文件。默认会创建在当前文件夹下的<strong>java_pid<em>pid</em>.hprof</strong>，其中<em>pid</em>是出错的进程。<strong>-XX:HeapDumpPath=./java_pid%p.hprof</strong>为默认选项。</p>
+<blockquote>
+<p>-XX:LogFile=path</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定日志数据被记录在哪里，默认是在当前目录下的hotspot.log文件。</p>
+<blockquote>
+<p>-XX:+PrintClassHistogram</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持打印类实例的直方图，在按下<strong>Control+C</strong>时（<strong>SIGTERM</strong>）触发。默认关闭。等价于运行<strong>jmap -histo</strong>命令或者<strong>jcmd <em>pid</em> GC.class_histogram</strong>命令。</p>
+<blockquote>
+<p>-XX:+PrintConcurrentLocks</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持打印<strong>java.util.concurrent</strong>的锁信息，在按下<strong>Control+C</strong>时（<strong>SIGTERM</strong>）触发。默认关闭，等价于运行<strong>jstack -l</strong>或者<strong>jcmd <em>pid</em> Thread.print -l</strong>命令。</p>
+<blockquote>
+<p>-XX:+UnlockDiagnosticVMOptions</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;解锁对JVM进行诊断的选项参数。默认是关闭的，开启后支持一些特定参数对JVM进行诊断。</p>
+<h3 id="高级垃圾回收参数-Advanced-Garbage-Collection-Options"><a href="#高级垃圾回收参数-Advanced-Garbage-Collection-Options" class="headerlink" title="高级垃圾回收参数(Advanced Garbage Collection Options)"></a>高级垃圾回收参数(Advanced Garbage Collection Options)</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;这些选项控制Java HopSpot VM垃圾回收(GC)时的表现。</p>
+<blockquote>
+<p>-XX:+AggressiveHeap</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启java堆内存优化。开启后会根据电脑配置(内存和CPU)设定多种参数来使长时间运行且有密集内存分配操作的任务最优化。默认是关闭的。</p>
+<blockquote>
+<p>-XX:+AlwaysPreTouch</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持在JVM启动时touch堆上每一页，这样做会让在<strong>main()</strong>方法执行前载入所有页。可以用来模拟测试长时间运行的任务，将虚拟内存全部映射到物理内存。默认关闭。</p>
+<blockquote>
+<p>-XX:+CMSClassUnloadingEnabled</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启在使用CMS（并发垃圾清除）垃圾回收时进行类卸载。默认开启。使用<strong>-XX:-CMSClassUnloadingEnabled</strong>来关闭。</p>
+<blockquote>
+<p>-XX:CMSExpAvgFactor=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置一个时间百分比(0-100)，用来加权并发回收统计的指数平均的样本。默认为25%。</p>
+<blockquote>
+<p>-XX:CMSInitiatingOccupancyFraction=percent</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定触发CMS垃圾回收的老年代使用比(0-100)。默认为-1。任何负数（包括默认值）都代表使用<strong>XX:CMSTriggerRatio</strong>来初始化占有分值。</p>
+<blockquote>
+<p>-XX:+CMSScavengeBeforeRemark</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在cms标记前进行Scavenge。常用于Remark停顿时间过长时开启，开启后在Remark之前先做一次youngGC，减少年轻代对老年代的引用，从而减少Remark时间。<a href="https://www.zhihu.com/question/61090975/answer/185486919" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<p>-XX:CMSTriggerRatio=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置一个在CMS开始前的内存的触发百分比，针对的是由-XX:MinHeapFreeRatio分配的内存。默认是80。</p>
+<blockquote>
+<p>-XX:ConcGCThreads=<em>threads</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置并发GC的线程数。默认值依赖于给JVM的CPU数目。</p>
+<blockquote>
+<p>-XX:+DisableExplicitGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启该选项来使应用调用<strong>System.gc()</strong>失效。该选项默认禁用，即可以调用<strong>System.gc()</strong>。当该选项开启时，JVM任会在需要时进行GC。</p>
+<blockquote>
+<p>-XX:+ExplicitGCInvokesConcurrent</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持通过System.gc()使用并发GC。默认关闭。仅通过<strong>-XX:+UseConcMarkSweepGC</strong>与本选项联用来开启。</p>
+<blockquote>
+<p>-XX:+ExplicitGCInvokesConcurrentAndUnloadsClasses</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;支持通过System.gc()使用并发GC且在并发GC期间进行类卸载。仅通过<strong>-XX:+UseConcMarkSweepGC</strong>与本选项联用来开启。</p>
+<blockquote>
+<p>-XX:G1HeapRegionSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置在使用G1收集器时Java堆被划分为子区域的大小。在1MB到32MB之间，默认会根据Java堆的大小自动检测。<a href="https://segmentfault.com/a/1190000007815623" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<p>-XX:+G1PrintHeapRegions</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印区块(region)被G1收集器分配和回收的信息。默认关闭。</p>
+<blockquote>
+<p>-XX:G1ReservePercent=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置作为空闲空间的预留内存百分比(0-50),来防止晋升失败的情况。默认为10。</p>
+<blockquote>
+<p>-XX:InitialHeapSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定内存分配池的初始大小。此值必须为0或1024的整数倍（无单位）且大于1MB。默认值依赖于运行时系统配置。参考<a href="http://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/index.html" target="_blank" rel="noopener">Java HopSpot VM 垃圾回收调优指南</a>中”Ergonomics”一节。<br>如果该值设为0，那么初始值为年轻代和老年代的大小之和。使用<strong>-XX:NewSize</strong>可调整年轻代堆大小。</p>
+<blockquote>
+<p>-XX:InitialSurvivorRatio=<em>ratio</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置吞吐量垃圾收集器(使用<strong>-XX:+UseParalleGC</strong>或<strong>-XX:+UseParalleOldGC</strong>开启)时survivor初始比例。默认情况下survivor空间会根据应用的表现动态调整。如果使用<strong>-XX:-UseAdaptiveSizePolicy</strong>选项关闭动态调整，则<strong>-XX:SurvivorRatio</strong>选项会用于设定survivor区域占比。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>S=Y/(R+2)</strong>该公式用于计算初始survivor区域大小。其中S代表survivor空间大小，Y代表年轻代大小，R代表初始比例，数字2指代两个survivor区域。R值越大，则survivor区域越小。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;默认情况下该值为8.该值为默认值时，如果年轻代大小为2MB，则初始survivor大小是0.2MB。</p>
+<blockquote>
+<p>-XX:InitiatingHeapOccupancyPercent=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置一个触发并发GC的堆占用百分比(0-100)。这个值对于基于整体内存的垃圾回收器有效，比如G1。默认是45%，如果设置为0表示会不断进行GC(无缝GC)。</p>
+<blockquote>
+<p>-XX:MaxGCPauseMillis=<em>time</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定GC最大目标停顿时间(ms)。这是一个软目标，JVM会尽最大的努力达成。默认没有最大值设置。</p>
+<blockquote>
+<p>-XX:MaxHeapSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定内存分配池最大值。需要是1024的倍数(无单位时)且大于2MB。默认值依赖于运行时系统配置。在生产环境下<strong>-XX:InitialHeapSize</strong>和<strong>-XX:MaxHeapSize</strong>经常设为相等的值。参考<a href="http://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/index.html" target="_blank" rel="noopener">Java HopSpot VM 垃圾回收调优指南</a>中”Ergonomics”一节。该选项等价于<strong>-Xmx</strong>。</p>
+<blockquote>
+<p>-XX:MaxHeapFreeRatio=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置在一次GC后最大的堆空闲空间占比(0-100)。如果空闲堆空间超过这个值，堆空间会被收缩。默认是70%。</p>
+<blockquote>
+<p>-XX:MaxMetaspaceSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;为类的元数据分配最大本地内存大小，默认情况这个值无限制。该值依赖于当前的应用、其他正在运行的应用和系统总可用内存。</p>
+<blockquote>
+<p>-XX:MaxNewSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置最大的年轻代的堆大小。默认自动检测。</p>
+<blockquote>
+<p>-XX:MaxTenuringThreshold=<em>threshold</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置在自适应GC大小的使用占有最大阈值。最大值为15.默认情况下parallel（throughput）收集器是15，CMS收集器为6。<a href="http://blog.sina.com.cn/s/blog_a57761d6010107r9.html" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<p>-XX:MetaspaceSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置所分配的类元数据空间的大小，该类元数据空间在第一次超出时将触发垃圾收集。此垃圾收集的阈值根据所使用的元数据的数量增加或减少。默认值依赖于平台。对于64位的服务器端JVM，-XX：MetaspaceSize的默认大小是21M。一旦达到该值将会进行FullGC，建议给一个较大的值来避免初始FullGC。</p>
+<blockquote>
+<p>-XX:MinHeapFreeRatio=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置在一次GC后最小的空闲堆内存占比(0-100)。如果空闲堆内存小于该值，则堆内存扩展。默认是40%。</p>
+<blockquote>
+<p>-XX:NewRatio=<em>ratio</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置年轻代和老年代的比例，默认是2(老年代是年轻代的两倍)。</p>
+<blockquote>
+<p>-XX:NewSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置初始的年轻代的大小。年轻代是分配新对象的地方，是GC经常发生的地方。设置太低，会频繁minor GC，设置太高的话就只会发生Full GC了。Oracle推荐设置为整体内存的一半至1/4之间。该参数等价于<strong>-Xmn</strong>。</p>
+<blockquote>
+<p>-XX:ParallelGCThreads=<em>threads</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置并行GC时的线程数。默认值依赖于CPU数量，默认开启的收集线程数与CPU的数量相同。</p>
+<blockquote>
+<p>-XX:+ParallelRefProcEnabled</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用并发引用处理，默认关闭。如果应用有大量的引用或者finalizable对象需要处理，指定该选项可以减少垃圾回收的时间。这个选项不会启用多线程运行方法的finalizer。他会使用很多线程去发现需要排队通知的finalizable对象。</p>
+<blockquote>
+<p>-XX:+PrintAdaptiveSizePolicy</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印自适应年代调整信息。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印每次GC信息。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGCApplicationConcurrentTime</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印上次GC暂停到目前的时间间隔。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGCApplicationStoppedTime</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印GC暂停的时间长度。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGCDateStamps</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印每次GC的日期时间戳。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGCDetails</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印每次GC的细节信息。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGCTaskTimeStamps</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印每个独立的GC线程任务的时间戳。默认关闭。</p>
+<blockquote>
+<p>-XX:+PrintGCTimeStamps</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印每次GC的时间戳。默认不打印。</p>
+<blockquote>
+<p>-XX:+PrintStringDeduplicationStatistics</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印详细去重统计信息。默认关闭。参考<strong>-XX:+UseStringDeduplication</strong>。</p>
+<blockquote>
+<p>-XX:+PrintTenuringDistribution</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印年代信息。示例输出如下：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>Desired survivor size 48286924 bytes, new threshold 10 (max 10)</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>- age 1: 28992024 bytes, 28992024 total</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>- age 2: 1366864 bytes, 30358888 total</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>- age 3: 1425912 bytes, 31784800 total</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>…</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;其中age1是最年轻的survivor(在上次scavenge之后创建，在最近一次(本次)scavenge后存活，从eden移到survivor)，age2经过了两次scavenge后存活(从一个survivor移动到另外一个survivor)，以此类推。默认该项关闭。</p>
+<blockquote>
+<p>-XX:+ScavengeBeforeFullGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在FullGC前进行年轻代GC。该选项默认启用。Oracle建议不要关掉该选项，因为在FGC前进行年轻代的回收可以减少老年代指向年轻代的可达对象，可以减轻FGC的负担。可以通过<strong>-XX:-ScavengeBeforeFullGC</strong>关闭。</p>
+<blockquote>
+<p>-XX:SoftRefLRUPolicyMSPerMB=<em>time</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;string对象到达特定的age后会去除重复数据。设置一个软引用对象在上次被引用后在堆内存中保存的时间（ms）。默认是每1MB保存1秒钟。该选项对于client JVM(HotSpot) 为ms/当前堆大小的1m，而对server模式下的为ms/堆最大可能值。这差异是因为client模式JVM在回收时会强制flush掉软引用，然而server模式会尝试先扩容堆空间。后者的情况下，<strong>-Xmx</strong>会影响垃圾回收软引用的速度。<a href="http://blog.csdn.net/androidstar_cn/article/details/54710652" target="_blank" rel="noopener">引用相关</a></p>
+<blockquote>
+<p>-XX:StringDeduplicationAgeThreshold=<em>threshold</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>String</strong>对象到达特定的age后会进行去重。一个对象的age代表着它存活过几次GC。age信息参考<strong>-XX:+PrintTenuringDistribution</strong>选项。<strong>String</strong>对象在晋升为年老代之前都是去除重复数据的候选对象。默认是3。参考<strong>-XX:+UseStringDeduplication</strong>选项。</p>
+<blockquote>
+<p>-XX:SurvivorRatio=<em>ratio</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;eden区和survivor区的比例。默认是8。参照<strong>-XX:InitialSurvivorRatio</strong>。<a href="https://www.zhihu.com/question/54131016/answer/151995139" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<p>-XX:TargetSurvivorRatio=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置在YGC后的期望的survivor空间占比(0-100)。默认是50%。<a href="http://blog.163.com/silver9886@126/blog/static/359718622014816105291/" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<p>-XX:TLABSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置本地线程收集缓冲区(TLAB)的初始化大小。如果设置为0，则JVM会自动选择初始值。只有这个区域放不下才会到Eden中去申请。</p>
+<blockquote>
+<p>-XX:+UseAdaptiveSizePolicy</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用自适应分代大小。默认开启。使用<strong>-XX:-UseAdaptiveSizePolicy</strong>关闭该选项使内存分配池大小明确（参考<strong>-XX:SurvivorRatio</strong>）。</p>
+<blockquote>
+<p>-XX:+UseCMSInitiatingOccupancyOnly</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置使用占用值作为初始化CMS收集器的唯一条件。默认不开启。</p>
+<blockquote>
+<p>-XX:+UseConcMarkSweepGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用CMS垃圾收集器作为老年代的垃圾收集器。Oracle建议当应用需要由吞吐量收集器不能满足的低延迟的时候使用CMS。G1收集器(<strong>-XX:UseG1GC</strong>)也是一个选择。该选项默认关闭，根据机器和JVM类型会自动选择何种垃圾回收器。当该选项启用时，<strong>-XX:UseParNewGC</strong>也会自动启用且不能被禁用，因为JDK 8中<strong>-XX:+UseConcMarkSweepGC -XX:-UseParNewGC</strong>组合已被废弃。</p>
+<blockquote>
+<p>-XX:+UseG1GC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;使用garbage-first(G1)垃圾收集器。这是一个面向有多核大内存机器的垃圾回收器。该垃圾回收器旨在解决高GC停顿(STW)时间同时维持一个较高的吞吐量。推荐6G以上堆大小且需要限制GC延时(稳定且可预测的小于0.5s停顿时间)使用。该选项默认关闭，根据机器和JVM类型会自动选择何种垃圾回收器。</p>
+<blockquote>
+<p>-XX:+UseGCOverheadLimit</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用一种设置一个时间比率来限制在抛出<strong>OOM</strong>之前的GC时间的策略。该选项默认开启，并行GC时如果有多于98%以上的时间用来gc且少于2%堆大小恢复就会抛出OOM。当堆空间较小时这个参数有助于保护应用程序不至于长时间的停顿没有进展。使用** -XX:-UseGCOverheadLimit**来禁用该选项。</p>
+<blockquote>
+<p>-XX:+UseNUMA</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;开启在一台有非统一内存结构(NUMA)的机器上增加应用使用低延迟内存来进行应用性能优化。默认该选项关闭且不进行优化。该选项尽在使用并行垃圾回收器(<strong>-XX:+UseParallelGC</strong>)可用。</p>
+<blockquote>
+<p>-XX:+UseParallelGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用并行垃圾回收器(吞吐量收集器)，使用多个核心来提高应用的性能。默认关闭，根据机器和JVM类型会自动选择何种垃圾回收器。如果该选项启用，则会自动开启<strong>-XX:+UseParallelOldGC</strong>除非显示的禁用。</p>
+<blockquote>
+<p>-XX:+UseParallelOldGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;为FGC启用并行垃圾回收器。默认禁用。在使用<strong>-XX:+UseParallelGC</strong>会自动启用。</p>
+<blockquote>
+<p>-XX:+UseParNewGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用多线程回收年轻代。默认禁用。当使用<strong>-XX:+UseConcMarkSweepGC</strong>会自动开启。</p>
+<blockquote>
+<p>-XX:+UseSerialGC</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用串行垃圾回收器。这是对不需要特别垃圾回收功能小应用的最佳选择。默认关闭，根据机器和JVM类型会自动选择何种垃圾回收器。</p>
+<blockquote>
+<p>-XX:+UseSHM</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在Linux下，允许JVM使用共享内存来设置大页。更多信息参考”Large Pages”。</p>
+<blockquote>
+<p>-XX:+UseStringDeduplication</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用字符串去重。默认关闭。需要使用G1垃圾回收器来启用该选项。参考<strong>-XX:+UseG1GC</strong>。<br>字符串去重通过利用许多字符串对象是完全相同的特性来减少堆中的字符串对象。不同于每个字符串指向自己拥有的字符串数组，完全相同的字符串对象指向且共享同一个字符串数组。</p>
+<blockquote>
+<p>-XX:+UseTLAB</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在年轻代启用线程本地分配区(TLABs)。默认开启。通过<strong>-XX:-UseTLAB</strong>关闭。</p>
+<h3 id="废弃和移除的选项"><a href="#废弃和移除的选项" class="headerlink" title="废弃和移除的选项"></a>废弃和移除的选项</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;这些选项被包含在之前的版本中，但被考虑是不需要的了。</p>
+<blockquote>
+<p>-Xincgc</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用Java增量式垃圾回收器。该选项在JDK8被废弃且无替代项。</p>
+<blockquote>
+<p>-Xrun<em>libname</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;加载debug或分析库。该选项被<strong>-agentlib</strong>替代。</p>
+<blockquote>
+<p>-XX:CMSIncrementalDutyCycle=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设定concurrent回收器允许进行minor回收时间百分比(0-100)。同<strong>-XX:+CMSIncrementalMode</strong>该选项在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:CMSIncrementalDutyCycleMin=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;同<strong>-XX:+CMSIncrementalMode</strong>该选项在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:+CMSIncrementalMode</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;同其他<strong>CMSIncremental</strong>相关选项，在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:CMSIncrementalOffset=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;同<strong>-XX:+CMSIncrementalMode</strong>该选项在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:+CMSIncrementalPacing</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;同<strong>-XX:+CMSIncrementalMode</strong>该选项在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:CMSIncrementalSafetyFactor=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;同<strong>-XX:+CMSIncrementalMode</strong>该选项在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:CMSInitiatingPermOccupancyFraction=<em>percent</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;同<strong>-XX:+CMSIncrementalMode</strong>该选项在JDK8中废弃且无替换项。</p>
+<blockquote>
+<p>-XX:MaxPermSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置永生代最大值。JDK8中废弃，用<strong>-XX:MaxMetaspaceSize</strong>取代。</p>
+<blockquote>
+<p>-XX:PermSize=<em>size</em></p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;设置永生代初始值。当超出时会触发FGC。JDK8中废弃，用<strong>-XX:MetaspaceSize</strong>取代。</p>
+<blockquote>
+<p>-XX:+UseSplitVerifier</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用验证过程的拆分。在之前版本默认启用，验证会被分成两个阶段：类型引用(编译器)和类型检查(JVM运行时)。该选项在jdk8中废弃，且默认启用多阶段验证没有方法去禁用。</p>
+<blockquote>
+<p>-XX:+UseStringCache</p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;启用缓存常用的字符串。该选项jdk8移除且没有替代选项。</p>
+<h3 id="性能调优示例"><a href="#性能调优示例" class="headerlink" title="性能调优示例"></a>性能调优示例</h3><h4 id="eg1：调高吞吐量"><a href="#eg1：调高吞吐量" class="headerlink" title="eg1：调高吞吐量"></a>eg1：调高吞吐量</h4><p><strong>java -d64 -server -XX:+AggressiveOpts -XX:+UseLargePages -Xmn10g  -Xms26g -Xm<br>x26g</strong></p>
+<h4 id="eg2-调低响应时间"><a href="#eg2-调低响应时间" class="headerlink" title="eg2: 调低响应时间"></a>eg2: 调低响应时间</h4><p><strong>java -d64 -XX:+UseG1GC -Xms26g Xmx26g -XX:MaxGCPauseMillis=500 -XX:+PrintGCTi<br>meStamp</strong></p>
+<h4 id="Large-Pages"><a href="#Large-Pages" class="headerlink" title="Large Pages"></a>Large Pages</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;也称之为huge pages。大页的大小要明显大于标准页大小（取决于处理器和操作系统）。大页可以优化处理器TLB(Translation-Lookaside Buffers)性能。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;转译查找缓存(TLB)存储近期用到的页表条目（虚拟地址到物理地址转换）。由于TLB是大小有限，而一旦出现TLB miss，则其查询的代价很高（可能需要多次内存访问）。使用大内存页，TLB可以索引更大的内存大小。这对需要较小压力TLB，内存敏感的应用会有更好的性能表现。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;然而大分页也会对系统造成不良影响。当一个应用固定了大量内存时，可能会造成常规内存短缺，其他应用过度分页，降低系统整体运行速度。同时长期运行的系统可能有大量的内存碎片，这会导致不能储备足够的大分页内存。这种情况下系统或JVM会回复使用普通内存。<a href="https://www.tuicool.com/articles/vYZJ3i3" target="_blank" rel="noopener">更多参考</a></p>
+<h4 id="Large-Pages-Support"><a href="#Large-Pages-Support" class="headerlink" title="Large Pages Support"></a>Large Pages Support</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;Solaris 9及以后包含多分页大小支持(Multiple Page Size Support (MPSS))不需要做额外的配置，<a href="http://www.oracle.com/technetwork/server-storage/solaris10/overview/solaris9-features-scalability-135663.html" target="_blank" rel="noopener">详见</a></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;Linux 2.6内核支持大分页。一些提供商将这个特性迁移到了他们的2.4内核版本上。使用一下命令检查是否支持大分页：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># cat &#x2F;proc&#x2F;meminfo | grep Huge</span><br><span class="line">HugePages_Total: 0</span><br><span class="line">HugePages_Free: 0</span><br><span class="line">Hugepagesize: 2048 kB</span><br></pre></td></tr></table></figure>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;如果系统有显示这三个Huge变量，则系统支持大分页但需要额外的配置。如果命令没有打印则不支持。使用<em>root</em>登录，遵循一下步凑来配置大分页：</p>
+<ol>
+<li><p>如果使用<strong>-XX:+UseSHM</strong>而不是<strong>-XX:+UseHugeTLBFS</strong>，则增大<strong>SHMMAX</strong>的值。该值需要大于Java堆大小。在4G以下物理内存机器上，以下命令会使所有内存共享:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># echo 4294967295 &gt; &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;shmmax</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果使用<strong>-XX:+UseSHM</strong>或<strong>-XX:+UseHugeTLBFS</strong>，则指定大分页数量。下面例子中，4g系统中的3g内存给了大分页(假定一个大分页大小为2048K，则3G=3<em>1024M=3072</em>1024K=3145728K，3145728K/2048K=1536)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># echo 1536 &gt; &#x2F;proc&#x2F;sys&#x2F;vm&#x2F;nr_hugepages</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;注意：</p>
+<ul>
+<li><em>/proc</em>里面的值在系统重启后会重置，这样需要使用启动脚本(rc.local ，sysctl.conf等)。</li>
+<li>如果配置了系统内核参数<em>/proc/sys/kernel/shmmax*或</em>/proc/sys/vm/nr_hugepages<em>，Java进程可能会为除了Java堆以外区域收集大分页。配置参数可以为Java Heap，Code cache,并行GC标记数据结构区域收集大分页。因此，如果配置了</em>nr_hugepages*参数来调整Java堆大小 ，则JVM在大分页为code cache区域收集内存时会失败因为这些区域有相当的大小。</li>
+</ul>
+<h4 id="应用类数据共享（Application-Class-Data-Sharing）"><a href="#应用类数据共享（Application-Class-Data-Sharing）" class="headerlink" title="应用类数据共享（Application Class Data Sharing）"></a>应用类数据共享（Application Class Data Sharing）</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;应用类数据共享(AppCDS)继承了<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/vm/class-data-sharing.html" target="_blank" rel="noopener">CDS</a>来启用从标准扩展目录(有系统值<strong><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/extensions/spec.html" target="_blank" rel="noopener">java.etx.dirs</a></strong>指定)和<a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/classpath.html#CBHHCGFB" target="_blank" rel="noopener">应用类路径</a>共享目录中存放类。AppCDS通过从应用类路径加载大量的类减少应用占用和启动时间。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;因为该选项为商业特效，所以需要用<strong>-XX:+UnlockCommercialFeatures</strong>来启用。同时这也是一个实验性功能，可能会在未来做出改变。</p>
+<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><ul>
+<li><strong><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html" target="_blank" rel="noopener">Oracle Java 命令手册</a></strong></li>
+<li><strong><a href="http://kzl.iteye.com/blog/1131835" target="_blank" rel="noopener">loader constraints测试</a></strong></li>
+<li><strong><a href="https://www.tuicool.com/articles/vYZJ3i3" target="_blank" rel="noopener">Hugepages详解</a></strong></li>
+<li><strong><a href="https://www.cnblogs.com/kerrycode/p/7760026.html" target="_blank" rel="noopener">Linux传统Huge Pages与Transparent Huge Pages再次学习总结</a></strong></li>
+<li><strong><a href="https://www.zhihu.com/question/61090975/answer/185486919" target="_blank" rel="noopener">关于 -XX:+CMSScavengeBeforeRemark，是否违背cms的设计初衷？</a></strong></li>
+<li><strong><a href="https://segmentfault.com/a/1190000007815623" target="_blank" rel="noopener">调整G1收集器窍门</a></strong></li>
+<li><strong><a href="http://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/index.html" target="_blank" rel="noopener">Java HopSpot VM 垃圾回收调优指南</a></strong></li>
+<li><strong><a href="http://blog.sina.com.cn/s/blog_a57761d6010107r9.html" target="_blank" rel="noopener">说说MaxTenuringThreshold这个参数</a></strong></li>
+<li><strong><a href="http://blog.csdn.net/androidstar_cn/article/details/54710652" target="_blank" rel="noopener">java学习教程之Reference详解</a></strong></li>
+<li><strong><a href="https://www.zhihu.com/question/54131016/answer/151995139" target="_blank" rel="noopener">SurvivorRatio 和实际的 Eden 与 Survivor 大小不匹配?</a></strong></li>
+<li><strong><a href="http://blog.163.com/silver9886@126/blog/static/359718622014816105291/" target="_blank" rel="noopener">XX:TargetSurvivorRatio详解</a></strong></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2018/03/22/java%E5%91%BD%E4%BB%A4/" data-id="ckaqo6uym000n28o67qn3fw37" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/22/jcmd%E5%91%BD%E4%BB%A4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          jcmd命令
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/19/String-StringBuilder-StringBuffer/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">String StringBuilder StringBuffer</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

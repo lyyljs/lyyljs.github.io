@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>jcmd命令 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;向运行中额JVM发送命令请求诊断信息。 概要jcmd [-l|-h|-help] jcmd pid|main-class PerfCounter.print jcmd pid|main-class -f filename jcmd pid|main-class command[ arguments] 描述&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jcmd命令">
+<meta property="og:url" content="http://lyyljs.site/2018/03/22/jcmd%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;向运行中额JVM发送命令请求诊断信息。 概要jcmd [-l|-h|-help] jcmd pid|main-class PerfCounter.print jcmd pid|main-class -f filename jcmd pid|main-class command[ arguments] 描述&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-22T21:35:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="java命令">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-jcmd命令" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/22/jcmd%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time datetime="2018-03-22T21:35:00.000Z" itemprop="datePublished">2018-03-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      jcmd命令
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;向运行中额JVM发送命令请求诊断信息。</p>
+<h3 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h3><p><strong>jcmd [-l|-h|-help]</strong></p>
+<p><strong>jcmd</strong> <em>pid|main-class</em> <strong>PerfCounter.print</strong></p>
+<p><strong>jcmd</strong> <em>pid|main-class</em> <strong>-f</strong> <em>filename</em></p>
+<p><strong>jcmd</strong> <em>pid|main-class</em> <em>command</em>[ <em>arguments</em>]</p>
+<h3 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>jcmd</strong>工具用于向JVM发送诊断请求。必须在本地JVM上使用，且要有与运行JVM同样的用户和组别。</p>
+<p><strong>注意：</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;如需远程调用或不同身份调用，参考<em>com.sun.management.DiagnosticCommandMBean</em>接口。<a href="http://docs.oracle.com/javase/8/docs/jre/api/management/extension/com/sun/management/DiagnosticCommandMBean.html" target="_blank" rel="noopener"><em>DiagnosticCommandMBean</em>API文档</a></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;若不带参或使用<em>-l<em>运行</em>jcmd*，则会打印运行中java进程id和启动时的main class。使用</em>-h<em>或</em>-help*打印帮助信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">% jcmd</span><br><span class="line">11810 com.lyyljs.demo.Application 9330</span><br><span class="line">19332 sun.tools.jcmd.JCmd</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;如果第一个参数指定了pid或main class，<em>jcmd</em>会发送请求到指定进程(pid或所有main class名称相同的进程)。也可以使用<em>0</em>指代所有可达Java进程。可选命令选项如下:</p>
+<p><strong>-l</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;打印运行中java进程id和启动时的main class</p>
+<p><strong>Perfcounter.print</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;打印目标进程的性能计数器。</p>
+<p><strong>-f <em>filename</em></strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;储存有执行命令的文件。每行一个命令。以<em>#</em>开头的行会被忽略。所有行读取结束或含有<em>stop</em>关键字的行时停止执行。</p>
+<p><strong><em>command</em> [<em>arguments</em>]</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;可选执行命令。使用<em>help<em>命令查看该进程可选诊断命令。在命令后面使用</em>help*参数可查看该命令帮助信息。如果参数包含空格需要用</em>‘<em>或</em>“<em>包起来。当需要这两个符号当字符解析时使用转义符</em>*。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">% jcmd 0 help</span><br><span class="line">11810:     #pid</span><br><span class="line">The following commands are available:</span><br><span class="line">JFR.stop		#停止JFR</span><br><span class="line">JFR.start		#JFR开始</span><br><span class="line">JFR.dump		#dump JFR信息</span><br><span class="line">JFR.check		#检查JFR状态</span><br><span class="line">VM.native_memory	#打印跟踪本地内存 需要指定-XX:NativeMemoryTracking不为off</span><br><span class="line">VM.check_commercial_features	#检查商业特性是否解锁</span><br><span class="line">VM.unlock_commercial_features	#解锁商业特性</span><br><span class="line">ManagementAgent.stop			#停止JMX Agent	</span><br><span class="line">ManagementAgent.start_local		#开启本地JMX Agent</span><br><span class="line">ManagementAgent.start			#开启JMX Agent</span><br><span class="line">GC.rotate_log					#GC日志转储</span><br><span class="line">Thread.print					#打印线程栈信息信息，等于jstack &lt;PID&gt;</span><br><span class="line">GC.class_stats					#转储Java类元数据的详细统计，需要打开-XX:+UnlockDiagnosticVMOptions</span><br><span class="line">GC.class_histogram				#打印堆直方图，等于jmap -histo &lt;PID&gt;</span><br><span class="line">GC.heap_dump					#打印堆dump信息，等于jmap -dump:format&#x3D;b,file&#x3D;filename &lt;PID&gt;</span><br><span class="line">GC.run_finalization	#强制调用已经失去引用的对象的finalize方法,等与System.runFinalization()</span><br><span class="line">GC.run	#告诉垃圾收集器打算进行垃圾收集，等与System.gc();</span><br><span class="line">VM.uptime	#打印VM启动至今的时间，单位秒</span><br><span class="line">VM.flags	#打印虚拟机运行参数(flags)，同jinfo -flags &lt;PID&gt;, jinfo -flag &lt;VM FLAG&gt; &lt;PID&gt;</span><br><span class="line">VM.system_properties	#打印环境变量 同jinfo -sysprops &lt;PID&gt;</span><br><span class="line">VM.command_line	#打印虚拟机参数(args,command,initial class path,Launcher Type)，同jinfo -sysprops &lt;PID&gt; | grep command</span><br><span class="line">VM.version	#打印虚拟机版本信息，同jinfo -sysprops &lt;PID&gt; | grep version</span><br><span class="line">help	#打印帮助信息</span><br></pre></td></tr></table></figure>
+
+<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3><p><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jcmd.html#CIHEEDIB" target="_blank" rel="noopener">Oracle jcmd文档</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2018/03/22/jcmd%E5%91%BD%E4%BB%A4/" data-id="ckaqo6uyd000d28o68fqxcrus" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/25/jinfo%E5%91%BD%E4%BB%A4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          jinfo命令
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/22/java%E5%91%BD%E4%BB%A4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">java命令</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

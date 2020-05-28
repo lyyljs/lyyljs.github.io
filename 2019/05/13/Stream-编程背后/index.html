@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Stream实现原理 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Stream Api首先回顾下 Stream Api 的操作分类：    操作分类 子分类 操作     无状态 unordered filter map mapTo…   中间操作  flatMap flatMapTo… peek    有状态 distinct sorted limit skip         非短路操作 forEach forEachOrdered toArray   终结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stream实现原理">
+<meta property="og:url" content="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="Stream Api首先回顾下 Stream Api 的操作分类：    操作分类 子分类 操作     无状态 unordered filter map mapTo…   中间操作  flatMap flatMapTo… peek    有状态 distinct sorted limit skip         非短路操作 forEach forEachOrdered toArray   终结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lyyljs.site/images/jdk/pipeline_classes.png">
+<meta property="og:image" content="http://lyyljs.site/images/jdk/ReferencePipeline_Inner.png">
+<meta property="og:image" content="http://lyyljs.site/images/jdk/sink_uml.png">
+<meta property="og:image" content="http://lyyljs.site/images/jdk/SteamTasksUML.png">
+<meta property="article:published_time" content="2019-05-13T22:14:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="stream">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lyyljs.site/images/jdk/pipeline_classes.png">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Stream-编程背后" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" class="article-date">
+  <time datetime="2019-05-13T22:14:00.000Z" itemprop="datePublished">2019-05-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Stream实现原理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="Stream-Api"><a href="#Stream-Api" class="headerlink" title="Stream Api"></a>Stream Api</h4><p>首先回顾下 Stream Api 的操作分类：</p>
+<table>
+<thead>
+<tr>
+<th align="center">操作分类</th>
+<th align="center">子分类</th>
+<th align="center">操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"></td>
+<td align="center">无状态</td>
+<td align="center">unordered filter map mapTo…</td>
+</tr>
+<tr>
+<td align="center">中间操作</td>
+<td align="center"></td>
+<td align="center">flatMap flatMapTo… peek</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">有状态</td>
+<td align="center">distinct sorted limit skip</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">非短路操作</td>
+<td align="center">forEach forEachOrdered toArray</td>
+</tr>
+<tr>
+<td align="center">终结操作</td>
+<td align="center"></td>
+<td align="center">reduce collect max min count</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">短路操作</td>
+<td align="center">anyMatch allMatch noneMatch</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">findFirst findAny</td>
+</tr>
+</tbody></table>
+<p>前文有提到 Stream操作分为中间操作和终结操作，其中中间操作不会触发实际动作，仅标记状态；终结操作才会触发实际计算动作。<br>中间操作又分为无状态（Stateless）和有状态(Stateful)，有无状态是指元素间是否相互影响，如 sort 是有状态操作，<br>读取完全部元素前不能确定结果；终结操作又分为非短路操作和短路操作，短路操作是指不需要处理全部元素即可返回结果，如 findFirst。</p>
+<h4 id="简单的实现方式"><a href="#简单的实现方式" class="headerlink" title="简单的实现方式"></a>简单的实现方式</h4><p>接下来看个示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Stream.of(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;, &quot;four&quot;)</span><br><span class="line">                .filter(e -&gt; e.length() &gt; 3)</span><br><span class="line">                .map(String::toUpperCase)</span><br><span class="line">                .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p>该代码将字符串序列过滤，找出其中长度大于三的字符串转为大写，并收集为List。我们很容易想到一种实现方式，即每个函数都执行一次迭代，并将处理的数据<br>保存在中间容器中。用代码描述如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; do filter</span><br><span class="line">List&lt;String&gt; filterList &#x3D; new ArrayList&lt;&gt;();</span><br><span class="line">for (String s: source)&#123;</span><br><span class="line">  if (s.length &gt; 3)&#123;</span><br><span class="line">    filterList.add(source);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; do map</span><br><span class="line">List&lt;String&gt; mapList &#x3D; new ArrayList&lt;&gt;();</span><br><span class="line">for (String s: filterList)&#123;</span><br><span class="line">  mapList.add(s.toUpperCase());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; do collect</span><br><span class="line">List&lt;String&gt; collectList &#x3D; new ArrayList&lt;&gt;();</span><br><span class="line">collectList.addAll(mapList);</span><br></pre></td></tr></table></figure>
+
+<p>显然，这种实现虽然简单，但多次迭代既浪费时间，存储中间结果又浪费空间，效率极低。在我们自己实现时，自然会采用以下方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; collectList &#x3D; new ArrayList&lt;&gt;();</span><br><span class="line">for (String s: source)&#123;</span><br><span class="line">  if (s.length &gt; 3)&#123; &#x2F;&#x2F; filter(), 获取长度大于3的字符串</span><br><span class="line">    String upperStr &#x3D; s.toUpperCase(); &#x2F;&#x2F; map(), 转为大写字符串</span><br><span class="line">    collectList.add(upperStr); &#x2F;&#x2F; collect(), 收集结果</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>采用这种方式我们既减少了迭代次数，也避免存储中间结果。这就是pipeline的目标结果了。当知道操作目标时，就可以将操作进行叠加到单次迭代来实现 Stream Api了。这也是为什么对操作的分类多且详细。</p>
+<h4 id="Stream-Pipeline"><a href="#Stream-Pipeline" class="headerlink" title="Stream Pipeline"></a>Stream Pipeline</h4><p>从上面我们可以得到解决方案的思路，我们需要在调用终结操作前，先将依序中间操作记录下来，然后在调用终结操作时将中间操作叠加在一起并在一次迭代中将所有操作执行。<br>即：</p>
+<ol>
+<li>记录中间操作</li>
+<li>叠加操作</li>
+<li>执行操作</li>
+<li>保存结果</li>
+</ol>
+<h5 id="记录操作"><a href="#记录操作" class="headerlink" title="记录操作"></a>记录操作</h5><p>Stream中使用 Stage 这个术语来描述一组完整的操作，并使用示例化后的 PipelineHelper 来代表 Stage。将这些 Stage 按序串联起来，就够成了整个流水线。</p>
+<p>与之相关的接口与类如下图所示。</p>
+<p><img src="/images/jdk/pipeline_classes.png" alt=""></p>
+<p>图中 DoublePipeline LongPipeline 与 IntPipeline 是专门处理对应基本类型的流水线，这里主要关注 ReferencePipeline。</p>
+<p><img src="/images/jdk/ReferencePipeline_Inner.png" alt=""></p>
+<p>Head, StatefulOp, StatelessOp 是 ReferencePipeline 的子类。其中 Head 用于表示第一个 Stage，如调用产生流的一些方法如Collections.stream()方法所产生的 Stage，因此该 Stage不会包含任何操作； StatefulOp 和 StatelessOp 分别代表有无状态的 Stage，对应有无状态的中间操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">____________       ______ ----&gt; ____________ ----&gt; ___________</span><br><span class="line">|Collection|       |Head|      |StatelessOp|       |StatefulOp|</span><br><span class="line">------------       ------ &lt;---  ------------ &lt;---  -----------</span><br><span class="line">data source ————&gt; stage0 ————&gt;  stage1    ————&gt;    stage2</span><br><span class="line">           stream          map              sort</span><br></pre></td></tr></table></figure>
+
+<p>上图所示 Pipeline，由Collection.stream() 产生 Head，然后调用一系列的中间操作不断产生 Stream。这些 Stream 对象以双向链表的形式组织在一起，构成整个流水线，由于每个 Stage 都记录了前一个 Stage 和本次的操作以及回调函数，依靠这种结构就能建立起对数据源的所有操作。这就是 Stream 记录操作的方式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 将 stage 添加到已有 pipeline 建立链表</span><br><span class="line">AbstractPipeline(AbstractPipeline&lt;?, E_IN, ?&gt; previousStage, int opFlags) &#123;</span><br><span class="line">    if (previousStage.linkedOrConsumed)</span><br><span class="line">        throw new IllegalStateException(MSG_STREAM_LINKED);</span><br><span class="line">    previousStage.linkedOrConsumed &#x3D; true;</span><br><span class="line">    previousStage.nextStage &#x3D; this;</span><br><span class="line"></span><br><span class="line">    this.previousStage &#x3D; previousStage;</span><br><span class="line">    this.sourceOrOpFlags &#x3D; opFlags &amp; StreamOpFlag.OP_MASK;</span><br><span class="line">    this.combinedFlags &#x3D; StreamOpFlag.combineOpFlags(opFlags, previousStage.combinedFlags);</span><br><span class="line">    this.sourceStage &#x3D; previousStage.sourceStage;</span><br><span class="line">    if (opIsStateful())</span><br><span class="line">        sourceStage.sourceAnyStateful &#x3D; true;</span><br><span class="line">    this.depth &#x3D; previousStage.depth + 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="叠加操作"><a href="#叠加操作" class="headerlink" title="叠加操作"></a>叠加操作</h5><p>直觉上，操作叠加非常简单，就是从 Head 开始依次执行每一次操作。但事实上，Stage 之间并不知道互相执行了什么样的操作，这使得需要有方法来协调相邻 Stage 之间的调用关系。</p>
+<p>Sink 接口用于解决这个问题，</p>
+<p><img src="/images/jdk/sink_uml.png" alt=""></p>
+<ul>
+<li><p>begin 开始遍历元素之前调用该方法，通知Sink做好准备。</p>
+</li>
+<li><p>end 所有元素遍历完成之后调用，通知Sink没有更多的元素了。</p>
+</li>
+<li><p>cancellationRequested 是否可以结束操作，可以让短路操作尽早结束。</p>
+</li>
+<li><p>accept 遍历元素时调用，接受一个待处理元素，并对元素进行处理。Stage把自己包含的操作和回调方法封装到该方法里，前一个Stage只需要调用当前Stage.accept方法就行了。</p>
+</li>
+</ul>
+<p>经过 Sink 封装后，Stage之间就可以方便调用，仅需调用 accept 方法而不必知道其内部实现。对于 StatefulOp 来说，需要实现 begin 和 end 方法。对于短路操作来说，还需实现 cancellationRequested 方法来尽快返回。Sink 的四个接口方法常常相互协作，共同完成计算任务。实际上 Stream API 内部实现的的本质，就是如何重载 Sink 的这四个接口方法。在经过包装后，执行时只需要从流水线的 Head 开始对数据源依次调用每个 Stage 对应的 Sink 的 begin, accept, cancellationRequested, end 方法就可以了。</p>
+<p>Sink.accept 方法通常首先使用当前 Sink 包装的回调函数处理元素，然后再将结果传递给流水线下游的 Sink。来看下 ReferencePipeline 对 filter 方法的实现观察这一流程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; Stream.filter(predicate)会产生新的Stream</span><br><span class="line">public final Stream&lt;P_OUT&gt; filter(Predicate&lt;? super P_OUT&gt; predicate) &#123;</span><br><span class="line">    Objects.requireNonNull(predicate);</span><br><span class="line">    return new StatelessOp&lt;P_OUT, P_OUT&gt;(this, StreamShape.REFERENCE,</span><br><span class="line">                                 StreamOpFlag.NOT_SIZED) &#123;</span><br><span class="line">        @Override &#x2F;&#x2F;opWripSink()方法返回由回调函数包装而成Sink</span><br><span class="line">        Sink&lt;P_OUT&gt; opWrapSink(int flags, Sink&lt;P_OUT&gt; sink) &#123;</span><br><span class="line">            return new Sink.ChainedReference&lt;P_OUT, P_OUT&gt;(sink) &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public void begin(long size) &#123;</span><br><span class="line">                    downstream.begin(-1); &#x2F;&#x2F; 因不知道推到下流的元素数量，使用-1代表未知或无限</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                @Override</span><br><span class="line">                public void accept(P_OUT u) &#123;</span><br><span class="line">                    if (predicate.test(u))&#x2F;&#x2F; 1. 使用当前Sink包装的回调函数predicate处理u</span><br><span class="line">                        downstream.accept(u);&#x2F;&#x2F; 2. 将处理结果传递给流水线下游的Sink</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面将回调函数predicate包装到一个Sink当中。由于 filter 是一个无状态的中间操作，所以 filter 方法返回了一个 StatelessOp 内部类对象（一个新的Stream），调用这个新 Stream 的 opWripSink() 方法将得到一个包装了当前回调函数的Sink。</p>
+<p>再来看下 SortedOps 对 refences sorted 的实现，因 sorted 在遍历完全部元素不知道结果，所以会复杂一些。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">private static final class RefSortingSink&lt;T&gt; extends AbstractRefSortingSink&lt;T&gt; &#123;</span><br><span class="line">       private ArrayList&lt;T&gt; list;&#x2F;&#x2F; 存放用于排序的元素</span><br><span class="line"></span><br><span class="line">       RefSortingSink(Sink&lt;? super T&gt; sink, Comparator&lt;? super T&gt; comparator) &#123;</span><br><span class="line">           super(sink, comparator);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       @Override</span><br><span class="line">       public void begin(long size) &#123;</span><br><span class="line">           &#x2F;&#x2F; MAX_ARRAY_SIZE &#x3D; Integer.MAX_VALUE - 8 是最大可收集元素个数</span><br><span class="line">           if (size &gt;&#x3D; Nodes.MAX_ARRAY_SIZE)</span><br><span class="line">               throw new IllegalArgumentException(Nodes.BAD_SIZE);</span><br><span class="line">           &#x2F;&#x2F; 1.初始化 list</span><br><span class="line">           list &#x3D; (size &gt;&#x3D; 0) ? new ArrayList&lt;T&gt;((int) size) : new ArrayList&lt;T&gt;();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       @Override</span><br><span class="line">       public void end() &#123;</span><br><span class="line">           &#x2F;&#x2F; 3.只有元素全部接收之后才能开始排序</span><br><span class="line">           list.sort(comparator);</span><br><span class="line">           &#x2F;&#x2F; 传递给下游元素个数</span><br><span class="line">           downstream.begin(list.size());</span><br><span class="line">           &#x2F;&#x2F; 如果下游 Sink 不包含短路操作，则传递给下游</span><br><span class="line">           if (!cancellationWasRequested) &#123;</span><br><span class="line">               list.forEach(downstream::accept); &#x2F;&#x2F;  传递元素</span><br><span class="line">           &#125;</span><br><span class="line">           else &#123;</span><br><span class="line">           &#x2F;&#x2F; 如果下游包含短路操作，则每次先询问是否短路，再传递元素</span><br><span class="line">               for (T t : list) &#123;</span><br><span class="line">                   if (downstream.cancellationRequested()) break;</span><br><span class="line">                   downstream.accept(t); &#x2F;&#x2F; 传递元素</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           downstream.end();</span><br><span class="line">           list &#x3D; null;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       @Override</span><br><span class="line">       public void accept(T t) &#123;</span><br><span class="line">           list.add(t); &#x2F;&#x2F; 2. 使用当前Sink包装动作处理t，只是简单的将元素添加到中间列表当中</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码完美的展现了Sink的四个接口方法是如何协同工作的：</p>
+<ol>
+<li>首先 begin 方法告诉 Sink 参与排序的元素个数，方便确定中间结果容器的的大小；</li>
+<li>之后通过 accept 方法将元素添加到中间结果当中，最终执行时调用者会不断调用该方法，直到遍历所有元素；</li>
+<li>最后 end 方法告诉 Sink 所有元素遍历完毕，启动排序，排序完成后将结果传递给下游的 Sink ；</li>
+<li>如果下游的 Sink 是短路操作，则将结果传递给下游时会不断询问下游cancellationRequested 是否可以结束处理。</li>
+</ol>
+<h5 id="执行操作"><a href="#执行操作" class="headerlink" title="执行操作"></a>执行操作</h5><p>叠加操作完成后，我们只需要执行操作了。如之前所说，中间操作不会触发执行，只有终结操作会触发执行。一旦调用终结操作，就会触发整个 pipeline 的执行。</p>
+<p>终结操作不会创建新的 stream ，亦即不会创建 stage 。结束操作会创建一个包装本身的 Sink ，这也是最后一个 Sink ，不会继续将元素传递给下游，仅对元素进行处理。</p>
+<p>AbstractPipeline.opWrapSink(int flags, Sink<P_OUT> sink) 方法返回一个新的包含了当前 Stage 代表的操作以及能够将结果传递给 downstream 的 Sink 对象，示例可见叠加操作一节中 filter 的源码。使用 opWrapSink 可以将当前操作与下游 Sink 结合成新 Sink 。如果从终结操作的 Sink 开始至 Head 调用该方法，则会形成一个包含了所有操作的 Sink, 这就是 AbstractPipeline.wrapSink 方法，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 从下游回溯不断调用 opWrapSink</span><br><span class="line">   &#x2F;&#x2F; 如果传入参数 sink 是终结操作的 Sink, 则会得到一个含所有操作的 sink</span><br><span class="line">final &lt;P_IN&gt; Sink&lt;P_IN&gt; wrapSink(Sink&lt;E_OUT&gt; sink) &#123;</span><br><span class="line">       Objects.requireNonNull(sink);</span><br><span class="line"></span><br><span class="line">       for ( @SuppressWarnings(&quot;rawtypes&quot;) AbstractPipeline p&#x3D;AbstractPipeline.this; p.depth &gt; 0; p&#x3D;p.previousStage) &#123;</span><br><span class="line">           sink &#x3D; p.opWrapSink(p.previousStage.combinedFlags, sink);</span><br><span class="line">       &#125;</span><br><span class="line">       return (Sink&lt;P_IN&gt;) sink;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在流水线上所有操作都被包含到该 Sink 中，仅需执行该 Sink </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AbstractPipeline</span><br><span class="line">   &#x2F;&#x2F; 对spliterator代表的数据执行wrappedSink代表的操作</span><br><span class="line">   &#x2F;&#x2F; Spliterator 可认为是可拆分，可批量迭代的Iterator</span><br><span class="line">final &lt;P_IN&gt; void copyInto(Sink&lt;P_IN&gt; wrappedSink, Spliterator&lt;P_IN&gt; spliterator) &#123;</span><br><span class="line">       Objects.requireNonNull(wrappedSink);</span><br><span class="line"></span><br><span class="line">       if (!StreamOpFlag.SHORT_CIRCUIT.isKnown(getStreamAndOpFlags())) &#123;</span><br><span class="line">           &#x2F;&#x2F; 通知开始遍历</span><br><span class="line">           wrappedSink.begin(spliterator.getExactSizeIfKnown());</span><br><span class="line">           &#x2F;&#x2F; 执行迭代</span><br><span class="line">           spliterator.forEachRemaining(wrappedSink);</span><br><span class="line">           &#x2F;&#x2F; 通知结束遍历</span><br><span class="line">           wrappedSink.end();</span><br><span class="line">       &#125;</span><br><span class="line">       else &#123;</span><br><span class="line">           &#x2F;&#x2F; 带短路操作的使用该方法</span><br><span class="line">           copyIntoWithCancel(wrappedSink, spliterator);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="保存结果"><a href="#保存结果" class="headerlink" title="保存结果"></a>保存结果</h5><p>所有操作执行完成后，我们需要知道执行结果保存在哪。除开无返回结果的终结操作（如forEach，我们需要的是它的Side effects），将带返回结果的操作列出如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">返回类型</th>
+<th align="center">终结操作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">boolean</td>
+<td align="center">anyMatch allMatch noneMatch</td>
+</tr>
+<tr>
+<td align="center">Optional</td>
+<td align="center">findFirst findAny</td>
+</tr>
+<tr>
+<td align="center">归约结果</td>
+<td align="center">reduce collect max min count</td>
+</tr>
+<tr>
+<td align="center">数组</td>
+<td align="center">toArray</td>
+</tr>
+</tbody></table>
+<ol>
+<li>对于表中返回boolean或者Optional的操作的操作，由于只返回一个值，只需要在对应的Sink中记录这个值，等到执行结束时返回就可以了。</li>
+<li>对于归约操作，最终结果放在用户调用时指定的容器中（容器类型通过收集器指定）。collect, reduce, max, min都是归约操作，虽然 max 和 min 也是返回一个Optional，但事实上底层是通过调用reduce方法实现的。同理 count 同样是调用的reduce。</li>
+<li>对于返回是数组的情况，毫无疑问的结果会放在数组当中。这么说当然是对的，但在最终返回数组之前，结果其实是存储在一种叫做Node的数据结构中的。Node是一种多叉树结构，元素存储在树的叶子当中，并且一个叶子节点可以存放多个元素。这样做是为了并行执行方便。</li>
+</ol>
+<h4 id="并行计算"><a href="#并行计算" class="headerlink" title="并行计算"></a>并行计算</h4><p>Stream 还有一大优势，即可简单的利用多核优势进行并行计算。只使用steam.parallel方法或Collection.parallelStream即可创建一条并行流。</p>
+<p>为了找出整个流程，首先我们找到执行终结操作的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; AbstractPipeline</span><br><span class="line">   &#x2F;&#x2F; 执行终结操作</span><br><span class="line">final &lt;R&gt; R evaluate(TerminalOp&lt;E_OUT, R&gt; terminalOp) &#123;</span><br><span class="line">       assert getOutputShape() &#x3D;&#x3D; terminalOp.inputShape();</span><br><span class="line">       if (linkedOrConsumed)</span><br><span class="line">           throw new IllegalStateException(MSG_STREAM_LINKED);</span><br><span class="line">       linkedOrConsumed &#x3D; true;</span><br><span class="line"></span><br><span class="line">       return isParallel()</span><br><span class="line">              ? terminalOp.evaluateParallel(this, sourceSpliterator(terminalOp.getOpFlags()))</span><br><span class="line">              : terminalOp.evaluateSequential(this, sourceSpliterator(terminalOp.getOpFlags()));</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里判断了是否为并行，并行则使用并行执行方法。evaluateParallel是TerminalOp接口的方法，有多个实现，可到 FindOps 查看下该方法的一种实现。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">      public &lt;P_IN&gt; O evaluateParallel(PipelineHelper&lt;T&gt; helper,</span><br><span class="line">                                       Spliterator&lt;P_IN&gt; spliterator) &#123;</span><br><span class="line">          return new FindTask&lt;&gt;(this, helper, spliterator).invoke();</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里生成了一个FindTask并执行。</p>
+<p>其他ReduceOps，MatchOps等类似，都是执行了对应Task，现对相关Task整理为图列出。</p>
+<p><img src="/images/jdk/SteamTasksUML.png" alt=""></p>
+<p>所有的Task都是ForkJoinTask的子类，从此也可以看出Stream的并行是基于ForkJoin实现的。</p>
+<p>查看AbstractTask的compute方法，看是如何进行并行计算的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public void compute() &#123;</span><br><span class="line">    Spliterator&lt;P_IN&gt; rs &#x3D; spliterator, ls; &#x2F;&#x2F; right, left spliterators</span><br><span class="line">    &#x2F;&#x2F;预估这个分片中的数据量</span><br><span class="line">    long sizeEstimate &#x3D; rs.estimateSize();</span><br><span class="line">    &#x2F;&#x2F;获取阈值</span><br><span class="line">    long sizeThreshold &#x3D; getTargetSize(sizeEstimate);</span><br><span class="line">    boolean forkRight &#x3D; false;</span><br><span class="line">    @SuppressWarnings(&quot;unchecked&quot;) K task &#x3D; (K) this;</span><br><span class="line">    &#x2F;&#x2F;根据预估的数据量获取最小处理单元的大小阈值，即当数据量已经小于这个阈值的时候进行计算，否则进行fork 将任务划分成更小的数据块</span><br><span class="line">    while (sizeEstimate &gt; sizeThreshold &amp;&amp; (ls &#x3D; rs.trySplit()) !&#x3D; null) &#123;</span><br><span class="line">        K leftChild, rightChild, taskToFork;</span><br><span class="line">        &#x2F;&#x2F;分别将左右分片的任务创建为新的Task，并且将当前的任务关联为两个新任务的父级任务</span><br><span class="line">        task.leftChild  &#x3D; leftChild &#x3D; task.makeChild(ls);</span><br><span class="line">        task.rightChild &#x3D; rightChild &#x3D; task.makeChild(rs);</span><br><span class="line">        &#x2F;&#x2F;先后对左右子节点的任务进行fork，对另外的分区进行分解。同时设定pending 为1，这代表一个task 实际上只会有一个等待的子节点（被fork）</span><br><span class="line">        task.setPendingCount(1);</span><br><span class="line">        if (forkRight) &#123;</span><br><span class="line">            forkRight &#x3D; false;</span><br><span class="line">            rs &#x3D; ls;</span><br><span class="line">            task &#x3D; leftChild;</span><br><span class="line">            taskToFork &#x3D; rightChild;</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            forkRight &#x3D; true;</span><br><span class="line">            task &#x3D; rightChild;</span><br><span class="line">            taskToFork &#x3D; leftChild;</span><br><span class="line">        &#125;</span><br><span class="line">        taskToFork.fork();</span><br><span class="line">        sizeEstimate &#x3D; rs.estimateSize();</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F;当任务已经分解到足够小的时候退出循环，尝试进行结束。调用子类实现的doLeaf方法，完成最小计算单元的计算任务，并设置到当前任务的localResult中</span><br><span class="line">    task.setLocalResult(task.doLeaf());</span><br><span class="line">    &#x2F;&#x2F;调用tryComplete 方法进行最终任务的扫尾工作，如果该任务pending 值不等于0，则原子的减1，如果已经等于0，说明任务都已经完成，则调用onCompletion 回调，如果该任务是叶子任务，则直接销毁中间数据结束；如果是中间节点会将左右子节点的结果进行合并</span><br><span class="line">    &#x2F;&#x2F;检查如果这个任务已经没有父级任务了，则将该任务置为正常结束，如果还有则尝试递归的去调用父级节点的onCompletion回调，逐级进行任务的合并。</span><br><span class="line">    task.tryComplete();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" data-id="ckaqo6uxu000428o635qkhlbt" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream/" rel="tag">stream</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          反向代理解决微信小程序业务域名限制问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">jdk8函数式编程</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

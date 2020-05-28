@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>服务容错(一) 重试 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。 DubboDubbo重试策略有:  Failover Cluster 当出现失败，重试其它服务器。 Failfast Cluster 只发起一次调用，失败立即报错，通常用于非幂等性的操作。 Failsafe Cluster 出现异常时，直接忽略，通常用于写入审计日志等操作。 Failback Cluster 后台记录失败请求，定时重发，通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="服务容错(一) 重试">
+<meta property="og:url" content="http://lyyljs.site/2019/03/16/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%80-%E9%87%8D%E8%AF%95/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。 DubboDubbo重试策略有:  Failover Cluster 当出现失败，重试其它服务器。 Failfast Cluster 只发起一次调用，失败立即报错，通常用于非幂等性的操作。 Failsafe Cluster 出现异常时，直接忽略，通常用于写入审计日志等操作。 Failback Cluster 后台记录失败请求，定时重发，通">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-03-16T15:32:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="spring cloud">
+<meta property="article:tag" content="dubbo">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-服务容错-一-重试" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/16/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%80-%E9%87%8D%E8%AF%95/" class="article-date">
+  <time datetime="2019-03-16T15:32:00.000Z" itemprop="datePublished">2019-03-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      服务容错(一) 重试
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>当服务调用失败时，如果是幂等性操作，我们可能需要进行重试。</p>
+<h4 id="Dubbo"><a href="#Dubbo" class="headerlink" title="Dubbo"></a>Dubbo</h4><p>Dubbo重试策略有:</p>
+<ul>
+<li>Failover Cluster 当出现失败，重试其它服务器。</li>
+<li>Failfast Cluster 只发起一次调用，失败立即报错，通常用于非幂等性的操作。</li>
+<li>Failsafe Cluster 出现异常时，直接忽略，通常用于写入审计日志等操作。</li>
+<li>Failback Cluster 后台记录失败请求，定时重发，通常用于消息通知操作。</li>
+</ul>
+<p>它们的实现都在<strong>dubbo-cluster</strong>下的<strong>org.apache.dubbo.rpc.cluster.support</strong>包中(Dubbo-2.7.0 从2.7开始，dubbo正式将包名全部从alibaba迁至了apache下)。</p>
+<p>包下分别有<strong>XXXCluster</strong>和<strong>XXXClusterInvoker</strong>，Cluster是返回了一个ClusterInvoker对象，所以实际是调用了ClusterInvoker。ClusterInvoker都继承了<strong>AbstractClusterInvoker</strong>，AbstractClusterInvoker做了一些基础的实现(列举Invoker，负载均衡 etc..)，而**    protected abstract Result doInvoke(Invocation invocation, List&lt;Invoker<T>&gt; invokers,<br>                                       LoadBalance loadbalance) throws RpcException;**则是待实现方法。</p>
+<p>接着依次来看其实现：</p>
+<ul>
+<li>FailoverClusterInvoker</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">public class FailoverClusterInvoker&lt;T&gt; extends AbstractClusterInvoker&lt;T&gt; &#123;</span><br><span class="line">	...</span><br><span class="line">    public Result doInvoke(Invocation invocation, final List&lt;Invoker&lt;T&gt;&gt; invokers, LoadBalance loadbalance) throws RpcException &#123;</span><br><span class="line">    	&#x2F;&#x2F; 服务提供者列表</span><br><span class="line">        List&lt;Invoker&lt;T&gt;&gt; copyInvokers &#x3D; invokers;</span><br><span class="line">        &#x2F;&#x2F; 检查服务提供者列表是否为空</span><br><span class="line">        checkInvokers(copyInvokers, invocation);</span><br><span class="line">        String methodName &#x3D; RpcUtils.getMethodName(invocation);</span><br><span class="line">        &#x2F;&#x2F; 从url中获取重试次数 len是总调用次数 &#x3D; 重试次数 + 1</span><br><span class="line">        int len &#x3D; getUrl().getMethodParameter(methodName, Constants.RETRIES_KEY, Constants.DEFAULT_RETRIES) + 1;</span><br><span class="line">        if (len &lt;&#x3D; 0) &#123;</span><br><span class="line">            len &#x3D; 1;</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; retry loop.</span><br><span class="line">        RpcException le &#x3D; null; &#x2F;&#x2F; last exception.</span><br><span class="line">        List&lt;Invoker&lt;T&gt;&gt; invoked &#x3D; new ArrayList&lt;Invoker&lt;T&gt;&gt;(copyInvokers.size()); &#x2F;&#x2F; invoked invokers.</span><br><span class="line">        Set&lt;String&gt; providers &#x3D; new HashSet&lt;String&gt;(len);</span><br><span class="line">        &#x2F;&#x2F; 循环调用，出错重试</span><br><span class="line">        for (int i &#x3D; 0; i &lt; len; i++) &#123;</span><br><span class="line">            &#x2F;&#x2F; 每次重试前刷新服务提供者列表以防止过期服务提供者在其中</span><br><span class="line">            if (i &gt; 0) &#123;</span><br><span class="line">                checkWhetherDestroyed();</span><br><span class="line">                copyInvokers &#x3D; list(invocation);</span><br><span class="line">                &#x2F;&#x2F; check again</span><br><span class="line">                checkInvokers(copyInvokers, invocation);</span><br><span class="line">            &#125;</span><br><span class="line">            &#x2F;&#x2F; 负载均衡选择invoker</span><br><span class="line">            Invoker&lt;T&gt; invoker &#x3D; select(loadbalance, invocation, copyInvokers, invoked);</span><br><span class="line">            &#x2F;&#x2F; 添加到 invoker 到 invoked 列表中</span><br><span class="line">            invoked.add(invoker);</span><br><span class="line">            &#x2F;&#x2F; 设置 invoked 到 RPC 上下文中</span><br><span class="line">            RpcContext.getContext().setInvokers((List) invoked);</span><br><span class="line">            try &#123;</span><br><span class="line">            	&#x2F;&#x2F; 调用目标 Invoker 的 invoke 方法</span><br><span class="line">                Result result &#x3D; invoker.invoke(invocation);</span><br><span class="line">                &#x2F;&#x2F; 记录上一次调用出错信息</span><br><span class="line">                if (le !&#x3D; null &amp;&amp; logger.isWarnEnabled()) &#123;</span><br><span class="line">                    logger.warn(...);</span><br><span class="line">                &#125;</span><br><span class="line">                return result;</span><br><span class="line">            &#125; catch (RpcException e) &#123;</span><br><span class="line">            	&#x2F;&#x2F; 业务错误则抛出 不应继续调用</span><br><span class="line">                if (e.isBiz()) &#123; &#x2F;&#x2F; biz exception.</span><br><span class="line">                    throw e;</span><br><span class="line">                &#125;</span><br><span class="line">                le &#x3D; e;</span><br><span class="line">            &#125; catch (Throwable e) &#123;</span><br><span class="line">            	&#x2F;&#x2F; 记录本次调用的错误信息</span><br><span class="line">                le &#x3D; new RpcException(e.getMessage(), e);</span><br><span class="line">            &#125; finally &#123;</span><br><span class="line">            	&#x2F;&#x2F; 记录调用地址(被调用的服务提供者),用于log</span><br><span class="line">                providers.add(invoker.getUrl().getAddress());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;&#x2F;&#x2F; for end</span><br><span class="line">        &#x2F;&#x2F; 循环调用全部失败</span><br><span class="line">        throw new RpcException(le.getCode(), ...);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>FailfastClusterInvoker</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class FailfastClusterInvoker&lt;T&gt; extends AbstractClusterInvoker&lt;T&gt; &#123;</span><br><span class="line">	...</span><br><span class="line">    public Result doInvoke(Invocation invocation, List&lt;Invoker&lt;T&gt;&gt; invokers, LoadBalance loadbalance) throws RpcException &#123;</span><br><span class="line">        checkInvokers(invokers, invocation);</span><br><span class="line">        Invoker&lt;T&gt; invoker &#x3D; select(loadbalance, invocation, invokers, null);</span><br><span class="line">        &#x2F;&#x2F; 调用一次并返回结果</span><br><span class="line">        try &#123;</span><br><span class="line">            return invoker.invoke(invocation);</span><br><span class="line">        &#125; catch (Throwable e) &#123;</span><br><span class="line">            if (e instanceof RpcException &amp;&amp; ((RpcException) e).isBiz()) &#123; &#x2F;&#x2F; biz exception.</span><br><span class="line">                throw (RpcException) e;</span><br><span class="line">            &#125;</span><br><span class="line">            throw new RpcException(...);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>FailsafeClusterInvoker</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">   public Result doInvoke(Invocation invocation, List&lt;Invoker&lt;T&gt;&gt; invokers, LoadBalance loadbalance) throws RpcException &#123;</span><br><span class="line">       try &#123;</span><br><span class="line">           checkInvokers(invokers, invocation);</span><br><span class="line">           Invoker&lt;T&gt; invoker &#x3D; select(loadbalance, invocation, invokers, null);</span><br><span class="line">           return invoker.invoke(invocation);</span><br><span class="line">       &#125; catch (Throwable e) &#123;</span><br><span class="line">           logger.error(&quot;Failsafe ignore exception: &quot; + e.getMessage(), e);</span><br><span class="line">           return new RpcResult(); &#x2F;&#x2F; ignore</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>FailbackClusterInvoker</li>
+</ul>
+<p>首先看doInvoke方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">protected Result doInvoke(Invocation invocation, List&lt;Invoker&lt;T&gt;&gt; invokers, LoadBalance loadbalance) throws RpcException &#123;</span><br><span class="line">    Invoker&lt;T&gt; invoker &#x3D; null;</span><br><span class="line">    try &#123;</span><br><span class="line">    	&#x2F;&#x2F; 检查列表非空</span><br><span class="line">        checkInvokers(invokers, invocation);</span><br><span class="line">        &#x2F;&#x2F; 负载均衡选择</span><br><span class="line">        invoker &#x3D; select(loadbalance, invocation, invokers, null);</span><br><span class="line">        &#x2F;&#x2F; 调用</span><br><span class="line">        return invoker.invoke(invocation);</span><br><span class="line">    &#125; catch (Throwable e) &#123;</span><br><span class="line">        logger.error(&quot;Failback to invoke method &quot; + invocation.getMethodName() + &quot;, wait for retry in background. Ignored exception: &quot;</span><br><span class="line">                + e.getMessage() + &quot;, &quot;, e);</span><br><span class="line">        &#x2F;&#x2F; 将该调用失败任务添加进任务列表定时执行</span><br><span class="line">        addFailed(loadbalance, invocation, invokers, invoker);</span><br><span class="line">        return new RpcResult(); &#x2F;&#x2F; ignore</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着看addFailed方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">private volatile Timer failTimer;</span><br><span class="line">   ...</span><br><span class="line">   private void addFailed(LoadBalance loadbalance, Invocation invocation, List&lt;Invoker&lt;T&gt;&gt; invokers, Invoker&lt;T&gt; lastInvoker) &#123;</span><br><span class="line">   	&#x2F;&#x2F; 双重检查构建单例HashedWheelTimer，关于HashedWheelTimer参考文末链接</span><br><span class="line">       &#x2F;&#x2F; dubbo实现在org.apache.dubbo.common.time包下</span><br><span class="line">       if (failTimer &#x3D;&#x3D; null) &#123;</span><br><span class="line">           synchronized (this) &#123;</span><br><span class="line">               if (failTimer &#x3D;&#x3D; null) &#123;</span><br><span class="line">               	&#x2F;&#x2F; NamedThreadFactory生产&quot;failback-cluster-timer&quot;前缀名，true为守护线程</span><br><span class="line">                   &#x2F;&#x2F; tickDuration &#x3D; 1, the time unit of the tickDuration &#x3D; TimeUnit.SECONDS</span><br><span class="line">                   &#x2F;&#x2F; the size of the wheel&#x3D;32, </span><br><span class="line">                   &#x2F;&#x2F; maximum number of pending timeouts&#x3D;failbackTasks，</span><br><span class="line">                   &#x2F;&#x2F; 超过maximum number调用会抛出RejectedExecutionException</span><br><span class="line">                   failTimer &#x3D; new HashedWheelTimer(</span><br><span class="line">                           new NamedThreadFactory(&quot;failback-cluster-timer&quot;, true),</span><br><span class="line">                           1,</span><br><span class="line">                           TimeUnit.SECONDS, 32, failbackTasks);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       &#x2F;&#x2F; 重试任务，当重试次数未超过重试上限retries的时候会进行调用操作，</span><br><span class="line">       &#x2F;&#x2F; 如果调用失败且为超过重试上限时将重试次数+1并将该任务新设超时加入到Timer中</span><br><span class="line">       RetryTimerTask retryTimerTask &#x3D; new RetryTimerTask(loadbalance, invocation, invokers, lastInvoker, retries, RETRY_FAILED_PERIOD);</span><br><span class="line">       try &#123;</span><br><span class="line">       	&#x2F;&#x2F; 将重试任务放入队列</span><br><span class="line">           failTimer.newTimeout(retryTimerTask, RETRY_FAILED_PERIOD, TimeUnit.SECONDS);</span><br><span class="line">       &#125; catch (Throwable e) &#123;</span><br><span class="line">           logger.error(&quot;Failback background works error,invocation-&gt;&quot; + invocation + &quot;, exception: &quot; + e.getMessage());</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Ribbon"><a href="#Ribbon" class="headerlink" title="Ribbon"></a>Ribbon</h4><p>首先，因Ribbon在spring cloud中是由Hystrix包装调用的，所以在配置超时时Hystrix的超时要大于Ribbon的超时。如Ribbon每次超时为 1 s，超时后重试的次数为 2， 则Hystrix的超时时间应该设为大于 3 s的值。</p>
+<p>同时，在使用了Feign的情况下，应禁用掉Feign的重试机制，当前版本默认是禁用的。</p>
+<p>然后再来看ribbon重试，ribbon通过三个参数控制重试:</p>
+<ul>
+<li>maxAutoRetries 对当前服务器的重试次数</li>
+<li>maxAutoRetriesNextServer 切换服务器的重试次数</li>
+<li>okToRetryOnAllOperations 对所有操作请求都进行重试</li>
+</ul>
+<p>一个配置文件示例如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">hystrix:</span><br><span class="line">  command:</span><br><span class="line">    myusers-service:</span><br><span class="line">      execution:</span><br><span class="line">        isolation:</span><br><span class="line">          thread:</span><br><span class="line">            timeoutInMilliseconds: 6500 # hystrix超时配置</span><br><span class="line"></span><br><span class="line">myusers-service:</span><br><span class="line">  ribbon:</span><br><span class="line">    NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList</span><br><span class="line">    listOfServers: http:&#x2F;&#x2F;example1.com,http:&#x2F;&#x2F;example2.com</span><br><span class="line">    ConnectTimeout: 1000 # 请求连接的超时时间</span><br><span class="line">    ReadTimeout: 3000 # 请求处理的超时时间</span><br><span class="line">    MaxTotalHttpConnections: 500 # 最大总连接数</span><br><span class="line">    MaxConnectionsPerHost: 100 # 单机连接最大数目</span><br><span class="line">    </span><br><span class="line">    # 重试相关</span><br><span class="line">    maxAutoRetries: 1 # 对当前实例的重试次数</span><br><span class="line">    maxAutoRetriesNextServer: 2 # 切换实例的重试次数</span><br><span class="line">    okToRetryOnAllOperations: false # 对所有操作请求都进行重试</span><br></pre></td></tr></table></figure>
+
+<p>从官方示例来看，Ribbon执行请求的入口在ribbon-loadbalancer下AbstractLoadBalancerAwareClient的executeWithLoadBalancer方法(Ribbon-2.3.0)，需要注意的是这里使用了RxJava</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException &#123;</span><br><span class="line">	&#x2F;&#x2F; 由请求和请求配置构建command</span><br><span class="line">    LoadBalancerCommand&lt;T&gt; command &#x3D; buildLoadBalancerCommand(request, requestConfig);</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">    	&#x2F;&#x2F; 返回执行结果</span><br><span class="line">        return command.submit(</span><br><span class="line">            new ServerOperation&lt;T&gt;() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public Observable&lt;T&gt; call(Server server) &#123;</span><br><span class="line">                    URI finalUri &#x3D; reconstructURIWithServer(server, request.getUri());</span><br><span class="line">                    S requestForServer &#x3D; (S) request.replaceUri(finalUri);</span><br><span class="line">                    try &#123;</span><br><span class="line">                    	&#x2F;&#x2F; 执行网络请求，由子类实现</span><br><span class="line">                        return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));</span><br><span class="line">                    &#125; </span><br><span class="line">                    catch (Exception e) &#123;</span><br><span class="line">                        return Observable.error(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .toBlocking()</span><br><span class="line">            .single();</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">        Throwable t &#x3D; e.getCause();</span><br><span class="line">        if (t instanceof ClientException) &#123;</span><br><span class="line">            throw (ClientException) t;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            throw new ClientException(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>跳转至LoadBalancerCommand</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">   &#x2F;&#x2F; 重试handler 保存了重试信息</span><br><span class="line">   private final RetryHandler retryHandler;</span><br><span class="line">   &#x2F;&#x2F; 执行信息 保存了服务器信息 以及已经尝试连接当前服务器次数以及历史服务器次数</span><br><span class="line">   private volatile ExecutionInfo executionInfo;</span><br><span class="line">   &#x2F;&#x2F; 服务器信息 host:port</span><br><span class="line">   private final Server server;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 监听调用，保存了历史执行内容 监听列表 etc..</span><br><span class="line">   private final ExecutionContextListenerInvoker&lt;?, T&gt; listenerInvoker;</span><br><span class="line">   </span><br><span class="line">   ...</span><br><span class="line">   </span><br><span class="line">   public Observable&lt;T&gt; submit(final ServerOperation&lt;T&gt; operation) &#123;</span><br><span class="line">   	&#x2F;&#x2F; 执行内容信息上下文，同ExecutionInfo，属性非final</span><br><span class="line">       final ExecutionInfoContext context &#x3D; new ExecutionInfoContext();</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F; 执行监听器在行为开始时的动作</span><br><span class="line">       if (listenerInvoker !&#x3D; null) &#123;</span><br><span class="line">           try &#123;</span><br><span class="line">               listenerInvoker.onExecutionStart();</span><br><span class="line">           &#125; catch (AbortExecutionException e) &#123;</span><br><span class="line">               return Observable.error(e);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       &#x2F;&#x2F; 同一实例的最大重试次数</span><br><span class="line">       final int maxRetrysSame &#x3D; retryHandler.getMaxRetriesOnSameServer();</span><br><span class="line">       &#x2F;&#x2F; 切换实例的重试次数</span><br><span class="line">       final int maxRetrysNext &#x3D; retryHandler.getMaxRetriesOnNextServer();</span><br><span class="line"></span><br><span class="line">       &#x2F;&#x2F; Use the load balancer</span><br><span class="line">       Observable&lt;T&gt; o &#x3D; </span><br><span class="line">               (server &#x3D;&#x3D; null ? selectServer() : Observable.just(server))</span><br><span class="line">               .concatMap(new Func1&lt;Server, Observable&lt;T&gt;&gt;() &#123;</span><br><span class="line">                   @Override</span><br><span class="line">                   &#x2F;&#x2F; Called for each server being selected</span><br><span class="line">                   public Observable&lt;T&gt; call(Server server) &#123;</span><br><span class="line">                   	&#x2F;&#x2F; 设定当前服务器信息，重置单机尝试次数，增加切换次数</span><br><span class="line">                       context.setServer(server);</span><br><span class="line">                       final ServerStats stats &#x3D; loadBalancerContext.getServerStats(server);</span><br><span class="line">                       </span><br><span class="line">                       &#x2F;&#x2F; Called for each attempt and retry</span><br><span class="line">                       Observable&lt;T&gt; o &#x3D; Observable</span><br><span class="line">                               .just(server)</span><br><span class="line">                               .concatMap(new Func1&lt;Server, Observable&lt;T&gt;&gt;() &#123;</span><br><span class="line">                                   @Override</span><br><span class="line">                                   public Observable&lt;T&gt; call(final Server server) &#123;</span><br><span class="line">                                       &#x2F;&#x2F; 增加本服务器的调用次数</span><br><span class="line">                                       context.incAttemptCount();</span><br><span class="line">                                       loadBalancerContext.noteOpenConnection(stats);</span><br><span class="line">                                       </span><br><span class="line">                                       if (listenerInvoker !&#x3D; null) &#123;</span><br><span class="line">                                           try &#123;</span><br><span class="line">                                               listenerInvoker.onStartWithServer(context.toExecutionInfo());</span><br><span class="line">                                           &#125; catch (AbortExecutionException e) &#123;</span><br><span class="line">                                               return Observable.error(e);</span><br><span class="line">                                           &#125;</span><br><span class="line">                                       &#125;</span><br><span class="line">                                       </span><br><span class="line">                                       final Stopwatch tracer &#x3D; loadBalancerContext.getExecuteTracer().start();</span><br><span class="line">                                       </span><br><span class="line">                                       return operation.call(server).doOnEach(new Observer&lt;T&gt;() &#123;</span><br><span class="line">                                           private T entity;</span><br><span class="line">                                           @Override</span><br><span class="line">                                           public void onCompleted() &#123;</span><br><span class="line">                                               recordStats(tracer, stats, entity, null);</span><br><span class="line">                                               &#x2F;&#x2F; TODO: What to do if onNext or onError are never called?</span><br><span class="line">                                           &#125;</span><br><span class="line"></span><br><span class="line">                                           @Override</span><br><span class="line">                                           public void onError(Throwable e) &#123;</span><br><span class="line">                                               recordStats(tracer, stats, null, e);</span><br><span class="line">                                               logger.debug(&quot;Got error &#123;&#125; when executed on server &#123;&#125;&quot;, e, server);</span><br><span class="line">                                               if (listenerInvoker !&#x3D; null) &#123;</span><br><span class="line">                                                   listenerInvoker.onExceptionWithServer(e, context.toExecutionInfo());</span><br><span class="line">                                               &#125;</span><br><span class="line">                                           &#125;</span><br><span class="line"></span><br><span class="line">                                           @Override</span><br><span class="line">                                           public void onNext(T entity) &#123;</span><br><span class="line">                                               this.entity &#x3D; entity;</span><br><span class="line">                                               if (listenerInvoker !&#x3D; null) &#123;</span><br><span class="line">                                                   listenerInvoker.onExecutionSuccess(entity, context.toExecutionInfo());</span><br><span class="line">                                               &#125;</span><br><span class="line">                                           &#125;                            </span><br><span class="line">                                           </span><br><span class="line">                                           private void recordStats(Stopwatch tracer, ServerStats stats, Object entity, Throwable exception) &#123;</span><br><span class="line">                                               tracer.stop();</span><br><span class="line">                                               loadBalancerContext.noteRequestCompletion(stats, entity, exception, tracer.getDuration(TimeUnit.MILLISECONDS), retryHandler);</span><br><span class="line">                                           &#125;</span><br><span class="line">                                       &#125;);</span><br><span class="line">                                   &#125;&#x2F;&#x2F; 里层 call end</span><br><span class="line">                               &#125;);&#x2F;&#x2F; 里层 Observable&lt;T&gt; o &#x3D; ... end</span><br><span class="line">                       </span><br><span class="line">                       &#x2F;&#x2F; 如果最大重试单台服务器次数大于0，onError时进行maxRetrysSame次重试</span><br><span class="line">                       &#x2F;&#x2F; 重试条件:</span><br><span class="line">                       &#x2F;&#x2F; 1.非AbortExecutionException错误</span><br><span class="line">                       &#x2F;&#x2F; 2.重试次数不能大于maxRetrysSame</span><br><span class="line">                       &#x2F;&#x2F; 3.判断是否是打开retry开关</span><br><span class="line">                       &#x2F;&#x2F; 4.如果是同一服务器则判断错误是否为可重试的错误，非同一服务器直接返回true</span><br><span class="line">                       if (maxRetrysSame &gt; 0) </span><br><span class="line">                           o &#x3D; o.retry(retryPolicy(maxRetrysSame, true));</span><br><span class="line">                       return o;</span><br><span class="line">                   &#125;&#x2F;&#x2F; 外层 call end</span><br><span class="line">               &#125;);&#x2F;&#x2F; 外层 Observable&lt;T&gt; o &#x3D; ... end</span><br><span class="line">           </span><br><span class="line">       &#x2F;&#x2F; 可重试其他服务器</span><br><span class="line">       if (maxRetrysNext &gt; 0 &amp;&amp; server &#x3D;&#x3D; null) </span><br><span class="line">           o &#x3D; o.retry(retryPolicy(maxRetrysNext, false));</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F; 调用全部失败处理</span><br><span class="line">       return o.onErrorResumeNext(new Func1&lt;Throwable, Observable&lt;T&gt;&gt;() &#123;</span><br><span class="line">           @Override</span><br><span class="line">           public Observable&lt;T&gt; call(Throwable e) &#123;</span><br><span class="line">               if (context.getAttemptCount() &gt; 0) &#123;</span><br><span class="line">                   if (maxRetrysNext &gt; 0 &amp;&amp; context.getServerAttemptCount() &#x3D;&#x3D; (maxRetrysNext + 1)) &#123;</span><br><span class="line">                       e &#x3D; new ClientException(ClientException.ErrorType.NUMBEROF_RETRIES_NEXTSERVER_EXCEEDED,</span><br><span class="line">                               &quot;Number of retries on next server exceeded max &quot; + maxRetrysNext</span><br><span class="line">                               + &quot; retries, while making a call for: &quot; + context.getServer(), e);</span><br><span class="line">                   &#125;</span><br><span class="line">                   else if (maxRetrysSame &gt; 0 &amp;&amp; context.getAttemptCount() &#x3D;&#x3D; (maxRetrysSame + 1)) &#123;</span><br><span class="line">                       e &#x3D; new ClientException(ClientException.ErrorType.NUMBEROF_RETRIES_EXEEDED,</span><br><span class="line">                               &quot;Number of retries exceeded max &quot; + maxRetrysSame</span><br><span class="line">                               + &quot; retries, while making a call for: &quot; + context.getServer(), e);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">               if (listenerInvoker !&#x3D; null) &#123;</span><br><span class="line">                   listenerInvoker.onExecutionFailed(e, context.toFinalExecutionInfo());</span><br><span class="line">               &#125;</span><br><span class="line">               return Observable.error(e);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><a href="https://chuansongme.com/n/1650380646616" target="_blank" rel="noopener">10w定时任务，如何高效触发超时</a></p>
+</li>
+<li><p><a href="http://www.cs.columbia.edu/~nahum/w6998/papers/sosp87-timing-wheels.pdf" target="_blank" rel="noopener">Hashed and Hierarchical Timing Wheels: Data Structures<br>for the Efficient Implementation of a Timer Facility 
+</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2019/03/16/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%80-%E9%87%8D%E8%AF%95/" data-id="ckaqo6uzr002328o624c1233o" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/03/18/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%89-ribbon/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          spring cloud实践(三) ribbon
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/03/13/%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">客户端负载均衡</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

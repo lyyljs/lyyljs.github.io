@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>jps命令 | lyyljs`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;列出目标系统上检测到的Java虚拟机（JVM）。 概要jps [options][hostid] options &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;命令行选项，详见Options。 hostid &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;指定特定主机，可以是ip地址和域名, 也可以指定具体协议，端口。其格式如下:[protocol">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jps命令">
+<meta property="og:url" content="http://lyyljs.site/2018/03/25/jps%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="lyyljs&#96;s blog">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;列出目标系统上检测到的Java虚拟机（JVM）。 概要jps [options][hostid] options &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;命令行选项，详见Options。 hostid &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;指定特定主机，可以是ip地址和域名, 也可以指定具体协议，端口。其格式如下:[protocol">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-25T12:25:00.000Z">
+<meta property="article:modified_time" content="2020-05-28T10:12:04.000Z">
+<meta property="article:author" content="lyyljs">
+<meta property="article:tag" content="java命令">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="lyyljs`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">lyyljs`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://lyyljs.site"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-jps命令" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/03/25/jps%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time datetime="2018-03-25T12:25:00.000Z" itemprop="datePublished">2018-03-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      jps命令
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;列出目标系统上检测到的Java虚拟机（JVM）。</p>
+<h3 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h3><p><strong>jps</strong> [options][hostid]</p>
+<p><strong>options</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;命令行选项，详见Options。</p>
+<p><strong>hostid</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;指定特定主机，可以是ip地址和域名, 也可以指定具体协议，端口。其格式如下:<br><em>[protocol:][[//]hostname][:port][/servername]</em></p>
+<h4 id="jps输出格式"><a href="#jps输出格式" class="headerlink" title="jps输出格式"></a>jps输出格式</h4><p><em>lvmid [ [ classname | JARfilename | “Unknown”] [ arg</em> ] [ jvmarg* ] ]*</p>
+<h3 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>jps</strong>是用于查看有权访问的JVM的进程。未指定<em>hostid</em>时，默认查看本机JVM进程，否者查看指定的<em>hostid</em>机器上的JVM进程，此时<em>hostid</em>所指机器必须开启<strong>jstatd</strong>服务。<strong>jps</strong>可以列出JVM进程lvmid(本地虚拟机唯一ID，进程ID)。在无参时默认列出lvmid和应用的类名或jar文件名。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>jps</strong>命令使用Java 启动器来寻找被传入主方法的类名和参数。如果JVM使用自定义启动器启动，则找不到被传入主方法的类名和参数，jps会输出Unknown。</p>
+<h3 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;没添加option的时候，默认列出VM标示符号和简单的class或jar名称。如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jps</span><br><span class="line">11810 Application</span><br><span class="line">20997 UserProviderApplication</span><br><span class="line">3431 TaskApplication</span><br><span class="line">11723 current.war</span><br><span class="line">15175 Jps</span><br></pre></td></tr></table></figure>
+<p><strong>-q</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;不显示类名，JAR名称，传入main方法的参数。仅显示lvmid。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jps -q</span><br><span class="line">11810</span><br><span class="line">20997</span><br><span class="line">3431</span><br><span class="line">11723</span><br><span class="line">17870</span><br></pre></td></tr></table></figure>
+
+<p><strong>-m</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示被传入main方法的参数。在嵌入JVM中输出可能为null。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jps -m</span><br><span class="line">11810 Application 6332</span><br><span class="line">25620 Jps -m</span><br><span class="line">20997 UserProviderApplication start</span><br><span class="line">3431 TaskApplication start</span><br><span class="line">11723 current.war 6213</span><br></pre></td></tr></table></figure>
+
+<p><strong>-l</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;显示main方法完整的包名或JAR的路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jps -l</span><br><span class="line">11810 com.lyyljs.demo.test.Application</span><br><span class="line">20997 com.lyyljs.demo.user.UserProviderApplication</span><br><span class="line">3431 com.lyyljs.demo.task.main.TaskApplication</span><br><span class="line">459 sun.tools.jps.Jps</span><br><span class="line">11723 &#x2F;home&#x2F;lyyljs&#x2F;projects&#x2F;demo_war&#x2F;current.war</span><br></pre></td></tr></table></figure>
+
+<p><strong>-v</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;列出传入JVM的参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">11810 Application -Dfile.encoding&#x3D;UTF-8 -Xms128m -Xmx128m -XX:MaxDirectMemorySize&#x3D;72m -Xmn64m -XX:MetaspaceSize&#x3D;60m -XX:SurvivorRatio&#x3D;10 -XX:+PrintGCDetails -Xloggc:&#x2F;home&#x2F;lyyljs&#x2F;projects&#x2F;test&#x2F;logs&#x2F;gc.log -XX:+PrintGCTimeStamps</span><br><span class="line">20997 UserProviderApplication -Xms128m -Xmx256m -XX:MaxDirectMemorySize&#x3D;96m -Xmn64 -XX:SurvivorRatio&#x3D;10 -XX:+PrintGCDetails -Xloggc:&#x2F;home&#x2F;lyyljs&#x2F;projects&#x2F;user_provider&#x2F;logs&#x2F;gc.log -XX:+PrintGCDateStamps</span><br><span class="line">7062 Jps -Dapplication.home&#x3D;&#x2F;home&#x2F;lyyljs&#x2F;lan&#x2F;jdk8 -Xms8m</span><br><span class="line">3431 TaskApplication -Xms256m -Xmx256m -XX:MaxDirectMemorySize&#x3D;96m -XX:MetaspaceSize&#x3D;60m -Xmn128m -XX:SurvivorRatio&#x3D;10 -Xloggc:&#x2F;home&#x2F;lyyljs&#x2F;projects&#x2F;task&#x2F;logs&#x2F;gc.log</span><br><span class="line">11723 current.war -Xms512m -Xmx1732m -XX:MaxDirectMemorySize&#x3D;96m -Xmn128 -XX:SurvivorRatio&#x3D;10 -XX:+PrintGCDetails -Xloggc:&#x2F;home&#x2F;lyyljs&#x2F;projects&#x2F;demo_war&#x2F;logs&#x2F;gc.log -XX:+PrintGCTimeStamps</span><br></pre></td></tr></table></figure>
+
+<p><strong>-V</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;列出VM标示符号和简单的class或jar名称。同不带参时。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jps -V</span><br><span class="line">11810 Application</span><br><span class="line">20997 UserProviderApplication</span><br><span class="line">3431 TaskApplication</span><br><span class="line">11723 current.war</span><br><span class="line">17069 Jps</span><br></pre></td></tr></table></figure>
+
+<p><strong>-J<em>option</em></strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;传递启动参数到JVM。参考<strong><a href="http://lyyljs.site/2018/03/22/java%E5%91%BD%E4%BB%A4/">java命令</a></strong>。例如<em>-J-Xms48m</em>设定启动内存为48MB。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-&gt; % jps -J-Xms16m</span><br><span class="line">11810 Application</span><br><span class="line">20997 UserProviderApplication</span><br><span class="line">3431 TaskApplication</span><br><span class="line">11723 current.war</span><br><span class="line">22936 Jps</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jps.html#CHDCGECD" target="_blank" rel="noopener">Oracle jps官方文档</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2018/03/25/jps%E5%91%BD%E4%BB%A4/" data-id="ckaqo6uyw000w28o6cui6cw08" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/25/jstat%E5%91%BD%E4%BB%A4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          jstat命令
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/25/jinfo%E5%91%BD%E4%BB%A4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">jinfo命令</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/">Stream实现原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/">jdk8函数式编程</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 lyyljs<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
