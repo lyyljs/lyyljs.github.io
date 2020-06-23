@@ -75,10 +75,76 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Spring-Reactive-Data-With-Multi-Couchbase-Buckets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/" class="article-date">
+  <time datetime="2020-06-22T12:57:00.000Z" itemprop="datePublished">2020-06-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spring-webflux/">spring webflux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/">Spring Reactive Data With Multi Couchbase Buckets</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>因莫个实体的数据量较大，需要用单独的一个bucket进行存储以避免影响其他服务性能。但因使用了reactive的技术栈，所以无法使用传统的datasource进行多数据源配置，需自行寻找方法。</p>
+<p>spring boot version: 2.2.6.RELEASE</p>
+<p>关键依赖：org.springframework.boot:spring-boot-starter-data-couchbase-reactive</p>
+<h4 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h4><p>通过 <a href="https://github.com/spring-projects/spring-data-couchbase" target="_blank" rel="noopener">spring-data-couchbase github</a> 看到通过继承AbstractCouchbaseConfiguration.java 对couchbase链接进行配置。找到 AbstractCouchbaseConfiguration.java ，看到同一目录下有 AbstractReactiveCouchbaseConfiguration.java， 通过java doc我们可以确定我们需要继承 AbstractReactiveCouchbaseConfiguration.java 来在 reactive 中进行配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *</span><br><span class="line"> * Base class for Reactive Spring Data Couchbase configuration java config</span><br><span class="line"> *</span><br><span class="line"> * @author Subhashni Balakrishnan</span><br><span class="line"> *&#x2F;</span><br><span class="line">@Configuration</span><br><span class="line">public abstract class AbstractReactiveCouchbaseConfiguration</span><br><span class="line">        extends AbstractReactiveCouchbaseDataConfiguration implements CouchbaseConfigurer &#123;</span><br></pre></td></tr></table></figure>
+
+<p>继续看它的父类 AbstractReactiveCouchbaseDataConfiguration.java， 可以看到实际上是在父类中提供了实际调用的 RxJavaCouchbaseTemplate 实例，以及将 repo 和 RxJavaCouchbaseTemplate 之间进行绑定的 ReactiveRepositoryOperationsMapping。并且通过override它的 configureReactiveRepositoryOperationsMapping 方法，我们可以自行绑定 repo 或 实体 与 RxJavaCouchbaseTemplate 的关系。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Provides beans to setup reactive repositories in SDC using &#123;@link CouchbaseConfigurer&#125;.</span><br><span class="line"> *</span><br><span class="line"> * @author Subhashni Balakrishnan</span><br><span class="line"> *&#x2F;</span><br><span class="line">@Configuration</span><br><span class="line">public abstract class AbstractReactiveCouchbaseDataConfiguration extends CouchbaseConfigurationSupport &#123;</span><br><span class="line"></span><br><span class="line">    protected abstract CouchbaseConfigurer couchbaseConfigurer();</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Creates a &#123;@link RxJavaCouchbaseTemplate&#125;.</span><br><span class="line">     *</span><br><span class="line">     * This uses &#123;@link #mappingCouchbaseConverter()&#125;, &#123;@link #translationService()&#125; and &#123;@link #getDefaultConsistency()&#125;</span><br><span class="line">     * for construction.</span><br><span class="line">     *</span><br><span class="line">     *</span><br><span class="line">     * @throws Exception on Bean construction failure.</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Bean(name &#x3D; BeanNames.RXJAVA1_COUCHBASE_TEMPLATE)</span><br><span class="line">    public RxJavaCouchbaseTemplate reactiveCouchbaseTemplate() throws Exception &#123;</span><br><span class="line">        RxJavaCouchbaseTemplate template &#x3D; new RxJavaCouchbaseTemplate(couchbaseConfigurer().couchbaseClusterInfo(),</span><br><span class="line">                couchbaseConfigurer().couchbaseClient(), mappingCouchbaseConverter(), translationService());</span><br><span class="line">        template.setDefaultConsistency(getDefaultConsistency());</span><br><span class="line">        return template;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * Creates the &#123;@link ReactiveRepositoryOperationsMapping&#125; bean which will be used by the framework to choose which</span><br><span class="line">     * &#123;@link RxJavaCouchbaseOperations&#125; should back which &#123;@link ReactiveCouchbaseRepository&#125;.</span><br><span class="line">     * Override &#123;@link #configureReactiveRepositoryOperationsMapping&#125; in order to customize this.</span><br><span class="line">     *</span><br><span class="line">     * @throws Exception</span><br><span class="line">     *&#x2F;</span><br><span class="line">    @Bean(name &#x3D; BeanNames.REACTIVE_COUCHBASE_OPERATIONS_MAPPING)</span><br><span class="line">    public ReactiveRepositoryOperationsMapping reactiveRepositoryOperationsMapping(RxJavaCouchbaseTemplate couchbaseTemplate) throws  Exception &#123;</span><br><span class="line">        &#x2F;&#x2F;create a base mapping that associates all repositories to the default template</span><br><span class="line">        ReactiveRepositoryOperationsMapping baseMapping &#x3D; new ReactiveRepositoryOperationsMapping(couchbaseTemplate);</span><br><span class="line">        &#x2F;&#x2F;let the user tune it</span><br><span class="line">        configureReactiveRepositoryOperationsMapping(baseMapping);</span><br><span class="line">        return baseMapping;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * In order to customize the mapping between repositories&#x2F;entity types to couchbase templates,</span><br><span class="line">     * use the provided mapping&#39;s api (eg. in order to have different buckets backing different repositories).</span><br><span class="line">     *</span><br><span class="line">     * @param mapping the default mapping (will associate all repositories to the default template).</span><br><span class="line">     *&#x2F;</span><br><span class="line">    protected void configureReactiveRepositoryOperationsMapping(ReactiveRepositoryOperationsMapping mapping) &#123;</span><br><span class="line">        &#x2F;&#x2F;NO_OP</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>综上，我们整体思路就是继承 AbstractReactiveCouchbaseConfiguration.java，并新建RxJavaCouchbaseTemplate实例与新的bucket相关联，再绑定相对应的mapping关系。代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">@Slf4j</span><br><span class="line">public class CouchbaseConfig extends AbstractReactiveCouchbaseConfiguration &#123;</span><br><span class="line"></span><br><span class="line">    private CouchbaseProperties couchbaseProperties;</span><br><span class="line">    private String bucketName;</span><br><span class="line">    private String bucketPass;</span><br><span class="line"></span><br><span class="line">    public CouchbaseConfig(CouchbaseProperties couchbaseProperties,</span><br><span class="line">                           @Value(&quot;$&#123;couchbase.bucket.name&#125;&quot;) String bucketName,</span><br><span class="line">                           @Value(&quot;$&#123;couchbase.bucket.password&#125;&quot;) String bucketPass) &#123;</span><br><span class="line">        this.couchbaseProperties &#x3D; couchbaseProperties;</span><br><span class="line">        this.bucketName &#x3D; bucketName;</span><br><span class="line">        this.bucketPass &#x3D; bucketPass;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private Bucket binaryBucket() throws Exception &#123;</span><br><span class="line">        return couchbaseCluster().openBucket(bucketName,</span><br><span class="line">                bucketPass);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private RxJavaCouchbaseTemplate binaryTemplate() throws Exception &#123;</span><br><span class="line">        RxJavaCouchbaseTemplate template &#x3D; new RxJavaCouchbaseTemplate(</span><br><span class="line">                couchbaseClusterInfo(), binaryBucket(),</span><br><span class="line">                mappingCouchbaseConverter(), translationService());</span><br><span class="line">        template.setDefaultConsistency(getDefaultConsistency());</span><br><span class="line">        return template;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void configureReactiveRepositoryOperationsMapping(ReactiveRepositoryOperationsMapping baseMapping) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            baseMapping.mapEntity(SomeEntity.class, binaryTemplate());</span><br><span class="line">            &#x2F;&#x2F; 如果是同一entityClass但有多个bucket，可以新建一个Repository，使用</span><br><span class="line">            &#x2F;&#x2F; baseMapping.mapEntity(SomeRepo.class, binaryTemplate()); 来配置另一个bucket</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">            log.error(&quot;Error in creating mapping for &#123;&#125; bucket&quot;, bucketName, ex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected List&lt;String&gt; getBootstrapHosts() &#123;</span><br><span class="line">        return couchbaseProperties.getBootstrapHosts();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected String getBucketName() &#123;</span><br><span class="line">        return couchbaseProperties.getBucket().getName();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected String getBucketPassword() &#123;</span><br><span class="line">        return couchbaseProperties.getBucket().getPassword();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><ul>
+<li><p><a href="https://github.com/spring-projects/spring-data-couchbase" target="_blank" rel="noopener">spring-data-couchbase github</a></p>
+</li>
+<li><p><a href="https://juejin.im/post/5d52593a51882523942f7435" target="_blank" rel="noopener">SpringBoot+Jpa多数据源配置</a></p>
+</li>
+<li><p><a href="https://medium.com/@knoldus/access-multiple-couchbase-buckets-from-a-reactive-spring-boot-application-55dd2ea6a863" target="_blank" rel="noopener">access-multiple-couchbase-buckets-from-a-reactive-spring-boot-application</a></p>
+</li>
+<li><p><a href="https://stackoverflow.com/questions/36919204/is-it-possible-to-connect-to-two-different-buckets-of-couchbase-in-spring-boot" target="_blank" rel="noopener">is-it-possible-to-connect-to-two-different-buckets-of-couchbase-in-spring-boot</a></p>
+</li>
+<li><p><a href="https://docs.spring.io/spring-data/couchbase/docs/current/reference/html/#repositories.multiple-modules" target="_blank" rel="noopener">spring-data-couchbase</a></p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://lyyljs.site/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/" data-id="ckbrzih57000d17ld25wofc4x" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/couchbase/" rel="tag">couchbase</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/reactive/" rel="tag">reactive</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-反向代理解决微信小程序业务域名限制问题" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/" class="article-date">
-  <time datetime="2019-06-05T23:29:00.000Z" itemprop="datePublished">2019-06-05</time>
+  <time datetime="2019-06-05T15:29:00.000Z" itemprop="datePublished">2019-06-05</time>
 </a>
     
   </div>
@@ -108,7 +174,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/" data-id="ckaqvw134001x17qh4qard5ro" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/" data-id="ckbrzih70002017ldht6wgcau" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li></ul>
@@ -123,7 +189,7 @@
     <article id="post-Stream-编程背后" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" class="article-date">
-  <time datetime="2019-05-13T22:14:00.000Z" itemprop="datePublished">2019-05-13</time>
+  <time datetime="2019-05-13T14:14:00.000Z" itemprop="datePublished">2019-05-13</time>
 </a>
     
   <div class="article-category">
@@ -155,7 +221,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" data-id="ckaqvw11d000g17qh4jjv3mlv" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/05/13/Stream-%E7%BC%96%E7%A8%8B%E8%83%8C%E5%90%8E/" data-id="ckbrzih59000e17ld4nf47vqf" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/stream/" rel="tag">stream</a></li></ul>
@@ -170,7 +236,7 @@
     <article id="post-jdk8函数式编程" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" class="article-date">
-  <time datetime="2019-05-04T15:41:00.000Z" itemprop="datePublished">2019-05-04</time>
+  <time datetime="2019-05-04T07:41:00.000Z" itemprop="datePublished">2019-05-04</time>
 </a>
     
   </div>
@@ -199,7 +265,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" data-id="ckaqvw11o000l17qh0rlu0pak" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/05/04/jdk8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" data-id="ckbrzih63001017ld53g56ukb" class="article-share-link">Share</a>
       
       
     </footer>
@@ -212,7 +278,7 @@
     <article id="post-OWASP第三方依赖检查插件使用" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" class="article-date">
-  <time datetime="2019-04-27T14:22:32.000Z" itemprop="datePublished">2019-04-27</time>
+  <time datetime="2019-04-27T06:22:32.000Z" itemprop="datePublished">2019-04-27</time>
 </a>
     
   </div>
@@ -240,7 +306,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" data-id="ckaqvw0z4000217qh84qa5axl" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" data-id="ckbrzih5q000k17ld625l4wrl" class="article-share-link">Share</a>
       
       
     </footer>
@@ -253,7 +319,7 @@
     <article id="post-docker搭建jenkins" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/" class="article-date">
-  <time datetime="2019-04-11T13:58:00.000Z" itemprop="datePublished">2019-04-11</time>
+  <time datetime="2019-04-11T05:58:00.000Z" itemprop="datePublished">2019-04-11</time>
 </a>
     
   </div>
@@ -281,7 +347,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/" data-id="ckaqvw0zb000617qhcnm4cub7" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/" data-id="ckbrzih5y000s17ldghoxcw3k" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
@@ -296,7 +362,7 @@
     <article id="post-使用docker搭建gitlab" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/" class="article-date">
-  <time datetime="2019-04-11T09:40:00.000Z" itemprop="datePublished">2019-04-11</time>
+  <time datetime="2019-04-11T01:40:00.000Z" itemprop="datePublished">2019-04-11</time>
 </a>
     
   </div>
@@ -324,7 +390,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/" data-id="ckaqvw12z001o17qh79jy32or" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/11/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAgitlab/" data-id="ckbrzih6k001m17ld6vp6d80h" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
@@ -339,7 +405,7 @@
     <article id="post-服务容错-三-限流" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" class="article-date">
-  <time datetime="2019-04-09T13:35:00.000Z" itemprop="datePublished">2019-04-09</time>
+  <time datetime="2019-04-09T05:35:00.000Z" itemprop="datePublished">2019-04-09</time>
 </a>
     
   <div class="article-category">
@@ -371,7 +437,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" data-id="ckaqvw13a002717qhgden6zc6" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/09/%E6%9C%8D%E5%8A%A1%E5%AE%B9%E9%94%99-%E4%B8%89-%E9%99%90%E6%B5%81/" data-id="ckbrzih77002a17lddc6k3fc5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
@@ -386,7 +452,7 @@
     <article id="post-spring-cloud实践-八-log" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" class="article-date">
-  <time datetime="2019-04-08T15:30:00.000Z" itemprop="datePublished">2019-04-08</time>
+  <time datetime="2019-04-08T07:30:00.000Z" itemprop="datePublished">2019-04-08</time>
 </a>
     
   <div class="article-category">
@@ -419,7 +485,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" data-id="ckaqvw12o001d17qhbul98eyl" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E5%85%AB-log/" data-id="ckbrzih6m001o17lddgvv11bj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
@@ -434,7 +500,7 @@
     <article id="post-spring-cloud实践-七-sleuth" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" class="article-date">
-  <time datetime="2019-04-08T10:33:00.000Z" itemprop="datePublished">2019-04-08</time>
+  <time datetime="2019-04-08T02:33:00.000Z" itemprop="datePublished">2019-04-08</time>
 </a>
     
   <div class="article-category">
@@ -468,54 +534,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" data-id="ckaqvw12i001517qhfem9bp4e" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2019/04/08/spring-cloud%E5%AE%9E%E8%B7%B5-%E4%B8%83-sleuth/" data-id="ckbrzih64001217ld0asmcois" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-使用docker搭建elasticsearch和kibana" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/" class="article-date">
-  <time datetime="2019-04-06T11:20:00.000Z" itemprop="datePublished">2019-04-06</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/">使用docker搭建elasticsearch和kibana</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><h5 id="创建docker-network"><a href="#创建docker-network" class="headerlink" title="创建docker network"></a>创建docker network</h5><p>创建一个docker network用于docker 应用间的互通。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create elk</span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2019/04/06/%E4%BD%BF%E7%94%A8docker%E6%90%AD%E5%BB%BAelasticsearch%E5%92%8Ckibana/" data-id="ckaqvw12p001g17qhch9i7rte" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li></ul>
 
     </footer>
   </div>
@@ -539,7 +561,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/spring-webflux/">spring webflux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></li></ul>
     </div>
   </div>
 
@@ -549,7 +571,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/couchbase/" rel="tag">couchbase</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/" rel="tag">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%91%BD%E4%BB%A4/" rel="tag">java命令</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java%E5%9F%BA%E7%A1%80/" rel="tag">java基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reactive/" rel="tag">reactive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-cloud/" rel="tag">spring cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/stream/" rel="tag">stream</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
     </div>
   </div>
 
@@ -559,7 +581,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+      <a href="/tags/couchbase/" style="font-size: 10px;">couchbase</a> <a href="/tags/docker/" style="font-size: 15px;">docker</a> <a href="/tags/dubbo/" style="font-size: 15px;">dubbo</a> <a href="/tags/elastic-search/" style="font-size: 10px;">elastic search</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/java%E5%91%BD%E4%BB%A4/" style="font-size: 17.5px;">java命令</a> <a href="/tags/java%E5%9F%BA%E7%A1%80/" style="font-size: 10px;">java基础</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/reactive/" style="font-size: 10px;">reactive</a> <a href="/tags/spring-cloud/" style="font-size: 20px;">spring cloud</a> <a href="/tags/stream/" style="font-size: 10px;">stream</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
     </div>
   </div>
 
@@ -568,7 +590,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li></ul>
     </div>
   </div>
 
@@ -579,6 +601,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/">Spring Reactive Data With Multi Couchbase Buckets</a>
+          </li>
         
           <li>
             <a href="/2019/06/05/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%9A%E5%8A%A1%E5%9F%9F%E5%90%8D%E9%99%90%E5%88%B6%E9%97%AE%E9%A2%98/">反向代理解决微信小程序业务域名限制问题</a>
@@ -594,10 +620,6 @@
         
           <li>
             <a href="/2019/04/27/OWASP%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/">OWASP第三方依赖检查插件使用</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/11/docker%E6%90%AD%E5%BB%BAjenkins/">docker搭建jenkins</a>
           </li>
         
       </ul>
