@@ -7,15 +7,15 @@
   
   <title>Spring Reactive Data With Multi Couchbase Buckets | lyyljs`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="问题因莫个实体的数据量较大，需要用单独的一个bucket进行存储以避免影响其他服务性能。但因使用了reactive的技术栈，所以无法使用传统的datasource进行多数据源配置，需自行寻找方法。 spring boot version: 2.2.6.RELEASE 关键依赖：org.springframework.boot:spring-boot-starter-data-couchbase-r">
+  <meta name="description" content="问题因莫个实体的数据量较大，需要用单独的一个bucket进行存储以避免影响其他服务性能。但因使用了reactive的技术栈，所以无法使用传统的datasource进行多数据源配置，需自行寻找方法。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring Reactive Data With Multi Couchbase Buckets">
 <meta property="og:url" content="http://lyyljs.site/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/index.html">
 <meta property="og:site_name" content="lyyljs&#96;s blog">
-<meta property="og:description" content="问题因莫个实体的数据量较大，需要用单独的一个bucket进行存储以避免影响其他服务性能。但因使用了reactive的技术栈，所以无法使用传统的datasource进行多数据源配置，需自行寻找方法。 spring boot version: 2.2.6.RELEASE 关键依赖：org.springframework.boot:spring-boot-starter-data-couchbase-r">
+<meta property="og:description" content="问题因莫个实体的数据量较大，需要用单独的一个bucket进行存储以避免影响其他服务性能。但因使用了reactive的技术栈，所以无法使用传统的datasource进行多数据源配置，需自行寻找方法。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-06-22T12:57:00.000Z">
-<meta property="article:modified_time" content="2020-06-23T13:47:34.000Z">
+<meta property="article:modified_time" content="2020-06-23T13:50:55.000Z">
 <meta property="article:author" content="lyyljs">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="reactive">
@@ -96,6 +96,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>因莫个实体的数据量较大，需要用单独的一个bucket进行存储以避免影响其他服务性能。但因使用了reactive的技术栈，所以无法使用传统的datasource进行多数据源配置，需自行寻找方法。</p>
+<a id="more"></a>
+
 <p>spring boot version: 2.2.6.RELEASE</p>
 <p>关键依赖：org.springframework.boot:spring-boot-starter-data-couchbase-reactive</p>
 <h4 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h4><p>通过 <a href="https://github.com/spring-projects/spring-data-couchbase" target="_blank" rel="noopener">spring-data-couchbase github</a> 看到通过继承AbstractCouchbaseConfiguration.java 对couchbase链接进行配置。找到 AbstractCouchbaseConfiguration.java ，看到同一目录下有 AbstractReactiveCouchbaseConfiguration.java， 通过java doc我们可以确定我们需要继承 AbstractReactiveCouchbaseConfiguration.java 来在 reactive 中进行配置。</p>
@@ -123,7 +125,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://lyyljs.site/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/" data-id="ckbrzih57000d17ld25wofc4x" class="article-share-link">Share</a>
+      <a data-url="http://lyyljs.site/2020/06/22/Spring-Reactive-Data-With-Multi-Couchbase-Buckets/" data-id="ckbrzm3gc000a2rldbkdv5ovr" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/couchbase/" rel="tag">couchbase</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/reactive/" rel="tag">reactive</a></li></ul>
